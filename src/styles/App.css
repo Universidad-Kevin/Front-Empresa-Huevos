@@ -1,0 +1,258 @@
+/* Estilos personalizados para Huevos Orgánicos */
+:root {
+  --color-primary: #198754;
+  --color-secondary: #146c43;
+  --color-light: #f8f9fa;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Navbar personalizada */
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+/* Cards de productos */
+.product-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Iconos de características */
+.feature-icon {
+  font-size: 3rem;
+  transition: transform 0.3s;
+}
+
+.feature-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Botones personalizados */
+.btn-success {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-success:hover {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+/* Hero section */
+.hero-section {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Tablas responsivas */
+.table th {
+  border-top: none;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Cards del dashboard */
+.card {
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Estilos para imágenes de productos */
+.product-image {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Estilos para el footer */
+footer {
+  margin-top: auto;
+}
+
+/* Estilos para formularios */
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Estilos para badges */
+.badge {
+  font-size: 0.75em;
+}
+
+/* Estilos para la página de login */
+.login-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para las cards de estadísticas */
+.stats-card {
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para las tabs */
+.nav-tabs .nav-link.active {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Estilos para alertas */
+.alert {
+  border: none;
+  border-radius: 8px;
+}
+
+/* Estilos para modales */
+.modal-header {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Estilos para la navegación */
+.nav-link {
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-primary) !important;
+}
+
+/* Estilos para los dropdowns */
+.dropdown-item:active {
+  background-color: var(--color-primary);
+}
+
+/* Estilos para los tooltips */
+.tooltip-inner {
+  background-color: var(--color-primary);
+}
+
+/* Estilos para los placeholders de imágenes */
+.image-placeholder {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Estilos para la paginación */
+.page-link {
+  color: var(--color-primary);
+}
+
+.page-link:hover {
+  color: var(--color-secondary);
+}
+
+.page-item.active .page-link {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .display-4 {
+    font-size: 2rem;
+  }
+  
+  .hero-section {
+    text-align: center;
+  }
+  
+  .navbar-nav {
+    text-align: center;
+  }
+  
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  .btn-group .btn {
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem !important;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Estilos para estados */
+.text-success {
+  color: var(--color-primary) !important;
+}
+
+.bg-success {
+  background-color: var(--color-primary) !important;
+}
+
+/* Estilos para el scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
