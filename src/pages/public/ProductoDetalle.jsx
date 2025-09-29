@@ -1,67 +1,36 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap'
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
+import api from '../../services/api';
 
 function ProductoDetalle() {
-  const { id } = useParams()
-  const [producto, setProducto] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [cantidad, setCantidad] = useState(1)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [producto, setProducto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [cantidad, setCantidad] = useState(1);
 
   useEffect(() => {
-    // Simular carga de datos
-    const productos = [
-      {
-        id: 1,
-        nombre: "Huevos Orgánicos Grade A",
-        descripcion: "Huevos frescos de gallinas criadas libremente en pastoreo. Nuestras gallinas disfrutan de espacio abierto, alimentación 100% orgánica y cuidado responsable.",
-        precio: 8.99,
-        categoria: "standard",
-        imagen: "/images/huevo-organico.jpg",
-        stock: 150,
-        caracteristicas: [
-          "Gallinas criadas libremente",
-          "Alimentación orgánica certificada",
-          "Libre de antibióticos y hormonas",
-          "Frescura garantizada"
-        ],
-        nutricion: {
-          proteinas: "13g",
-          calorias: "155",
-          grasas: "11g"
-        }
-      },
-      {
-        id: 2,
-        nombre: "Huevos Premium Omega-3",
-        descripcion: "Enriquecidos naturalmente con ácidos grasos Omega-3 mediante alimentación especial con linaza y algas marinas.",
-        precio: 12.99,
-        categoria: "premium", 
-        imagen: "/images/huevo-omega3.jpg",
-        stock: 80,
-        caracteristicas: [
-          "Alto contenido en Omega-3",
-          "Yema de color intenso",
-          "Sabor premium",
-          "Beneficios cardiovasculares"
-        ],
-        nutricion: {
-          proteinas: "14g",
-          calorias: "160",
-          grasas: "12g",
-          omega3: "350mg"
-        }
-      }
-    ]
+    fetchProducto();
+  }, [id]);
 
-    const productoEncontrado = productos.find(p => p.id === parseInt(id))
-    setProducto(productoEncontrado)
-    setLoading(false)
-  }, [id])
+  const fetchProducto = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/productos/${id}`);
+      setProducto(response.data.data);
+    } catch (error) {
+      console.error('Error fetching producto:', error);
+      setError('Producto no encontrado o error de conexión');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAgregarCarrito = () => {
-    alert(`Agregado ${cantidad} unidad(es) de ${producto.nombre} al carrito`)
-  }
+    alert(`Agregado ${cantidad} unidad(es) de ${producto.nombre} al carrito`);
+  };
 
   if (loading) {
     return (
@@ -69,22 +38,28 @@ function ProductoDetalle() {
         <div className="spinner-border text-success" role="status">
           <span className="visually-hidden">Cargando...</span>
         </div>
+        <p className="mt-2">Cargando producto...</p>
       </Container>
-    )
+    );
   }
 
-  if (!producto) {
+  if (error || !producto) {
     return (
       <Container className="py-5">
         <Alert variant="danger">
-          <h4>Producto no encontrado</h4>
-          <p>El producto que buscas no existe.</p>
-          <Link to="/productos" className="btn btn-outline-danger">
-            Volver a Productos
-          </Link>
+          <h4>Error</h4>
+          <p>{error}</p>
+          <div className="d-flex gap-2">
+            <Button variant="outline-danger" onClick={() => navigate('/productos')}>
+              Volver a Productos
+            </Button>
+            <Button variant="outline-primary" onClick={fetchProducto}>
+              Reintentar
+            </Button>
+          </div>
         </Alert>
       </Container>
-    )
+    );
   }
 
   return (
@@ -92,10 +67,13 @@ function ProductoDetalle() {
       <Row>
         <Col md={6}>
           <img 
-            src={producto.imagen} 
+            src={producto.imagen || "/images/placeholder.jpg"} 
             alt={producto.nombre}
             className="img-fluid rounded shadow"
             style={{ maxHeight: '500px', width: '100%', objectFit: 'cover' }}
+            onError={(e) => {
+              e.target.src = "/images/placeholder.jpg";
+            }}
           />
         </Col>
         
@@ -111,7 +89,6 @@ function ProductoDetalle() {
             </p>
           </div>
 
-          {/* Selector de cantidad */}
           <div className="mb-4">
             <label htmlFor="cantidad" className="form-label fw-bold">Cantidad:</label>
             <div className="d-flex align-items-center gap-3">
@@ -136,59 +113,18 @@ function ProductoDetalle() {
             </div>
           </div>
 
-          {/* Características */}
-          <Card className="mb-4">
-            <Card.Header>
-              <h5 className="mb-0">✨ Características</h5>
-            </Card.Header>
-            <Card.Body>
-              <ul className="list-unstyled">
-                {producto.caracteristicas.map((caract, index) => (
-                  <li key={index} className="mb-2">✅ {caract}</li>
-                ))}
-              </ul>
-            </Card.Body>
-          </Card>
-
-          {/* Información Nutricional */}
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">📊 Información Nutricional (por 100g)</h5>
-            </Card.Header>
-            <Card.Body>
-              <Row>
-                <Col sm={6}>
-                  <p><strong>Proteínas:</strong> {producto.nutricion.proteinas}</p>
-                  <p><strong>Calorías:</strong> {producto.nutricion.calorias}</p>
-                </Col>
-                <Col sm={6}>
-                  <p><strong>Grasas:</strong> {producto.nutricion.grasas}</p>
-                  {producto.nutricion.omega3 && (
-                    <p><strong>Omega-3:</strong> {producto.nutricion.omega3}</p>
-                  )}
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Productos relacionados */}
-      <Row className="mt-5">
-        <Col>
-          <h3 className="mb-4">Productos Relacionados</h3>
-          <div className="d-flex gap-3">
+          <div className="d-flex gap-3 mt-4">
             <Button as={Link} to="/productos" variant="outline-success">
-              Ver Todos los Productos
+              ← Volver a Productos
             </Button>
             <Button as={Link} to="/" variant="outline-primary">
-              Volver al Inicio
+              🏠 Ir al Inicio
             </Button>
           </div>
         </Col>
       </Row>
     </Container>
-  )
+  );
 }
 
-export default ProductoDetalle
+export default ProductoDetalle;

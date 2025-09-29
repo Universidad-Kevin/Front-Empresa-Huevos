@@ -1,52 +1,76 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+} from "react-bootstrap";
+import api from '../../services/api';
 
 function Login() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  
-  const { login } = useAuth()
-  const navigate = useNavigate()
+    email: "admin@huevos.com",
+    password: "admin123",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
+  // En tu Login.jsx - Agrega más logging
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      // Simulación de login (luego se conectará con el backend)
-      if (formData.email === 'admin@huevos.com' && formData.password === 'admin123') {
-        const userData = {
-          id: 1,
-          nombre: 'Administrador',
-          email: formData.email,
-          rol: 'admin'
-        }
-        login(userData)
-        navigate('/admin')
+      console.log("1. 📤 Enviando credenciales...");
+
+      // Test directo para ver la respuesta
+      const testResponse = await api.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      console.log("2. 📨 Respuesta REAL del servidor:", testResponse);
+      console.log("3. 📊 response.data:", testResponse.data);
+
+      // Ahora usar el AuthContext
+      console.log("4. 🔄 Llamando a login del AuthContext...");
+      const result = await login(formData.email, formData.password);
+
+      console.log("5. ✅ Resultado del AuthContext:", result);
+      console.log(
+        "6. 💾 Token guardado:",
+        localStorage.getItem("huevos_token")
+      );
+      console.log("7. 👤 User guardado:", localStorage.getItem("huevos_user"));
+
+      if (result.success) {
+        navigate("/admin");
       } else {
-        setError('Credenciales incorrectas')
+        setError(result.error);
       }
     } catch (err) {
-      console.error(err);
-      setError('Error al iniciar sesión')
+      console.error("❌ Error completo en handleSubmit:", err);
+      setError("Error de conexión con el servidor");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Container className="py-5">
@@ -69,7 +93,7 @@ function Login() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="tu@email.com"
+                    placeholder="admin@huevos.com"
                     required
                   />
                 </Form.Group>
@@ -81,7 +105,7 @@ function Login() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Tu contraseña"
+                    placeholder="admin123"
                     required
                   />
                 </Form.Group>
@@ -92,13 +116,13 @@ function Login() {
                   className="w-100"
                   disabled={loading}
                 >
-                  {loading ? 'Ingresando...' : 'Ingresar'}
+                  {loading ? "Ingresando..." : "Ingresar"}
                 </Button>
               </Form>
 
               <div className="text-center mt-3">
                 <small className="text-muted">
-                  Demo: admin@huevos.com / admin123
+                  Credenciales: admin@huevos.com / admin123
                 </small>
               </div>
             </Card.Body>
@@ -106,7 +130,7 @@ function Login() {
         </Col>
       </Row>
     </Container>
-  )
+  );
 }
 
-export default Login
+export default Login;

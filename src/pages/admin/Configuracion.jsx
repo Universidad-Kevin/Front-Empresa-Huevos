@@ -6,7 +6,7 @@ function Configuracion() {
     general: {
       nombreEmpresa: 'Huevos Orgánicos Del Valle',
       email: 'info@huevosorganicos.com',
-      telefono: '+1 234 567 890',
+      telefono: '+51 234 567 890',
       direccion: 'Av. Principal 123, Ciudad'
     },
     notificaciones: {

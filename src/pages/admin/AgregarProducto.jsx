@@ -1,67 +1,104 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+} from "react-bootstrap";
+import api from "../../services/api";
 
 function AgregarProducto() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: '',
-    descripcion: '',
-    precio: '',
-    categoria: '',
-    stock: '',
-    imagen: '',
-    caracteristicas: [''],
-    estado: 'activo'
-  })
-  const [enviado, setEnviado] = useState(false)
-  const [loading, setLoading] = useState(false)
+    nombre: "",
+    descripcion: "",
+    precio: "",
+    categoria: "",
+    stock: "",
+    imagen: "",
+    caracteristicas: [""],
+    estado: "activo",
+  });
+  const [enviado, setEnviado] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   const handleCaracteristicaChange = (index, value) => {
-    const nuevasCaract = [...formData.caracteristicas]
-    nuevasCaract[index] = value
-    setFormData(prev => ({
+    const nuevasCaract = [...formData.caracteristicas];
+    nuevasCaract[index] = value;
+    setFormData((prev) => ({
       ...prev,
-      caracteristicas: nuevasCaract
-    }))
-  }
+      caracteristicas: nuevasCaract,
+    }));
+  };
 
   const agregarCaracteristica = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      caracteristicas: [...prev.caracteristicas, '']
-    }))
-  }
+      caracteristicas: [...prev.caracteristicas, ""],
+    }));
+  };
 
   const removerCaracteristica = (index) => {
-    const nuevasCaract = formData.caracteristicas.filter((_, i) => i !== index)
-    setFormData(prev => ({
+    const nuevasCaract = formData.caracteristicas.filter((_, i) => i !== index);
+    setFormData((prev) => ({
       ...prev,
-      caracteristicas: nuevasCaract
-    }))
-  }
+      caracteristicas: nuevasCaract,
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    // Simular envío
-    setTimeout(() => {
-      setEnviado(true)
-      setLoading(false)
-      setTimeout(() => {
-        navigate('/admin/productos')
-      }, 2000)
-    }, 2000)
-  }
+    try {
+      // Filtrar características vacías
+      const caracteristicasFiltradas = formData.caracteristicas.filter(
+        (c) => c.trim() !== ""
+      );
+
+      // Preparar datos para enviar
+      const productoData = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        precio: parseFloat(formData.precio),
+        categoria: formData.categoria,
+        stock: parseInt(formData.stock),
+        imagen: formData.imagen || null,
+        estado: formData.estado,
+        caracteristicas: caracteristicasFiltradas,
+      };
+
+      console.log("Enviando producto:", productoData);
+
+      const response = await api.post("/productos", productoData);
+
+      if (response.data.success) {
+        setEnviado(true);
+        setTimeout(() => {
+          navigate("/admin/productos");
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error creando producto:", error);
+      setError(error.response?.data?.error || "Error al crear el producto");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Container className="py-4">
@@ -72,9 +109,9 @@ function AgregarProducto() {
               <h1 className="fw-bold">Agregar Producto</h1>
               <p className="text-muted">Añade un nuevo producto al catálogo</p>
             </div>
-            <Button 
+            <Button
               variant="outline-secondary"
-              onClick={() => navigate('/admin/productos')}
+              onClick={() => navigate("/admin/productos")}
             >
               ← Volver
             </Button>
@@ -88,7 +125,13 @@ function AgregarProducto() {
             <Card.Body>
               {enviado && (
                 <Alert variant="success" className="mb-4">
-                  ✅ Producto agregado correctamente
+                  ✅ Producto agregado correctamente. Redirigiendo...
+                </Alert>
+              )}
+
+              {error && (
+                <Alert variant="danger" className="mb-4">
+                  ❌ {error}
                 </Alert>
               )}
 
@@ -146,6 +189,7 @@ function AgregarProducto() {
                       <Form.Control
                         type="number"
                         step="0.01"
+                        min="0"
                         name="precio"
                         value={formData.precio}
                         onChange={handleChange}
@@ -159,6 +203,7 @@ function AgregarProducto() {
                       <Form.Label>Stock *</Form.Label>
                       <Form.Control
                         type="number"
+                        min="0"
                         name="stock"
                         value={formData.stock}
                         onChange={handleChange}
@@ -196,13 +241,15 @@ function AgregarProducto() {
                       + Agregar
                     </Button>
                   </div>
-                  
+
                   {formData.caracteristicas.map((caract, index) => (
                     <div key={index} className="d-flex gap-2 mb-2">
                       <Form.Control
                         type="text"
                         value={caract}
-                        onChange={(e) => handleCaracteristicaChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleCaracteristicaChange(index, e.target.value)
+                        }
                         placeholder={`Característica ${index + 1}`}
                       />
                       {formData.caracteristicas.length > 1 && (
@@ -238,12 +285,12 @@ function AgregarProducto() {
                     disabled={loading}
                     className="px-4"
                   >
-                    {loading ? 'Guardando...' : '💾 Guardar Producto'}
+                    {loading ? "Guardando..." : "💾 Guardar Producto"}
                   </Button>
                   <Button
                     variant="outline-secondary"
                     type="button"
-                    onClick={() => navigate('/admin/productos')}
+                    onClick={() => navigate("/admin/productos")}
                   >
                     Cancelar
                   </Button>
@@ -263,36 +310,57 @@ function AgregarProducto() {
               {formData.nombre ? (
                 <div>
                   <div className="text-center mb-3">
-                    <div 
+                    <div
                       className="bg-light rounded d-flex align-items-center justify-content-center mx-auto"
-                      style={{ width: '200px', height: '150px' }}
+                      style={{ width: "200px", height: "150px" }}
                     >
                       {formData.imagen ? (
-                        <img 
-                          src={formData.imagen} 
-                          alt="Vista previa" 
+                        <img
+                          src={formData.imagen}
+                          alt="Vista previa"
                           className="img-fluid rounded"
-                          style={{ maxHeight: '150px', objectFit: 'cover' }}
+                          style={{ maxHeight: "150px", objectFit: "cover" }}
+                          onError={(e) => {
+                            e.target.src = "/images/placeholder.jpg";
+                          }}
                         />
                       ) : (
                         <span className="text-muted">Imagen no disponible</span>
                       )}
                     </div>
                   </div>
-                  
+
                   <h6>{formData.nombre}</h6>
                   <p className="text-muted small">{formData.descripcion}</p>
-                  
+
                   {formData.precio && (
-                    <p className="fw-bold text-success">${parseFloat(formData.precio).toFixed(2)}</p>
+                    <p className="fw-bold text-success">
+                      ${parseFloat(formData.precio).toFixed(2)}
+                    </p>
                   )}
-                  
+
                   {formData.categoria && (
-                    <span className="badge bg-secondary">{formData.categoria}</span>
+                    <span className="badge bg-secondary">
+                      {formData.categoria}
+                    </span>
                   )}
-                  
+
                   {formData.stock && (
-                    <p className="small text-muted mt-2">Stock: {formData.stock} unidades</p>
+                    <p className="small text-muted mt-2">
+                      Stock: {formData.stock} unidades
+                    </p>
+                  )}
+
+                  {formData.caracteristicas.some((c) => c.trim() !== "") && (
+                    <div className="mt-3">
+                      <small className="fw-bold">Características:</small>
+                      <ul className="small text-muted mb-0">
+                        {formData.caracteristicas.map(
+                          (caract, index) =>
+                            caract.trim() && <li key={index}>{caract}</li>
+                        )}
+                      </ul>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -320,7 +388,7 @@ function AgregarProducto() {
         </Col>
       </Row>
     </Container>
-  )
+  );
 }
 
-export default AgregarProducto
+export default AgregarProducto;

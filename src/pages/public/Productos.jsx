@@ -1,62 +1,37 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Container, Row, Col, Card, Button, Form, InputGroup } from 'react-bootstrap'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, Form, InputGroup, Alert } from 'react-bootstrap';
+import api from '../../services/api';
 
 function Productos() {
-  const [productos, setProductos] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [categoriaFilter, setCategoriaFilter] = useState('')
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoriaFilter, setCategoriaFilter] = useState('');
 
-  // Datos de ejemplo (luego se conectarán con el backend)
   useEffect(() => {
-    const productosEjemplo = [
-      {
-        id: 1,
-        nombre: "Huevos Orgánicos Grade A",
-        descripcion: "Huevos frescos de gallinas criadas libremente en pastoreo",
-        precio: 8.99,
-        categoria: "standard",
-        imagen: "/images/huevo-organico.jpg",
-        stock: 150
-      },
-      {
-        id: 2,
-        nombre: "Huevos Premium Omega-3",
-        descripcion: "Enriquecidos naturalmente con ácidos grasos Omega-3",
-        precio: 12.99,
-        categoria: "premium", 
-        imagen: "/images/huevo-omega3.jpg",
-        stock: 80
-      },
-      {
-        id: 3,
-        nombre: "Huevos de Codorniz",
-        descripcion: "Huevos pequeños llenos de sabor y nutrientes concentrados",
-        precio: 6.99,
-        categoria: "especial",
-        imagen: "/images/huevo-codorniz.jpg",
-        stock: 200
-      },
-      {
-        id: 4,
-        nombre: "Huevos Azules Araucana",
-        descripcion: "Huevos de color azul natural de gallinas Araucana chilenas",
-        precio: 15.99,
-        categoria: "gourmet",
-        imagen: "/images/huevo-azul.jpg",
-        stock: 50
-      }
-    ]
+    fetchProductos();
+  }, []);
 
-    setProductos(productosEjemplo)
-    setLoading(false)
-  }, [])
+  const fetchProductos = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/productos');
+      console.log('Productos cargados:', response.data.data);
+      setProductos(response.data.data);
+    } catch (error) {
+      console.error('Error fetching productos:', error);
+      setError('Error al cargar los productos. Verifica que el backend esté corriendo.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const productosFiltrados = productos.filter(producto =>
     producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (categoriaFilter === '' || producto.categoria === categoriaFilter)
-  )
+  );
 
   if (loading) {
     return (
@@ -64,8 +39,9 @@ function Productos() {
         <div className="spinner-border text-success" role="status">
           <span className="visually-hidden">Cargando...</span>
         </div>
+        <p className="mt-2">Cargando productos...</p>
       </Container>
-    )
+    );
   }
 
   return (
@@ -76,6 +52,16 @@ function Productos() {
           <p className="text-muted">Descubre nuestra variedad de huevos orgánicos</p>
         </Col>
       </Row>
+
+      {error && (
+        <Alert variant="danger">
+          <h5>Error</h5>
+          <p>{error}</p>
+          <Button variant="outline-danger" onClick={fetchProductos}>
+            Reintentar
+          </Button>
+        </Alert>
+      )}
 
       {/* Filtros */}
       <Row className="mb-4">
@@ -110,8 +96,11 @@ function Productos() {
             <Card className="h-100 shadow-sm product-card">
               <Card.Img 
                 variant="top" 
-                src={producto.imagen}
+                src={producto.imagen || "/images/placeholder.jpg"}
                 style={{ height: '200px', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.target.src = "/images/placeholder.jpg";
+                }}
               />
               <Card.Body className="d-flex flex-column">
                 <Card.Title>{producto.nombre}</Card.Title>
@@ -138,15 +127,18 @@ function Productos() {
         ))}
       </Row>
 
-      {productosFiltrados.length === 0 && (
+      {productosFiltrados.length === 0 && !loading && (
         <Row>
           <Col className="text-center py-5">
             <h4 className="text-muted">No se encontraron productos</h4>
+            <Button variant="outline-primary" onClick={fetchProductos}>
+              Recargar productos
+            </Button>
           </Col>
         </Row>
       )}
     </Container>
-  )
+  );
 }
 
-export default Productos
+export default Productos;

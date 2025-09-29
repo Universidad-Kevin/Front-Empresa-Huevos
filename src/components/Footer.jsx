@@ -9,7 +9,7 @@ function Footer() {
           </div>
           <div className="col-md-4">
             <h5>Contacto</h5>
-            <p>📞 +1 234 567 890<br/>
+            <p>📞 +51 912 959 929<br/>
                📧 info@huevosorganicos.com<br/>
                🏠 Av. Principal 123, Ciudad</p>
           </div>
