@@ -1,14 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Form, InputGroup, Alert } from 'react-bootstrap';
-import api from '../../services/api';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  InputGroup,
+  Alert,
+} from "react-bootstrap";
+import api from "../../services/api";
 
 function Productos() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoriaFilter, setCategoriaFilter] = useState('');
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoriaFilter, setCategoriaFilter] = useState("");
 
   useEffect(() => {
     fetchProductos();
@@ -17,20 +26,35 @@ function Productos() {
   const fetchProductos = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/productos');
-      console.log('Productos cargados:', response.data.data);
-      setProductos(response.data.data);
-    } catch (error) {
-      console.error('Error fetching productos:', error);
-      setError('Error al cargar los productos. Verifica que el backend esté corriendo.');
+      setError("");
+      const response = await api.get("/productos");
+      console.log("Respuesta completa del backend:", response.data);
+
+      // Manejo flexible del formato de respuesta
+      if (response.data?.success && Array.isArray(response.data.data)) {
+        setProductos(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setProductos(response.data);
+      } else {
+        setProductos([]);
+        setError("Respuesta inesperada del servidor");
+      }
+    } catch (err) {
+      console.error("Error fetching productos:", err);
+      setError(
+        "Error al cargar los productos. Verifica que el backend esté corriendo."
+      );
+      setProductos([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const productosFiltrados = productos.filter(producto =>
-    producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (categoriaFilter === '' || producto.categoria === categoriaFilter)
+  // Filtrado seguro
+  const productosFiltrados = (productos || []).filter(
+    (producto) =>
+      producto.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (categoriaFilter === "" || producto.categoria === categoriaFilter)
   );
 
   if (loading) {
@@ -49,7 +73,9 @@ function Productos() {
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Nuestros Productos</h1>
-          <p className="text-muted">Descubre nuestra variedad de huevos orgánicos</p>
+          <p className="text-muted">
+            Descubre nuestra variedad de huevos orgánicos
+          </p>
         </Col>
       </Row>
 
@@ -91,13 +117,13 @@ function Productos() {
 
       {/* Lista de Productos */}
       <Row>
-        {productosFiltrados.map(producto => (
+        {productosFiltrados.map((producto) => (
           <Col key={producto.id} lg={3} md={6} className="mb-4">
             <Card className="h-100 shadow-sm product-card">
-              <Card.Img 
-                variant="top" 
+              <Card.Img
+                variant="top"
                 src={producto.imagen || "/images/placeholder.jpg"}
-                style={{ height: '200px', objectFit: 'cover' }}
+                style={{ height: "200px", objectFit: "cover" }}
                 onError={(e) => {
                   e.target.src = "/images/placeholder.jpg";
                 }}
@@ -110,12 +136,14 @@ function Productos() {
                 <div className="mt-auto">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h5 className="text-success mb-0">${producto.precio}</h5>
-                    <small className="text-muted">Stock: {producto.stock}</small>
+                    <small className="text-muted">
+                      Stock: {producto.stock}
+                    </small>
                   </div>
-                  <Button 
-                    as={Link} 
+                  <Button
+                    as={Link}
                     to={`/producto/${producto.id}`}
-                    variant="success" 
+                    variant="success"
                     className="w-100"
                   >
                     Ver Detalles
