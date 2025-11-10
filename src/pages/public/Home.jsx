@@ -14,7 +14,7 @@ function Home() {
               </h1>
               <p className="lead mb-4">
                 Descubre la diferencia de nuestros huevos de gallinas criadas 
-                libremente con alimentación orgánica y cuidado responsable.
+                libremente con alimentación orgánica y cuidado responsable mas nah.
               </p>
               <div className="d-flex gap-3">
                 <Button as={Link} to="/productos" variant="light" size="lg">
@@ -27,7 +27,7 @@ function Home() {
             </Col>
             <Col lg={6}>
               <img 
-                src="/images/hero-huevos.jpg" 
+                src="/Front-Empresa-Huevos/src/public/images/hero-huevos.jpg" 
                 alt="Huevos orgánicos"
                 className="img-fluid rounded shadow"
               />
@@ -84,7 +84,7 @@ function Home() {
               <Card className="h-100 shadow-sm">
                 <Card.Img 
                   variant="top" 
-                  src="/images/huevo-organico.jpg"
+                  src={"/Front-Empresa-Huevos/src/public/images/huevo-organico.jpg"}
                   style={{ height: '200px', objectFit: 'cover' }}
                 />
                 <Card.Body className="d-flex flex-column">

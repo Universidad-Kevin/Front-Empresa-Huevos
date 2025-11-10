@@ -18,7 +18,7 @@ export default defineConfig({
       'localhost',
       '127.0.0.1',
       'front-empresa-huevos.onrender.com',
-      '.onrender.com'  // Permite todos los subdominios de onrender.com
+      '.onrender.com'
     ]
   },
 });
