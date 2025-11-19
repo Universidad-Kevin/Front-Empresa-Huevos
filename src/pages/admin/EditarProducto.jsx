@@ -12,7 +12,6 @@ import {
   Badge,
 } from "react-bootstrap";
 import api from '/src/services/api';
-import axios from "axios";
 
 function EditarProducto() {
   const { id } = useParams();
@@ -45,14 +44,8 @@ function EditarProducto() {
     try {
       setCargando(true);
 
-      // Obtener el token del localStorage
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(`/api/productos/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Usar la instancia `api` (ya maneja baseURL y Authorization via interceptor)
+      const response = await api.get(`/productos/${id}`);
 
       if (response.data.success && response.data.data) {
         const producto = response.data.data;
