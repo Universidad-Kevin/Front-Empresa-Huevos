@@ -14,7 +14,7 @@ function Home() {
               </h1>
               <p className="lead mb-4">
                 Descubre la diferencia de nuestros huevos de gallinas criadas 
-                libremente con alimentación orgánica y cuidado responsable mas nah.
+                libremente con alimentación orgánica y cuidado responsable.
               </p>
               <div className="d-flex gap-3">
                 <Button as={Link} to="/productos" variant="light" size="lg">
@@ -27,7 +27,7 @@ function Home() {
             </Col>
             <Col lg={6}>
               <img 
-                src="/Front-Empresa-Huevos/src/public/images/hero-huevos.jpg" 
+                src="src/public/images/hero-huevos.jpg" 
                 alt="Huevos orgánicos"
                 className="img-fluid rounded shadow"
               />

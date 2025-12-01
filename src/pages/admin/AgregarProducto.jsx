@@ -21,7 +21,7 @@ function AgregarProducto() {
     stock: "",
     imagen: "",
     caracteristicas: [""],
-    estado: "activo",
+    estado: "",
   });
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);

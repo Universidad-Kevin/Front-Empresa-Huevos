@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -10,15 +10,17 @@ import {
   Button,
   Alert,
 } from "react-bootstrap";
-import api from '../../services/api';
 
 function Login() {
   const [formData, setFormData] = useState({
-    email: "admin@huevos.com",
-    password: "admin123",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // key para forzar remount del form (evita autofill)
+  const [formKey, setFormKey] = useState(Date.now());
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -30,42 +32,33 @@ function Login() {
     });
   };
 
-  // En tu Login.jsx - Agrega más logging
+  useEffect(() => {
+    const t1 = setTimeout(() => setFormKey(Date.now()), 20);
+    const t2 = setTimeout(() => {
+      setFormData({ email: "", password: "" });
+    }, 100);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      console.log("1. 📤 Enviando credenciales...");
-
-      // Test directo para ver la respuesta
-      const testResponse = await api.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      console.log("2. 📨 Respuesta REAL del servidor:", testResponse);
-      console.log("3. 📊 response.data:", testResponse.data);
-
-      // Ahora usar el AuthContext
-      console.log("4. 🔄 Llamando a login del AuthContext...");
       const result = await login(formData.email, formData.password);
-
-      console.log("5. ✅ Resultado del AuthContext:", result);
-      console.log(
-        "6. 💾 Token guardado:",
-        localStorage.getItem("huevos_token")
-      );
-      console.log("7. 👤 User guardado:", localStorage.getItem("huevos_user"));
 
       if (result.success) {
         navigate("/admin");
       } else {
-        setError(result.error);
+        setError(result.error || "Credenciales inválidas");
       }
     } catch (err) {
-      console.error("❌ Error completo en handleSubmit:", err);
+      console.error(err);
       setError("Error de conexión con el servidor");
     } finally {
       setLoading(false);
@@ -85,7 +78,21 @@ function Login() {
 
               {error && <Alert variant="danger">{error}</Alert>}
 
-              <Form onSubmit={handleSubmit}>
+              {/* Inputs ocultos anti-autofill */}
+              <input
+                type="text"
+                name="fakeusernameremembered"
+                style={{ display: "none" }}
+                autoComplete="username"
+              />
+              <input
+                type="password"
+                name="fakepasswordremembered"
+                style={{ display: "none" }}
+                autoComplete="new-password"
+              />
+
+              <Form key={formKey} onSubmit={handleSubmit} autoComplete="off">
                 <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -93,8 +100,9 @@ function Login() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="admin@huevos.com"
+                    placeholder="email@example.com"
                     required
+                    autoComplete="off"
                   />
                 </Form.Group>
 
@@ -105,8 +113,9 @@ function Login() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="admin123"
+                    placeholder="********"
                     required
+                    autoComplete="new-password"
                   />
                 </Form.Group>
 
@@ -118,13 +127,15 @@ function Login() {
                 >
                   {loading ? "Ingresando..." : "Ingresar"}
                 </Button>
-              </Form>
 
-              <div className="text-center mt-3">
-                <small className="text-muted">
-                  Credenciales: admin@huevos.com / admin123
-                </small>
-              </div>
+                <Button
+                  variant="outline-success"
+                  className="w-100 mt-2"
+                  onClick={() => navigate("/register")}
+                >
+                  Registrar nuevo cliente
+                </Button>
+              </Form>
             </Card.Body>
           </Card>
         </Col>

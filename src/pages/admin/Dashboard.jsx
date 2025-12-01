@@ -18,7 +18,9 @@ function Dashboard() {
     productosInactivos: 0,
     stockTotal: 0,
     totalClientes: 0,
+    clientesActivos: 0,
     clientesNuevos: 0,
+    clientesPendientes: 0,
     ventasMes: 0,
   });
   const [clientesRecientes, setClientesRecientes] = useState([]);
@@ -34,14 +36,14 @@ function Dashboard() {
       const productos = productosResponse.data.data;
 
       // Obtener estadísticas de clientes
-      const clientesResponse = await api.get("/clientes/stats");
-      const clientesStats = clientesResponse.data.data;
+      const clientesResponse = await api.get("/clientes/all");
+      const clientes = clientesResponse.data.data;
 
       // Obtener clientes recientes
-      const clientesResponseAll = await api.get("/clientes");
+      const clientesResponseAll = await api.get("/clientes/all");
       const clientesRecientes = clientesResponseAll.data.data.slice(0, 3);
 
-      // Calcular estadísticas
+      // Calcular estadísticas de productos
       const totalProductos = productos.length;
       const productosActivos = productos.filter(
         (p) => p.estado === "activo"
@@ -54,13 +56,27 @@ function Dashboard() {
         0
       );
 
+      // Calcular estadísticas de clientes
+      const totalClientes = clientes.length;
+      const clientesActivos = clientes.filter(
+        (c) => c.estado === "activo"
+      ).length;
+      const clientesNuevos = clientes.filter(
+        (c) => c.estado === "nuevo"
+      ).length;
+      const clientesPendientes = clientes.filter(
+        (c) => c.estado === "pendiente"
+      ).length;
+
       setStats({
         totalProductos,
         productosActivos,
         productosInactivos,
         stockTotal,
-        totalClientes: clientesStats.total,
-        clientesNuevos: clientesStats.nuevos,
+        totalClientes,
+        clientesActivos,
+        clientesNuevos,
+        clientesPendientes,
         ventasMes: 2845, // Por ahora simulado
       });
 
@@ -71,45 +87,6 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Función simulada para clientes (luego la conectas a tu backend)
-  const fetchClientes = async () => {
-    // Por ahora datos de ejemplo - luego los traes de tu API
-    return [
-      {
-        id: 1,
-        nombre: "Restaurante La Cabaña",
-        tipo: "Restaurante",
-        fechaRegistro: "2024-01-15",
-        esNuevo: false,
-        estado: "activo",
-      },
-      {
-        id: 2,
-        nombre: "Supermercado Central",
-        tipo: "Supermercado",
-        fechaRegistro: "2024-01-10",
-        esNuevo: true,
-        estado: "activo",
-      },
-      {
-        id: 3,
-        nombre: "Hotel Paradise",
-        tipo: "Hotel",
-        fechaRegistro: "2024-01-08",
-        esNuevo: true,
-        estado: "activo",
-      },
-      {
-        id: 4,
-        nombre: "Cafetería Don José",
-        tipo: "Cafetería",
-        fechaRegistro: "2024-01-05",
-        esNuevo: false,
-        estado: "activo",
-      },
-    ];
   };
 
   useEffect(() => {
@@ -133,7 +110,7 @@ function Dashboard() {
     },
     {
       title: "Clientes Activos",
-      value: stats.totalClientes,
+      value: stats.clientesActivos,
       icon: "👥",
       color: "info",
       link: "/admin/clientes",
@@ -221,7 +198,7 @@ function Dashboard() {
                 <Col md={6} className="mb-3">
                   <Link
                     to="/admin/productos"
-                    className="btn btn-outline-primary w-100"
+                    className="btn btn-outline-success w-100"
                   >
                     📦 Gestionar Productos
                   </Link>
@@ -231,7 +208,7 @@ function Dashboard() {
                     to="/admin/agregar-cliente"
                     className="btn btn-info w-100"
                   >
-                    👥 Agregar Cliente
+                    ➕ Agregar Clientes
                   </Link>
                 </Col>
                 <Col md={6} className="mb-3">

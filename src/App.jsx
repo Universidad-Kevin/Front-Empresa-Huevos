@@ -11,6 +11,7 @@ import ProductoDetalle from "./pages/public/ProductoDetalle";
 import Nosotros from "./pages/public/Nosotros";
 import Contacto from "./pages/public/Contacto";
 import Login from "./pages/public/Login";
+import Register from "./pages/public/register";
 
 // Páginas admin
 import Dashboard from "./pages/admin/Dashboard";
@@ -41,6 +42,7 @@ function App() {
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/contacto" element={<Contacto />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             {/* Rutas protegidas - Admin */}
             <Route

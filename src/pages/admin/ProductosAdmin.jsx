@@ -10,12 +10,14 @@ import {
   Badge,
   Alert,
 } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 function ProductosAdmin() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProductos();
@@ -24,7 +26,7 @@ function ProductosAdmin() {
   const fetchProductos = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/productos");
+      const response = await api.get("/productos/all");
       setProductos(response.data.data);
     } catch (error) {
       console.error("Error cargando productos:", error);
@@ -99,6 +101,12 @@ function ProductosAdmin() {
                 variant="outline-warning"
               >
                 📋 Productos Inactivos
+              </Button>
+              <Button
+                variant="outline-secondary"
+                onClick={() => navigate("/admin")}
+              >
+                ← Volver
               </Button>
             </div>
           </div>

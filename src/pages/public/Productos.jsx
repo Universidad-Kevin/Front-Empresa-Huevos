@@ -27,7 +27,7 @@ function Productos() {
     try {
       setLoading(true);
       setError("");
-      const response = await api.get("/productos");
+      const response = await api.get("/productos/activos");
       console.log("Respuesta completa del backend:", response.data);
 
       // Manejo flexible del formato de respuesta

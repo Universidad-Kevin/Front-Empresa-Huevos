@@ -11,17 +11,19 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const fetchClientes = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/clientes");
+      const response = await api.get("/clientes/all");
       setClientes(response.data.data);
     } catch (error) {
       console.error("Error cargando clientes:", error);
@@ -88,6 +90,12 @@ function Clientes() {
               👥 Agregar Cliente
             </Link>
           </div>
+          <Button
+            variant="outline-secondary"
+            onClick={() => navigate("/admin")}
+          >
+            ← Volver
+          </Button>
         </Col>
       </Row>
 
