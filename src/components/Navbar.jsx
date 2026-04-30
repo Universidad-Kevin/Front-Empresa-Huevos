@@ -13,38 +13,44 @@ function NavigationBar() {
   }
 
   return (
-    <Navbar bg="success" variant="dark" expand="lg" className="shadow">
+    <Navbar style={{ backgroundColor: '#F0F0F0' }} variant="light" expand="lg" className="shadow custom-navbar">
       <Container>
         <Navbar.Brand as={Link} to="/" className="fw-bold">
-          🥚 Huevos Orgánicos
+          <img
+            src="src/public/images/LogoCampOrgan-1.webp"
+            alt="LogoCampOrgan"
+            className="img-fluid rounded shadow"
+            style={{ width: '30px', height: '30px' }}
+          />
+          <span style={{ color: '#785740' }} variant='light'> Camp</span>Organic
         </Navbar.Brand>
-        
+
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link 
-              as={Link} 
-              to="/" 
+            <Nav.Link
+              as={Link}
+              to="/"
               active={location.pathname === '/'}
             >
               Inicio
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
+            <Nav.Link
+              as={Link}
               to="/productos"
               active={location.pathname === '/productos'}
             >
               Productos
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
+            <Nav.Link
+              as={Link}
               to="/nosotros"
               active={location.pathname === '/nosotros'}
             >
               Nosotros
             </Nav.Link>
-            <Nav.Link 
-              as={Link} 
+            <Nav.Link
+              as={Link}
               to="/contacto"
               active={location.pathname === '/contacto'}
             >
@@ -55,7 +61,7 @@ function NavigationBar() {
           <Nav>
             {user ? (
               <Dropdown>
-                <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
+                <Dropdown.Toggle variant="outline-dark" id="dropdown-basic">
                   👋 {user.nombre}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -75,7 +81,7 @@ function NavigationBar() {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Nav.Link as={Link} to="/login" className="btn btn-outline-light">
+              <Nav.Link as={Link} to="/login" className="btn btn-outline-2D5A27">
                 Ingresar
               </Nav.Link>
             )}
