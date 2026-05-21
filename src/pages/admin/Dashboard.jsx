@@ -31,13 +31,12 @@ function Dashboard() {
     try {
       setLoading(true);
 
-      const [productosResponse, clientesResponse] = await Promise.all([
+      const [productosResponse, usuariosResponse] = await Promise.all([
         api.get("/productos/all"),
-        api.get("/clientes/all"),
+        api.get("/usuarios/all"),
       ]);
       const productos = productosResponse.data.data;
-      const clientes = clientesResponse.data.data;
-      const clientesRecientes = clientes.slice(0, 3);
+      const usuarios = usuariosResponse.data.data;
 
       // Calcular estadísticas de productos
       const totalProductos = productos.length;
@@ -52,16 +51,10 @@ function Dashboard() {
         0
       );
 
-      // Calcular estadísticas de clientes
-      const totalClientes = clientes.length;
-      const clientesActivos = clientes.filter(
-        (c) => c.estado === "activo"
-      ).length;
-      const clientesNuevos = clientes.filter(
-        (c) => c.estado === "nuevo"
-      ).length;
-      const clientesPendientes = clientes.filter(
-        (c) => c.estado === "pendiente"
+      const totalClientes = usuarios.length;
+      const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const clientesNuevos = usuarios.filter(
+        (u) => new Date(u.creado_en) > hace30dias
       ).length;
 
       setStats({
@@ -70,13 +63,13 @@ function Dashboard() {
         productosInactivos,
         stockTotal,
         totalClientes,
-        clientesActivos,
+        clientesActivos: totalClientes,
         clientesNuevos,
-        clientesPendientes,
-        ventasMes: 2845, // Por ahora simulado
+        clientesPendientes: 0,
+        ventasMes: 2845,
       });
 
-      setClientesRecientes(clientesRecientes);
+      setClientesRecientes(usuarios.slice(0, 3));
     } catch (error) {
       console.error("Error fetching stats:", error);
       setError("Error al cargar las estadísticas");
@@ -253,17 +246,14 @@ function Dashboard() {
                       className="d-flex align-items-center mb-3 p-2 border rounded"
                     >
                       <div className="bg-light rounded-circle p-2 me-3">
-                        <span className="text-primary">🏢</span>
+                        <span className="text-primary">👤</span>
                       </div>
                       <div className="flex-grow-1">
                         <div className="d-flex justify-content-between align-items-start">
                           <div>
-                            <h6 className="mb-1">{cliente.nombre_empresa}</h6>
-                            <small className="text-muted">
-                              {cliente.tipo_negocio}
-                            </small>
+                            <h6 className="mb-1">{cliente.nombre}</h6>
+                            <small className="text-muted">{cliente.email}</small>
                           </div>
-                          {/* Puedes agregar un badge para clientes nuevos basado en fecha */}
                           {new Date(cliente.creado_en) >
                             new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
                             <Badge bg="success" className="ms-2">
@@ -272,10 +262,7 @@ function Dashboard() {
                           )}
                         </div>
                         <small className="text-muted">
-                          Contacto: {cliente.contacto_nombre}
-                          <br />
-                          Registrado:{" "}
-                          {new Date(cliente.creado_en).toLocaleDateString()}
+                          Registrado: {new Date(cliente.creado_en).toLocaleDateString()}
                         </small>
                       </div>
                     </div>
