@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Container, Row, Col, Card, Button, Form,
-  InputGroup, Alert, Badge, Spinner, Pagination,
+  InputGroup, Alert, Badge, Pagination,
 } from "react-bootstrap";
 import api from "../../services/api";
 import { useCart } from "../../context/CartContext";
+import { SkeletonProductGrid } from "../../components/SkeletonLoader";
 
 const POR_PAGINA = 8;
 
@@ -78,10 +79,18 @@ function Productos() {
   const hayFiltrosActivos = busqueda || categoria || soloDisponibles || precioMin !== "" || precioMax !== "" || orden !== "reciente";
 
   if (loading) return (
-    <Container className="text-center py-5">
-      <Spinner variant="success" />
-      <p className="mt-2">Cargando productos...</p>
-    </Container>
+    <>
+      <Container className="py-5">
+        <Row className="mb-3">
+          <Col>
+            <h1 className="fw-bold">Nuestros Productos</h1>
+            <p className="text-muted">Descubre nuestra variedad de huevos orgánicos</p>
+          </Col>
+        </Row>
+        <Card className="shadow-sm mb-4" style={{ height: 80 }} />
+      </Container>
+      <SkeletonProductGrid count={8} />
+    </>
   );
 
   return (

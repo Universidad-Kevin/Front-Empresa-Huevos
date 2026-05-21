@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { SkeletonTable } from "../../components/SkeletonLoader";
 
 function ProductosAdmin() {
   const [productos, setProductos] = useState([]);
@@ -67,18 +68,7 @@ function ProductosAdmin() {
     return estado === "activo" ? "success" : "secondary";
   };
 
-  if (loading) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <div className="spinner-border text-success" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-          <p className="mt-2">Cargando productos...</p>
-        </div>
-      </Container>
-    );
-  }
+  if (loading) return <SkeletonTable rows={6} cols={7} />;
 
   return (
     <Container className="py-4">

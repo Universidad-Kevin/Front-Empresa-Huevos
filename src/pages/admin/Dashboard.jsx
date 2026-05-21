@@ -3,13 +3,13 @@ import {
   Row,
   Col,
   Card,
-  Spinner,
   Alert,
   Badge,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../services/api";
+import { SkeletonDashboard } from "../../components/SkeletonLoader";
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -31,17 +31,13 @@ function Dashboard() {
     try {
       setLoading(true);
 
-      // Obtener productos
-      const productosResponse = await api.get("/productos/all");
+      const [productosResponse, clientesResponse] = await Promise.all([
+        api.get("/productos/all"),
+        api.get("/clientes/all"),
+      ]);
       const productos = productosResponse.data.data;
-
-      // Obtener estadísticas de clientes
-      const clientesResponse = await api.get("/clientes/all");
       const clientes = clientesResponse.data.data;
-
-      // Obtener clientes recientes
-      const clientesResponseAll = await api.get("/clientes/all");
-      const clientesRecientes = clientesResponseAll.data.data.slice(0, 3);
+      const clientesRecientes = clientes.slice(0, 3);
 
       // Calcular estadísticas de productos
       const totalProductos = productos.length;
@@ -124,18 +120,7 @@ function Dashboard() {
     },
   ];
 
-  if (loading) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </Spinner>
-          <p className="mt-2">Cargando estadísticas...</p>
-        </div>
-      </Container>
-    );
-  }
+  if (loading) return <SkeletonDashboard />;
 
   return (
     <Container className="py-4">

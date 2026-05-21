@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, Table, Button, Badge, Form, Spinner, Alert } from 'react-bootstrap'
+import { Container, Row, Col, Card, Table, Button, Badge, Form, Alert } from 'react-bootstrap'
 import api from '../../services/api'
+import { SkeletonTable } from '../../components/SkeletonLoader'
 
 const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' }
 
@@ -36,7 +37,7 @@ function Pedidos() {
 
   const pedidosFiltrados = filtroEstado ? pedidos.filter(p => p.estado === filtroEstado) : pedidos
 
-  if (loading) return <Container className="py-5 text-center"><Spinner /></Container>
+  if (loading) return <SkeletonTable rows={5} cols={7} />
 
   return (
     <Container className="py-4">

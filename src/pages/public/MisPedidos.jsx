@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Spinner, Alert, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Alert, Button } from 'react-bootstrap';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { SkeletonOrderList, SkeletonOrderDetail } from '../../components/SkeletonLoader';
 
 const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' };
 const estadoLabel = { pendiente: 'Pendiente', procesando: 'En proceso', enviado: 'Enviado', completado: 'Completado', cancelado: 'Cancelado' };
@@ -25,7 +26,7 @@ function DetallePedido() {
     }
   }, [id, pedido]);
 
-  if (loading) return <Container className="py-5 text-center"><Spinner /></Container>;
+  if (loading) return <SkeletonOrderDetail />;
   if (error) return <Container className="py-5"><Alert variant="danger">{error}</Alert></Container>;
   if (!pedido) return null;
 
@@ -105,7 +106,7 @@ function ListaPedidos() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Container className="py-5 text-center"><Spinner /></Container>;
+  if (loading) return <SkeletonOrderList />;
 
   return (
     <Container className="py-5">

@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-bootstrap";
 import api from "../../services/api";
+import { SkeletonTable } from "../../components/SkeletonLoader";
 
 function ProductosInactivos() {
   const [productos, setProductos] = useState([]);
@@ -112,16 +113,7 @@ function ProductosInactivos() {
   };
 
   if (loading) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <div className="spinner-border text-success" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-          <p className="mt-2">Cargando productos inactivos...</p>
-        </div>
-      </Container>
-    );
+    return <SkeletonTable rows={4} cols={6} />;
   }
 
   return (

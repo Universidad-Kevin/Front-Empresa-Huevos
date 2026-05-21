@@ -12,6 +12,7 @@ import {
   Badge,
 } from "react-bootstrap";
 import api from '/src/services/api';
+import { SkeletonForm } from "../../components/SkeletonLoader";
 
 function EditarProducto() {
   const { id } = useParams();
@@ -23,7 +24,7 @@ function EditarProducto() {
     categoria: "",
     stock: "",
     imagen: "",
-    estado: "activo",
+    estado: "",
     caracteristicas: [""],
   });
   const [loading, setLoading] = useState(false);
@@ -71,7 +72,7 @@ function EditarProducto() {
           categoria: producto.categoria || "",
           stock: producto.stock || "",
           imagen: producto.imagen || "",
-          estado: producto.estado || "activo",
+          estado: producto.estado || "",
           caracteristicas: caracteristicas,
         });
       } else {
@@ -81,7 +82,7 @@ function EditarProducto() {
       console.error("Error cargando producto:", error);
       setError(
         "Error al cargar el producto: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     } finally {
       setCargando(false);
@@ -163,18 +164,7 @@ function EditarProducto() {
     }
   };
 
-  if (cargando) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <Spinner animation="border" variant="success" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </Spinner>
-          <p className="mt-2">Cargando producto...</p>
-        </div>
-      </Container>
-    );
-  }
+  if (cargando) return <SkeletonForm rows={6} />;
 
   return (
     <Container className="py-4">

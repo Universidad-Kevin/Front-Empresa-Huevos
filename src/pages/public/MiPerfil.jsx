@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Tab, Nav } fro
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { SkeletonProfile } from '../../components/SkeletonLoader';
 
 function MiPerfil() {
   const { user, login } = useAuth();
@@ -65,7 +66,7 @@ function MiPerfil() {
     }
   };
 
-  if (loading) return <Container className="py-5 text-center"><Spinner /></Container>;
+  if (loading) return <SkeletonProfile />;
 
   return (
     <Container className="py-5">

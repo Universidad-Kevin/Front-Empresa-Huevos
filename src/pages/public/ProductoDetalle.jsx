@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge, Alert } from 'react-bootstrap';
 import api from '../../services/api';
+import { useCart } from '../../context/CartContext';
+import { SkeletonProductDetail } from '../../components/SkeletonLoader';
 
 function ProductoDetalle() {
   const { id } = useParams();
@@ -10,6 +12,7 @@ function ProductoDetalle() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchProducto();
@@ -29,19 +32,10 @@ function ProductoDetalle() {
   };
 
   const handleAgregarCarrito = () => {
-    alert(`Agregado ${cantidad} unidad(es) de ${producto.nombre} al carrito`);
+    addToCart(producto, cantidad);
   };
 
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <div className="spinner-border text-success" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-        <p className="mt-2">Cargando producto...</p>
-      </Container>
-    );
-  }
+  if (loading) return <SkeletonProductDetail />;
 
   if (error || !producto) {
     return (

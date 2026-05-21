@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../services/api";
+import { SkeletonForm } from "../../components/SkeletonLoader";
 
 function EditarCliente() {
   const { id } = useParams();
@@ -114,18 +115,7 @@ function EditarCliente() {
 
   const estados = ["activo", "inactivo", "pendiente"];
 
-  if (cargando) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </Spinner>
-          <p className="mt-2">Cargando datos del cliente...</p>
-        </div>
-      </Container>
-    );
-  }
+  if (cargando) return <SkeletonForm rows={7} />;
 
   return (
     <Container className="py-4">

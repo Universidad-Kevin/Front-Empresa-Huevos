@@ -6,13 +6,13 @@ import {
   Table,
   Button,
   Badge,
-  Spinner,
   Alert,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import { SkeletonTable } from "../../components/SkeletonLoader";
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -64,18 +64,7 @@ function Clientes() {
     return colors[tipo] || "secondary";
   };
 
-  if (loading) {
-    return (
-      <Container className="py-4">
-        <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </Spinner>
-          <p className="mt-2">Cargando clientes...</p>
-        </div>
-      </Container>
-    );
-  }
+  if (loading) return <SkeletonTable rows={5} cols={6} />;
 
   return (
     <Container className="py-4">
