@@ -12,10 +12,10 @@ services:
       - /app/node_modules
     networks:
       - frontend_network
-      - backend_network
+      - back-empresa-huevos_backend_network
 
 networks:
   frontend_network:
     driver: bridge
-  backend_network:
+  back-empresa-huevos_backend_network:
     external: true
