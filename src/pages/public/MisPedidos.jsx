@@ -56,9 +56,9 @@ function DetallePedido() {
                 <div key={item.id} className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                   <div>
                     <h6 className="mb-0">{item.nombre_producto}</h6>
-                    <small className="text-muted">Cantidad: {item.cantidad} × ${parseFloat(item.precio_unitario).toFixed(2)}</small>
+                    <small className="text-muted">Cantidad: {item.cantidad} × S/.{parseFloat(item.precio_unitario).toFixed(2)}</small>
                   </div>
-                  <span className="fw-bold text-success">${(item.cantidad * item.precio_unitario).toFixed(2)}</span>
+                  <span className="fw-bold text-success">S/.{(item.cantidad * item.precio_unitario).toFixed(2)}</span>
                 </div>
               ))}
             </Card.Body>
@@ -66,6 +66,26 @@ function DetallePedido() {
         </Col>
 
         <Col lg={4}>
+          {/* Código de verificación */}
+          {pedido.codigo_verificacion && (
+            <Card className="shadow-sm mb-3 border-success">
+              <Card.Header className="bg-success text-white fw-bold text-center">
+                Código de verificación
+              </Card.Header>
+              <Card.Body className="text-center py-4">
+                <div
+                  className="fw-bold text-success mb-2"
+                  style={{ fontSize: '2rem', letterSpacing: '0.3rem', fontFamily: 'monospace' }}
+                >
+                  {pedido.codigo_verificacion}
+                </div>
+                <small className="text-muted d-block">
+                  Muestra este código al retirar tu pedido para que puedan verificarlo.
+                </small>
+              </Card.Body>
+            </Card>
+          )}
+
           <Card className="shadow-sm mb-3">
             <Card.Header className="bg-white fw-bold">Resumen</Card.Header>
             <Card.Body>
@@ -81,7 +101,7 @@ function DetallePedido() {
               <hr />
               <div className="d-flex justify-content-between">
                 <span className="fw-bold fs-5">Total</span>
-                <span className="fw-bold fs-5 text-success">${parseFloat(pedido.total).toFixed(2)}</span>
+                <span className="fw-bold fs-5 text-success">S/.{parseFloat(pedido.total).toFixed(2)}</span>
               </div>
             </Card.Body>
           </Card>
@@ -132,7 +152,7 @@ function ListaPedidos() {
                   </small>
                 </div>
                 <div className="text-end">
-                  <div className="fw-bold text-success mb-1">${parseFloat(pedido.total).toFixed(2)}</div>
+                  <div className="fw-bold text-success mb-1">S/.{parseFloat(pedido.total).toFixed(2)}</div>
                   <Badge bg={estadoVariant[pedido.estado]}>{estadoLabel[pedido.estado]}</Badge>
                 </div>
               </div>

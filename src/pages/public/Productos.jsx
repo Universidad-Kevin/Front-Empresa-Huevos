@@ -145,7 +145,7 @@ function Productos() {
                 <Form.Label className="small fw-bold text-muted">PRECIO MÍN</Form.Label>
                 <Form.Control
                   type="number"
-                  placeholder={`$${precioRealMin}`}
+                  placeholder={`S/.${precioRealMin}`}
                   value={precioMin}
                   onChange={e => setPrecioMin(e.target.value)}
                   min={0}
@@ -157,7 +157,7 @@ function Productos() {
                 <Form.Label className="small fw-bold text-muted">PRECIO MÁX</Form.Label>
                 <Form.Control
                   type="number"
-                  placeholder={`$${precioRealMax}`}
+                  placeholder={`S/.${precioRealMax}`}
                   value={precioMax}
                   onChange={e => setPrecioMax(e.target.value)}
                   min={0}
@@ -231,7 +231,7 @@ function Productos() {
                     </Card.Text>
                     <div className="mt-auto">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h5 className="text-success mb-0">${parseFloat(producto.precio).toFixed(2)}</h5>
+                        <h5 className="text-success mb-0">S/.{parseFloat(producto.precio).toFixed(2)}</h5>
                         <small className="text-muted">Stock: {producto.stock}</small>
                       </div>
                       <div className="d-flex gap-2">

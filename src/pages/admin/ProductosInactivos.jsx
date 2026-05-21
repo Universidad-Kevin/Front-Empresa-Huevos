@@ -200,7 +200,7 @@ function ProductosInactivos() {
                     <td>
                       <Badge bg="secondary">{producto.categoria}</Badge>
                     </td>
-                    <td>${producto.precio}</td>
+                    <td>S/.{producto.precio}</td>
                     <td>
                       <Badge bg="warning">{producto.stock} unidades</Badge>
                     </td>

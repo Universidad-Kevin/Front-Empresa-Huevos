@@ -102,10 +102,10 @@ function Checkout() {
                     />
                     <div className="flex-grow-1">
                       <h6 className="mb-0">{item.nombre}</h6>
-                      <small className="text-muted">{item.quantity} × ${parseFloat(item.precio).toFixed(2)}</small>
+                      <small className="text-muted">{item.quantity} × S/.{parseFloat(item.precio).toFixed(2)}</small>
                     </div>
                     <div className="fw-bold text-success">
-                      ${(item.precio * item.quantity).toFixed(2)}
+                      S/.{(item.precio * item.quantity).toFixed(2)}
                     </div>
                   </div>
                 ))
@@ -173,7 +173,7 @@ function Checkout() {
             <Card.Body>
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>S/.{cartTotal.toFixed(2)}</span>
               </div>
               <div className="d-flex justify-content-between mb-3">
                 <span>Envío</span>
@@ -186,7 +186,7 @@ function Checkout() {
               <hr />
               <div className="d-flex justify-content-between mb-4">
                 <span className="fw-bold fs-5">Total</span>
-                <span className="fw-bold fs-5 text-success">${cartTotal.toFixed(2)}</span>
+                <span className="fw-bold fs-5 text-success">S/.{cartTotal.toFixed(2)}</span>
               </div>
 
               <Button

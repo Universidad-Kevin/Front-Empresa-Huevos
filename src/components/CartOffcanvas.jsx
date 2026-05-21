@@ -57,7 +57,7 @@ function CartOffcanvas({ onShowLogin }) {
                       <h6 className="mb-0 text-truncate" style={{ maxWidth: '150px' }}>
                         {item.nombre}
                       </h6>
-                      <small className="text-success fw-bold">${item.precio}</small>
+                      <small className="text-success fw-bold">S/.{item.precio}</small>
 
                       <div className="d-flex align-items-center mt-2">
                         <Button
@@ -82,7 +82,7 @@ function CartOffcanvas({ onShowLogin }) {
                     </div>
                     <div className="ms-2 text-end">
                       <div className="fw-bold mb-2">
-                        ${(item.precio * item.quantity).toFixed(2)}
+                        S/.{(item.precio * item.quantity).toFixed(2)}
                       </div>
                       <Button
                         variant="link"
@@ -100,7 +100,7 @@ function CartOffcanvas({ onShowLogin }) {
             <div className="border-top pt-3 mt-auto">
               <div className="d-flex justify-content-between mb-3">
                 <span className="fw-bold fs-5">Total:</span>
-                <span className="fw-bold fs-5 text-success">${cartTotal.toFixed(2)}</span>
+                <span className="fw-bold fs-5 text-success">S/.{cartTotal.toFixed(2)}</span>
               </div>
               <Button
                 variant="success"

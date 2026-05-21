@@ -42,7 +42,7 @@ function Estadisticas() {
           <Card className="border-0 shadow-sm">
             <Card.Body className="text-center">
               <div className="text-primary fs-2">💰</div>
-              <h3 className="text-primary">${estadisticas.ventas.mensual.toLocaleString()}</h3>
+              <h3 className="text-primary">S/.{estadisticas.ventas.mensual.toLocaleString()}</h3>
               <Card.Text className="text-muted">Ventas del Mes</Card.Text>
             </Card.Body>
           </Card>
@@ -99,7 +99,7 @@ function Estadisticas() {
                         <strong>{producto.nombre}</strong>
                       </td>
                       <td>{producto.ventas}</td>
-                      <td>${producto.ingresos.toFixed(2)}</td>
+                      <td>S/.{producto.ingresos.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -132,7 +132,7 @@ function Estadisticas() {
                         ></div>
                         <small className="text-muted">{item.mes}</small>
                         <br/>
-                        <small>${(item.ventas / 1000).toFixed(0)}k</small>
+                        <small>S/.{(item.ventas / 1000).toFixed(0)}k</small>
                       </div>
                     ))}
                   </div>

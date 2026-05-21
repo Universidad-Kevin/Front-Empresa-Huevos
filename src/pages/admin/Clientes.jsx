@@ -138,7 +138,7 @@ function Clientes() {
                     </td>
                     <td>
                       <strong>
-                        ${cliente.limite_credito?.toLocaleString()}
+                        S/.{cliente.limite_credito?.toLocaleString()}
                       </strong>
                     </td>
                     <td>

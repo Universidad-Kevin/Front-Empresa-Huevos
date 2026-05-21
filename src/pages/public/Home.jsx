@@ -162,7 +162,7 @@ function Home() {
                     Huevos frescos de gallinas criadas libremente en pastoreo.
                   </Card.Text>
                   <div className="mt-auto">
-                    <h5 className="text-success">$8.99</h5>
+                    <h5 className="text-success">S/.8.99</h5>
                     <Button as={Link} to="/productos" variant="success">
                       Ver Más
                     </Button>
@@ -183,7 +183,7 @@ function Home() {
                     Enriquecidos naturalmente con ácidos grasos Omega-3.
                   </Card.Text>
                   <div className="mt-auto">
-                    <h5 className="text-success">$12.99</h5>
+                    <h5 className="text-success">S/.12.99</h5>
                     <Button as={Link} to="/productos" variant="success">
                       Ver Más
                     </Button>
@@ -204,7 +204,7 @@ function Home() {
                     Huevos pequeños llenos de sabor y nutrientes concentrados.
                   </Card.Text>
                   <div className="mt-auto">
-                    <h5 className="text-success">$6.99</h5>
+                    <h5 className="text-success">S/.6.99</h5>
                     <Button as={Link} to="/productos" variant="success">
                       Ver Más
                     </Button>

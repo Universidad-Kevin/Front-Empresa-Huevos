@@ -185,7 +185,7 @@ function AgregarProducto() {
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Precio ($) *</Form.Label>
+                      <Form.Label>Precio (S/.) *</Form.Label>
                       <Form.Control
                         type="number"
                         step="0.01"

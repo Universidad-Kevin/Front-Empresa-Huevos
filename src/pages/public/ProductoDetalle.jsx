@@ -77,7 +77,7 @@ function ProductoDetalle() {
           <p className="text-muted lead mb-4">{producto.descripcion}</p>
           
           <div className="mb-4">
-            <h2 className="text-success fw-bold">${producto.precio}</h2>
+            <h2 className="text-success fw-bold">S/.{producto.precio}</h2>
             <p className={producto.stock > 10 ? 'text-success' : 'text-warning'}>
               <strong>Stock disponible:</strong> {producto.stock} unidades
             </p>

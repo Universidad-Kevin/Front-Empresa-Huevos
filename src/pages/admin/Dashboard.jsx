@@ -99,7 +99,7 @@ function Dashboard() {
     },
     {
       title: "Ventas del Mes",
-      value: `$${stats.ventasMes.toLocaleString()}`,
+      value: `S/.${stats.ventasMes.toLocaleString()}`,
       icon: "💰",
       color: "success",
       link: "/admin/estadisticas",
@@ -154,8 +154,8 @@ function Dashboard() {
                 <div className={`fs-1 mb-2 text-${stat.color}`}>
                   {stat.icon}
                 </div>
-                <h3 className={`text-${stat.color}`}>{stat.value}</h3>
-                <Card.Text className="text-muted">{stat.title}</Card.Text>
+                <h3 className={`text-${stat.color}`}>S/.{stat.value}</h3>
+                <Card.Text className="text-muted">S/.{stat.title}</Card.Text>
               </Card.Body>
             </Card>
           </Col>

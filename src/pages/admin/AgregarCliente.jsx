@@ -222,7 +222,7 @@ function AgregarCliente() {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Límite de Crédito ($)</Form.Label>
+                      <Form.Label>Límite de Crédito (S/.)</Form.Label>
                       <Form.Control
                         type="number"
                         step="0.01"
