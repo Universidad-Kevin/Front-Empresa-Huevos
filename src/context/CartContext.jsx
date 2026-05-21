@@ -16,19 +16,7 @@ export function CartProvider({ children }) {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Persistir en localStorage siempre
-  useEffect(() => {
-    localStorage.setItem('campOrganicCart', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  // Sincronizar al login
-  useEffect(() => {
-    const onLogin = () => syncWithServer(cartItems);
-    window.addEventListener('userLoggedIn', onLogin);
-    return () => window.removeEventListener('userLoggedIn', onLogin);
-  }, [cartItems, syncWithServer]);
-
-  // Sincronizar carrito con el servidor (llama al login desde AuthContext)
+  // Sincronizar carrito con el servidor
   const syncWithServer = useCallback(async (localItems) => {
     try {
       const token = localStorage.getItem('huevos_token');
@@ -56,6 +44,18 @@ export function CartProvider({ children }) {
       // Si falla la sync, el carrito local sigue funcionando
     }
   }, []);
+
+  // Persistir en localStorage siempre
+  useEffect(() => {
+    localStorage.setItem('campOrganicCart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Sincronizar al login
+  useEffect(() => {
+    const onLogin = () => syncWithServer(cartItems);
+    window.addEventListener('userLoggedIn', onLogin);
+    return () => window.removeEventListener('userLoggedIn', onLogin);
+  }, [cartItems, syncWithServer]);
 
   const addToCart = (product, quantity = 1) => {
     setCartItems(prev => {
