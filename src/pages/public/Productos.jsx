@@ -1,171 +1,288 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Form,
-  InputGroup,
-  Alert,
+  Container, Row, Col, Card, Button, Form,
+  InputGroup, Alert, Badge, Spinner, Pagination,
 } from "react-bootstrap";
 import api from "../../services/api";
+import { useCart } from "../../context/CartContext";
+
+const POR_PAGINA = 8;
 
 function Productos() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoriaFilter, setCategoriaFilter] = useState("");
+  const { addToCart } = useCart();
+
+  // Filtros
+  const [busqueda, setBusqueda] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [soloDisponibles, setSoloDisponibles] = useState(false);
+  const [precioMin, setPrecioMin] = useState("");
+  const [precioMax, setPrecioMax] = useState("");
+  const [orden, setOrden] = useState("reciente");
+  const [pagina, setPagina] = useState(1);
 
   useEffect(() => {
-    fetchProductos();
+    api.get("/productos/activos")
+      .then(({ data }) => {
+        if (data?.success && Array.isArray(data.data)) setProductos(data.data);
+        else if (Array.isArray(data)) setProductos(data);
+        else setError("Respuesta inesperada del servidor");
+      })
+      .catch(() => setError("Error al cargar los productos. Verifica que el backend esté corriendo."))
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchProductos = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await api.get("/productos/activos");
-      console.log("Respuesta completa del backend:", response.data);
+  // Categorías únicas derivadas de los datos reales
+  const categorias = useMemo(() => [...new Set(productos.map(p => p.categoria).filter(Boolean))], [productos]);
 
-      // Manejo flexible del formato de respuesta
-      if (response.data?.success && Array.isArray(response.data.data)) {
-        setProductos(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        setProductos(response.data);
-      } else {
-        setProductos([]);
-        setError("Respuesta inesperada del servidor");
-      }
-    } catch (err) {
-      console.error("Error fetching productos:", err);
-      setError(
-        "Error al cargar los productos. Verifica que el backend esté corriendo."
-      );
-      setProductos([]);
-    } finally {
-      setLoading(false);
+  // Rango de precios real
+  const precios = useMemo(() => productos.map(p => parseFloat(p.precio)), [productos]);
+  const precioRealMin = precios.length ? Math.min(...precios) : 0;
+  const precioRealMax = precios.length ? Math.max(...precios) : 9999;
+
+  const productosFiltrados = useMemo(() => {
+    let lista = [...productos];
+
+    if (busqueda) lista = lista.filter(p => p.nombre?.toLowerCase().includes(busqueda.toLowerCase()));
+    if (categoria) lista = lista.filter(p => p.categoria === categoria);
+    if (soloDisponibles) lista = lista.filter(p => p.stock > 0);
+    if (precioMin !== "") lista = lista.filter(p => parseFloat(p.precio) >= parseFloat(precioMin));
+    if (precioMax !== "") lista = lista.filter(p => parseFloat(p.precio) <= parseFloat(precioMax));
+
+    switch (orden) {
+      case "precio_asc":  lista.sort((a, b) => a.precio - b.precio); break;
+      case "precio_desc": lista.sort((a, b) => b.precio - a.precio); break;
+      case "nombre_asc":  lista.sort((a, b) => a.nombre.localeCompare(b.nombre)); break;
+      case "nombre_desc": lista.sort((a, b) => b.nombre.localeCompare(a.nombre)); break;
+      default: break; // reciente: ya viene ordenado del backend
     }
+
+    return lista;
+  }, [productos, busqueda, categoria, soloDisponibles, precioMin, precioMax, orden]);
+
+  const totalPaginas = Math.ceil(productosFiltrados.length / POR_PAGINA);
+  const paginaActual = Math.min(pagina, totalPaginas || 1);
+  const productosPagina = productosFiltrados.slice((paginaActual - 1) * POR_PAGINA, paginaActual * POR_PAGINA);
+
+  // Resetear página al cambiar filtros
+  useEffect(() => { setPagina(1); }, [busqueda, categoria, soloDisponibles, precioMin, precioMax, orden]);
+
+  const limpiarFiltros = () => {
+    setBusqueda(""); setCategoria(""); setSoloDisponibles(false);
+    setPrecioMin(""); setPrecioMax(""); setOrden("reciente"); setPagina(1);
   };
 
-  // Filtrado seguro
-  const productosFiltrados = (productos || []).filter(
-    (producto) =>
-      producto.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (categoriaFilter === "" || producto.categoria === categoriaFilter)
+  const hayFiltrosActivos = busqueda || categoria || soloDisponibles || precioMin !== "" || precioMax !== "" || orden !== "reciente";
+
+  if (loading) return (
+    <Container className="text-center py-5">
+      <Spinner variant="success" />
+      <p className="mt-2">Cargando productos...</p>
+    </Container>
   );
 
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <div className="spinner-border text-success" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-        <p className="mt-2">Cargando productos...</p>
-      </Container>
-    );
-  }
-
   return (
-    <Container className="py-5">
-      <Row className="mb-4">
-        <Col>
-          <h1 className="fw-bold">Nuestros Productos</h1>
-          <p className="text-muted">
-            Descubre nuestra variedad de huevos orgánicos
-          </p>
-        </Col>
-      </Row>
-
-      {error && (
-        <Alert variant="danger">
-          <h5>Error</h5>
-          <p>{error}</p>
-          <Button variant="outline-danger" onClick={fetchProductos}>
-            Reintentar
-          </Button>
-        </Alert>
-      )}
-
-      {/* Filtros */}
-      <Row className="mb-4">
-        <Col md={6}>
-          <InputGroup>
-            <Form.Control
-              type="text"
-              placeholder="Buscar productos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </InputGroup>
-        </Col>
-        <Col md={6}>
-          <Form.Select
-            value={categoriaFilter}
-            onChange={(e) => setCategoriaFilter(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            <option value="standard">Standard</option>
-            <option value="premium">Premium</option>
-            <option value="especial">Especial</option>
-            <option value="gourmet">Gourmet</option>
-          </Form.Select>
-        </Col>
-      </Row>
-
-      {/* Lista de Productos */}
-      <Row>
-        {productosFiltrados.map((producto) => (
-          <Col key={producto.id} lg={3} md={6} className="mb-4">
-            <Card className="h-100 shadow-sm product-card">
-              <Card.Img
-                variant="top"
-                src={producto.imagen || "/images/placeholder.jpg"}
-                style={{ height: "200px", objectFit: "cover" }}
-                onError={(e) => {
-                  e.target.src = "/images/placeholder.jpg";
-                }}
-              />
-              <Card.Body className="d-flex flex-column">
-                <Card.Title>{producto.nombre}</Card.Title>
-                <Card.Text className="flex-grow-1 text-muted">
-                  {producto.descripcion}
-                </Card.Text>
-                <div className="mt-auto">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h5 className="text-success mb-0">${producto.precio}</h5>
-                    <small className="text-muted">
-                      Stock: {producto.stock}
-                    </small>
-                  </div>
-                  <Button
-                    as={Link}
-                    to={`/producto/${producto.id}`}
-                    variant="success"
-                    className="w-100"
-                  >
-                    Ver Detalles
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-
-      {productosFiltrados.length === 0 && !loading && (
-        <Row>
-          <Col className="text-center py-5">
-            <h4 className="text-muted">No se encontraron productos</h4>
-            <Button variant="outline-primary" onClick={fetchProductos}>
-              Recargar productos
-            </Button>
+    <>
+      <Container className="py-5">
+        <Row className="mb-3">
+          <Col>
+            <h1 className="fw-bold">Nuestros Productos</h1>
+            <p className="text-muted">Descubre nuestra variedad de huevos orgánicos</p>
           </Col>
         </Row>
-      )}
-    </Container>
+
+        {error && (
+          <Alert variant="danger">
+            {error}
+            <Button variant="outline-danger" size="sm" className="ms-3" onClick={() => window.location.reload()}>
+              Reintentar
+            </Button>
+          </Alert>
+        )}
+
+        {/* Barra de filtros */}
+        <Card className="shadow-sm mb-4">
+          <Card.Body>
+            <Row className="g-3 align-items-end">
+              {/* Búsqueda */}
+              <Col md={4}>
+                <Form.Label className="small fw-bold text-muted">BUSCAR</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text>🔍</InputGroup.Text>
+                  <Form.Control
+                    placeholder="Nombre del producto..."
+                    value={busqueda}
+                    onChange={e => setBusqueda(e.target.value)}
+                  />
+                </InputGroup>
+              </Col>
+
+              {/* Categoría */}
+              <Col md={2}>
+                <Form.Label className="small fw-bold text-muted">CATEGORÍA</Form.Label>
+                <Form.Select value={categoria} onChange={e => setCategoria(e.target.value)}>
+                  <option value="">Todas</option>
+                  {categorias.map(c => (
+                    <option key={c} value={c} className="text-capitalize">{c}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              {/* Precio mín */}
+              <Col md={1}>
+                <Form.Label className="small fw-bold text-muted">PRECIO MÍN</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder={`$${precioRealMin}`}
+                  value={precioMin}
+                  onChange={e => setPrecioMin(e.target.value)}
+                  min={0}
+                />
+              </Col>
+
+              {/* Precio máx */}
+              <Col md={1}>
+                <Form.Label className="small fw-bold text-muted">PRECIO MÁX</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder={`$${precioRealMax}`}
+                  value={precioMax}
+                  onChange={e => setPrecioMax(e.target.value)}
+                  min={0}
+                />
+              </Col>
+
+              {/* Ordenar */}
+              <Col md={2}>
+                <Form.Label className="small fw-bold text-muted">ORDENAR POR</Form.Label>
+                <Form.Select value={orden} onChange={e => setOrden(e.target.value)}>
+                  <option value="reciente">Más recientes</option>
+                  <option value="precio_asc">Precio: menor a mayor</option>
+                  <option value="precio_desc">Precio: mayor a menor</option>
+                  <option value="nombre_asc">Nombre: A → Z</option>
+                  <option value="nombre_desc">Nombre: Z → A</option>
+                </Form.Select>
+              </Col>
+
+              {/* Disponibilidad + limpiar */}
+              <Col md={2} className="d-flex flex-column gap-2">
+                <Form.Check
+                  type="switch"
+                  id="solo-disponibles"
+                  label="Solo con stock"
+                  checked={soloDisponibles}
+                  onChange={e => setSoloDisponibles(e.target.checked)}
+                />
+                {hayFiltrosActivos && (
+                  <Button variant="outline-secondary" size="sm" onClick={limpiarFiltros}>
+                    Limpiar filtros
+                  </Button>
+                )}
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Resultado count */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <span className="text-muted small">
+            {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''} encontrado{productosFiltrados.length !== 1 ? 's' : ''}
+            {hayFiltrosActivos && <Badge bg="success" className="ms-2">Filtros activos</Badge>}
+          </span>
+          <span className="text-muted small">
+            Página {paginaActual} de {totalPaginas || 1}
+          </span>
+        </div>
+      </Container>
+
+      <section style={{ backgroundColor: '#DAF9DD' }}>
+        <Container className="py-4">
+          <Row>
+            {productosPagina.map(producto => (
+              <Col key={producto.id} lg={3} md={6} className="mb-4">
+                <Card className="h-100 shadow-sm">
+                  <Card.Img
+                    variant="top"
+                    src={producto.imagen || "/images/placeholder.jpg"}
+                    style={{ height: "200px", objectFit: "cover" }}
+                    onError={e => { e.target.src = "/images/placeholder.jpg"; }}
+                  />
+                  <Card.Body className="d-flex flex-column">
+                    <div className="d-flex justify-content-between mb-1">
+                      <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
+                      {producto.stock === 0 && <Badge bg="danger">Sin stock</Badge>}
+                      {producto.stock > 0 && producto.stock <= 5 && <Badge bg="warning" text="dark">Últimas {producto.stock}</Badge>}
+                    </div>
+                    <Card.Title className="mt-2">{producto.nombre}</Card.Title>
+                    <Card.Text className="flex-grow-1 text-muted small">
+                      {producto.descripcion}
+                    </Card.Text>
+                    <div className="mt-auto">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <h5 className="text-success mb-0">${parseFloat(producto.precio).toFixed(2)}</h5>
+                        <small className="text-muted">Stock: {producto.stock}</small>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <Button
+                          as={Link}
+                          to={`/producto/${producto.id}`}
+                          variant="outline-success"
+                          size="sm"
+                          className="flex-grow-1"
+                        >
+                          Ver detalles
+                        </Button>
+                        <Button
+                          variant="success"
+                          size="sm"
+                          disabled={producto.stock === 0}
+                          onClick={() => addToCart(producto)}
+                        >
+                          🛒
+                        </Button>
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          {productosFiltrados.length === 0 && (
+            <div className="text-center py-5">
+              <h5 className="text-muted">No se encontraron productos con esos filtros</h5>
+              <Button variant="outline-success" onClick={limpiarFiltros} className="mt-2">
+                Limpiar filtros
+              </Button>
+            </div>
+          )}
+
+          {/* Paginación */}
+          {totalPaginas > 1 && (
+            <div className="d-flex justify-content-center mt-4">
+              <Pagination>
+                <Pagination.First onClick={() => setPagina(1)} disabled={paginaActual === 1} />
+                <Pagination.Prev onClick={() => setPagina(p => p - 1)} disabled={paginaActual === 1} />
+                {[...Array(totalPaginas)].map((_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={paginaActual === i + 1}
+                    onClick={() => setPagina(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next onClick={() => setPagina(p => p + 1)} disabled={paginaActual === totalPaginas} />
+                <Pagination.Last onClick={() => setPagina(totalPaginas)} disabled={paginaActual === totalPaginas} />
+              </Pagination>
+            </div>
+          )}
+        </Container>
+      </section>
+    </>
   );
 }
 

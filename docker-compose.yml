@@ -12,7 +12,10 @@ services:
       - /app/node_modules
     networks:
       - frontend_network
+      - backend_network
 
 networks:
   frontend_network:
     driver: bridge
+  backend_network:
+    external: true

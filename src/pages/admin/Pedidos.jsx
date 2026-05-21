@@ -1,77 +1,42 @@
-import { useState } from 'react'
-import { Container, Row, Col, Card, Table, Button, Badge, Form } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { Container, Row, Col, Card, Table, Button, Badge, Form, Spinner, Alert } from 'react-bootstrap'
+import api from '../../services/api'
+
+const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' }
 
 function Pedidos() {
-  const [pedidos, setPedidos] = useState([
-    {
-      id: 'PED-001',
-      cliente: 'María González',
-      email: 'maria@email.com',
-      total: 45.97,
-      fecha: '2024-01-15',
-      estado: 'pendiente',
-      productos: [
-        { nombre: 'Huevos Orgánicos Grade A', cantidad: 2, precio: 8.99 },
-        { nombre: 'Huevos de Codorniz', cantidad: 1, precio: 6.99 }
-      ]
-    },
-    {
-      id: 'PED-002',
-      cliente: 'Carlos López',
-      email: 'carlos@email.com',
-      total: 25.98,
-      fecha: '2024-01-14',
-      estado: 'procesando',
-      productos: [
-        { nombre: 'Huevos Premium Omega-3', cantidad: 2, precio: 12.99 }
-      ]
-    },
-    {
-      id: 'PED-003',
-      cliente: 'Ana Martínez',
-      email: 'ana@email.com',
-      total: 68.95,
-      fecha: '2024-01-13',
-      estado: 'completado',
-      productos: [
-        { nombre: 'Huevos Orgánicos Grade A', cantidad: 3, precio: 8.99 },
-        { nombre: 'Huevos Azules Araucana', cantidad: 2, precio: 15.99 }
-      ]
-    },
-    {
-      id: 'PED-004',
-      cliente: 'Roberto Díaz',
-      email: 'roberto@email.com',
-      total: 12.99,
-      fecha: '2024-01-12',
-      estado: 'cancelado',
-      productos: [
-        { nombre: 'Huevos Premium Omega-3', cantidad: 1, precio: 12.99 }
-      ]
-    }
-  ])
-
+  const [pedidos, setPedidos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
 
-  const getEstadoVariant = (estado) => {
-    const variants = {
-      pendiente: 'warning',
-      procesando: 'info',
-      completado: 'success',
-      cancelado: 'danger'
+  useEffect(() => {
+    cargarPedidos()
+  }, [])
+
+  const cargarPedidos = async () => {
+    try {
+      const { data } = await api.get('/pedidos')
+      setPedidos(data.data)
+    } catch {
+      setError('No se pudieron cargar los pedidos.')
+    } finally {
+      setLoading(false)
     }
-    return variants[estado] || 'secondary'
   }
 
-  const cambiarEstado = (pedidoId, nuevoEstado) => {
-    setPedidos(prev => prev.map(pedido => 
-      pedido.id === pedidoId ? { ...pedido, estado: nuevoEstado } : pedido
-    ))
+  const cambiarEstado = async (pedidoId, nuevoEstado) => {
+    try {
+      await api.put(`/pedidos/${pedidoId}/estado`, { estado: nuevoEstado })
+      setPedidos(prev => prev.map(p => p.id === pedidoId ? { ...p, estado: nuevoEstado } : p))
+    } catch {
+      setError('No se pudo actualizar el estado del pedido.')
+    }
   }
 
-  const pedidosFiltrados = filtroEstado 
-    ? pedidos.filter(pedido => pedido.estado === filtroEstado)
-    : pedidos
+  const pedidosFiltrados = filtroEstado ? pedidos.filter(p => p.estado === filtroEstado) : pedidos
+
+  if (loading) return <Container className="py-5 text-center"><Spinner /></Container>
 
   return (
     <Container className="py-4">
@@ -82,77 +47,43 @@ function Pedidos() {
               <h1 className="fw-bold">Gestión de Pedidos</h1>
               <p className="text-muted">Administra y sigue los pedidos de clientes</p>
             </div>
-            <div className="d-flex gap-3">
-              <Form.Select 
-                value={filtroEstado}
-                onChange={(e) => setFiltroEstado(e.target.value)}
-                style={{ width: 'auto' }}
-              >
-                <option value="">Todos los estados</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="procesando">En Proceso</option>
-                <option value="completado">Completados</option>
-                <option value="cancelado">Cancelados</option>
-              </Form.Select>
-              <Button variant="success">
-                📊 Reportes
-              </Button>
-            </div>
+            <Form.Select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              style={{ width: 'auto' }}
+            >
+              <option value="">Todos los estados</option>
+              <option value="pendiente">Pendientes</option>
+              <option value="procesando">En Proceso</option>
+              <option value="enviado">Enviados</option>
+              <option value="completado">Completados</option>
+              <option value="cancelado">Cancelados</option>
+            </Form.Select>
           </div>
         </Col>
       </Row>
 
-      {/* Resumen de Estados */}
+      {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
+
       <Row className="mb-4">
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 bg-warning bg-opacity-10">
-            <Card.Body className="text-center">
-              <h4 className="text-warning">
-                {pedidos.filter(p => p.estado === 'pendiente').length}
-              </h4>
-              <Card.Text className="text-muted">Pendientes</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 bg-info bg-opacity-10">
-            <Card.Body className="text-center">
-              <h4 className="text-info">
-                {pedidos.filter(p => p.estado === 'procesando').length}
-              </h4>
-              <Card.Text className="text-muted">En Proceso</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 bg-success bg-opacity-10">
-            <Card.Body className="text-center">
-              <h4 className="text-success">
-                {pedidos.filter(p => p.estado === 'completado').length}
-              </h4>
-              <Card.Text className="text-muted">Completados</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 bg-danger bg-opacity-10">
-            <Card.Body className="text-center">
-              <h4 className="text-danger">
-                {pedidos.filter(p => p.estado === 'cancelado').length}
-              </h4>
-              <Card.Text className="text-muted">Cancelados</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
+        {['pendiente', 'procesando', 'enviado', 'completado', 'cancelado'].map(estado => (
+          <Col key={estado} lg={2} md={4} xs={6} className="mb-3">
+            <Card className={`border-0 bg-${estadoVariant[estado]} bg-opacity-10 text-center`}>
+              <Card.Body className="py-3">
+                <h5 className={`text-${estadoVariant[estado]}`}>{pedidos.filter(p => p.estado === estado).length}</h5>
+                <small className="text-muted text-capitalize">{estado}</small>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
 
-      {/* Tabla de Pedidos */}
       <Card className="shadow-sm">
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0">
             <thead className="bg-light">
               <tr>
-                <th>ID Pedido</th>
+                <th>#</th>
                 <th>Cliente</th>
                 <th>Fecha</th>
                 <th>Productos</th>
@@ -164,67 +95,57 @@ function Pedidos() {
             <tbody>
               {pedidosFiltrados.map(pedido => (
                 <tr key={pedido.id}>
+                  <td><strong>{pedido.id}</strong></td>
                   <td>
-                    <strong>{pedido.id}</strong>
+                    <strong>{pedido.cliente_nombre}</strong>
+                    <br />
+                    <small className="text-muted">{pedido.cliente_email}</small>
                   </td>
-                  <td>
-                    <div>
-                      <strong>{pedido.cliente}</strong>
-                      <br/>
-                      <small className="text-muted">{pedido.email}</small>
-                    </div>
-                  </td>
-                  <td>{pedido.fecha}</td>
+                  <td>{new Date(pedido.creado_en).toLocaleDateString('es-ES')}</td>
                   <td>
                     <small>
-                      {pedido.productos.map((p, index) => (
-                        <div key={index}>
-                          {p.cantidad}x {p.nombre}
-                        </div>
+                      {pedido.items?.map((item, i) => (
+                        <div key={i}>{item.cantidad}x {item.nombre_producto}</div>
                       ))}
                     </small>
                   </td>
-                  <td>${pedido.total}</td>
+                  <td className="fw-bold">${parseFloat(pedido.total).toFixed(2)}</td>
                   <td>
-                    <Badge bg={getEstadoVariant(pedido.estado)}>
+                    <Badge bg={estadoVariant[pedido.estado]} className="text-capitalize">
                       {pedido.estado}
                     </Badge>
                   </td>
                   <td>
-                    <div className="d-flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline-primary"
-                        onClick={() => {/* Ver detalles */}}
-                      >
-                        👁️
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline-success"
-                        onClick={() => cambiarEstado(pedido.id, 'completado')}
-                        disabled={pedido.estado === 'completado'}
-                      >
-                        ✅
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline-danger"
-                        onClick={() => cambiarEstado(pedido.id, 'cancelado')}
-                        disabled={pedido.estado === 'cancelado'}
-                      >
-                        ✕
-                      </Button>
+                    <div className="d-flex gap-1 flex-wrap">
+                      {pedido.estado === 'pendiente' && (
+                        <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>
+                          Procesar
+                        </Button>
+                      )}
+                      {pedido.estado === 'procesando' && (
+                        <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>
+                          Enviar
+                        </Button>
+                      )}
+                      {pedido.estado === 'enviado' && (
+                        <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>
+                          Completar
+                        </Button>
+                      )}
+                      {!['completado', 'cancelado'].includes(pedido.estado) && (
+                        <Button size="sm" variant="outline-danger" onClick={() => cambiarEstado(pedido.id, 'cancelado')}>
+                          Cancelar
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </Table>
-
           {pedidosFiltrados.length === 0 && (
             <div className="text-center py-5">
-              <p className="text-muted">No hay pedidos con el filtro seleccionado</p>
+              <p className="text-muted">No hay pedidos{filtroEstado ? ` con estado "${filtroEstado}"` : ''}.</p>
             </div>
           )}
         </Card.Body>

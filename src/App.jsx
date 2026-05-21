@@ -3,6 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { CartProvider } from "./context/CartContext";
 
 // Páginas públicas
 import Home from "./pages/public/Home";
@@ -10,8 +11,9 @@ import Productos from "./pages/public/Productos";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
 import Nosotros from "./pages/public/Nosotros";
 import Contacto from "./pages/public/Contacto";
-import Login from "./pages/public/Login";
-import Register from "./pages/public/register";
+import Checkout from "./pages/public/Checkout";
+import { MisPedidos, DetallePedidoPage } from "./pages/public/MisPedidos";
+import MiPerfil from "./pages/public/MiPerfil";
 
 // Páginas admin
 import Dashboard from "./pages/admin/Dashboard";
@@ -31,9 +33,10 @@ import "./styles/App.css";
 function App() {
   return (
     <AuthProvider>
-      <div className="App d-flex flex-column min-vh-100">
-        <Navbar />
-        <main className="flex-grow-1">
+      <CartProvider>
+        <div className="App d-flex flex-column min-vh-100">
+          <Navbar />
+          <main className="flex-grow-1">
           <Routes>
             {/* Rutas públicas */}
             <Route path="/" element={<Home />} />
@@ -41,8 +44,10 @@ function App() {
             <Route path="/producto/:id" element={<ProductoDetalle />} />
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/contacto" element={<Contacto />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/mis-pedidos" element={<MisPedidos />} />
+            <Route path="/mis-pedidos/:id" element={<DetallePedidoPage />} />
+            <Route path="/mi-perfil" element={<MiPerfil />} />
 
             {/* Rutas protegidas - Admin */}
             <Route
@@ -137,6 +142,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      </CartProvider>
     </AuthProvider>
   );
 }

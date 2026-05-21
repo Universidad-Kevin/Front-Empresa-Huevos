@@ -31,7 +31,7 @@ function Home() {
             </Col>
             <Col lg={6}>
               <img
-                src="src/public/images/image-1-home.webp"
+                src="/images/image-1-home.webp"
                 alt="Huevos orgánicos"
                 className="img-fluid rounded"
                 style={{ width: '697px', height: '371px' }}
@@ -45,7 +45,7 @@ function Home() {
         <Container>
           <Row className="justify-content-center text-center">
             <Col xs={12} sm={6} md={3} className="d-flex align-items-center justify-content-center mb-2">
-              <img src="src/public/images/pngwing.camion-1.webp"
+              <img src="/images/pngwing.camion-1.webp"
                 style={{ width: '194px', height: '93px', objectFit: 'contain' }}
                 alt="camion" className="me-3" />
               <div className="text-start">
@@ -54,7 +54,7 @@ function Home() {
               </div>
             </Col>
             <Col xs={12} sm={6} md={3} className="d-flex align-items-center justify-content-center mb-4">
-              <img src="src/public/images/pngwing.organico-1.webp"
+              <img src="/images/pngwing.organico-1.webp"
                 style={{ width: '214px', height: '167px', objectFit: 'contain' }}
                 alt="organico" className="me-3" />
               <div className="text-start">
@@ -63,7 +63,7 @@ function Home() {
               </div>
             </Col>
             <Col xs={12} sm={6} md={3} className="d-flex align-items-center justify-content-center mb-4">
-              <img src="src/public/images/icono-conservante-simbolo-libre-quimicos-toxicos-producto-limpio-ilustracion-vectorial-eps-10-stock_.webp"
+              <img src="/images/icono-conservante-simbolo-libre-quimicos-toxicos-producto-limpio-ilustracion-vectorial-eps-10-stock_.webp"
                 style={{ width: '140px', height: '140px', objectFit: 'contain' }}
                 alt="sin quimicos" className="me-3" />
               <div className="text-start">
@@ -72,7 +72,7 @@ function Home() {
               </div>
             </Col>
             <Col xs={12} sm={6} md={3} className="d-flex align-items-center justify-content-center mb-4">
-              <img src="src/public/images/imagen-vectorial-icono-terapia-puede-usarse-tdah_120816-359788-removebg-preview-1.webp"
+              <img src="/images/imagen-vectorial-icono-terapia-puede-usarse-tdah_120816-359788-removebg-preview-1.webp"
                 style={{ width: '149px', height: '149px', objectFit: 'contain' }}
                 alt="saludables" className="me-3" />
               <div className="text-start">
@@ -100,7 +100,7 @@ function Home() {
                   <h4 style={{ color: '#ffffff' }}>Compromiso <br />100% orgánico</h4>
                   <p className="text-white mb-0">Todos nuestros productos crecen sin pesticidas ni fertilizantes químicos, protegiendo tanto tu salud como el equilibrio del ecosistema.</p>
                 </div>
-                <img src="src/public/images/image-9.webp"
+                <img src="/images/image-9.webp"
                   style={{ width: '150px', height: '150px', objectFit: 'contain' }}
                   alt="organico" className="flex-shrink-0" />
               </div>
@@ -112,7 +112,7 @@ function Home() {
                   <h4 style={{ color: '#000000' }}>Trazabilidad de confianza</h4>
                   <p className="text-black mb-0">Al ser productores directos, cada producto que llega a tu mesa ha sido supervisado por nosotros desde su origen, asegurando una frescura que no encontrarás en ningún supermercado.</p>
                 </div>
-                <img src="src/public/images/image-9.webp"
+                <img src="/images/image-_19_-1.webp"
                   style={{ width: '100px', height: '100px', objectFit: 'contain' }}
                   alt="organico" className="flex-shrink-0" />
               </div>
@@ -121,7 +121,7 @@ function Home() {
                   <div className="pe-2">
                     <h5 style={{ color: '#ffffff', margin: 0 }}>Apoyo al consumo local y responsable</h5>
                   </div>
-                  <img src="src/public/images/image-9.webp"
+                  <img src="/images/pngegg-consumo-1.webp"
                     style={{ width: '80px', height: '80px', objectFit: 'contain' }}
                     alt="organico" className="flex-shrink-0" />
                 </div>
@@ -129,7 +129,7 @@ function Home() {
                   <div className="pe-2">
                     <h5 style={{ color: '#ffffff', margin: 0 }}>Atención personalizada</h5>
                   </div>
-                  <img src="src/public/images/image-9.webp"
+                  <img src="/images/pngwing.atencion-1.webp"
                     style={{ width: '80px', height: '80px', objectFit: 'contain' }}
                     alt="organico" className="flex-shrink-0" />
                 </div>
@@ -150,10 +150,10 @@ function Home() {
           </Row>
           <Row>
             <Col md={4} className="mb-4">
-              <Card className="h-100 border" style={{ borderColor: '#2D5A27', borderWidth: '10px' }}>
+              <Card className="h-100 border" style={{ borderColor: '#2D5A27', borderWidth: '20px' }}>
                 <Card.Img
                   variant="top"
-                  src={"/Front-Empresa-Huevos/src/public/images/huevo-organico.jpg"}
+                  src="/images/placeholder.jpg"
                   style={{ height: '200px', objectFit: 'cover' }}
                 />
                 <Card.Body className="d-flex flex-column">

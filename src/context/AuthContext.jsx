@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("huevos_user", JSON.stringify(userData));
 
       setUser(userData);
+      window.dispatchEvent(new CustomEvent('userLoggedIn'));
       return { success: true, data: userData };
     } catch (error) {
       console.error("❌ Error en login:", error);
