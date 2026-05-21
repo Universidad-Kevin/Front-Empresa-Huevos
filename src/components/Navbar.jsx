@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Navbar, Nav, Container, Dropdown, Badge } from 'react-bootstrap'
 import AuthModal from './AuthModal'
 import CartOffcanvas from './CartOffcanvas'
 import { useCart } from '../context/CartContext'
+import api from '../services/api'
 
 function NavigationBar() {
   const { user, logout } = useAuth()
@@ -12,6 +13,28 @@ function NavigationBar() {
   const navigate = useNavigate()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { itemCount, toggleCart } = useCart()
+  const [pedidosPendientes, setPedidosPendientes] = useState(0)
+  const intervalRef = useRef(null)
+
+  useEffect(() => {
+    if (user?.rol !== 'admin') {
+      setPedidosPendientes(0)
+      return
+    }
+
+    const fetchPendientes = async () => {
+      try {
+        const { data } = await api.get('/pedidos/pendientes/count')
+        setPedidosPendientes(data.data?.total ?? 0)
+      } catch {
+        // silencioso
+      }
+    }
+
+    fetchPendientes()
+    intervalRef.current = setInterval(fetchPendientes, 30000)
+    return () => clearInterval(intervalRef.current)
+  }, [user])
 
   const handleLogout = () => {
     logout()
@@ -81,15 +104,30 @@ function NavigationBar() {
 
             {user ? (
               <Dropdown>
-                <Dropdown.Toggle variant="outline-dark" id="dropdown-basic">
+                <Dropdown.Toggle variant="outline-dark" id="dropdown-basic" className="position-relative">
                   👋 {user.nombre}
+                  {user.rol === 'admin' && pedidosPendientes > 0 && (
+                    <Badge
+                      bg="danger"
+                      pill
+                      className="position-absolute top-0 start-100 translate-middle"
+                      style={{ fontSize: '0.65em' }}
+                    >
+                      {pedidosPendientes}
+                    </Badge>
+                  )}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   {user.rol === 'admin' ? (
                     <>
                       <Dropdown.Item as={Link} to="/admin">Dashboard</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/productos">Productos</Dropdown.Item>
-                      <Dropdown.Item as={Link} to="/admin/pedidos">Pedidos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/pedidos">
+                        Pedidos
+                        {pedidosPendientes > 0 && (
+                          <Badge bg="danger" pill className="ms-2">{pedidosPendientes}</Badge>
+                        )}
+                      </Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/clientes">Clientes</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/estadisticas">Estadísticas</Dropdown.Item>
                     </>
