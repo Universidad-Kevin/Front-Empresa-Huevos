@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Accordion } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import {
   Container,
   Row,
@@ -9,28 +8,21 @@ import {
   Form,
   Button,
   Alert,
+  Spinner,
 } from "react-bootstrap";
 import api from "../../services/api";
 
+const FORM_INICIAL = { nombre: "", email: "", telefono: "", asunto: "", mensaje: "" };
+
 function AgregarInteresado() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-    asunto: "",
-    mensaje: "",
-  });
+  const [formData, setFormData] = useState(FORM_INICIAL);
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -38,27 +30,15 @@ function AgregarInteresado() {
     setLoading(true);
     setError("");
     try {
-      const interesadoData = {
-        nombre: formData.nombre,
-        email: formData.email,
-        telefono: formData.telefono,
-        asunto: formData.asunto,
-        mensaje: formData.mensaje,
-      };
-      console.log("Enviando datos del interesado:", interesadoData);
-
-      const response = await api.post("/interesados", interesadoData);
-
+      const response = await api.post("/interesados", formData);
       if (response.data.success) {
         setEnviado(true);
-        setTimeout(() => {
-          navigate("/contacto");
-        }, 2000);
+        setFormData(FORM_INICIAL);
       }
     } catch (err) {
-      console.error("Error al enviar el formulario:", err);
       setError(
-        "Ocurrió un error al enviar el formulario. Por favor, inténtalo de nuevo."
+        err.response?.data?.error ||
+        "Ocurrió un error al enviar el mensaje. Por favor, inténtalo de nuevo."
       );
     } finally {
       setLoading(false);
@@ -240,7 +220,10 @@ function AgregarInteresado() {
                   disabled={loading}
                   className="w-100"
                 >
-                  {loading ? "Enviando..." : "📨 Enviar Mensaje"}
+                  {loading
+                    ? <><Spinner size="sm" className="me-2" />Enviando...</>
+                    : "📨 Enviar Mensaje"
+                  }
                 </Button>
               </Form>
             </Card.Body>
