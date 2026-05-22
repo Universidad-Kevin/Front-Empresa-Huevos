@@ -335,7 +335,7 @@ function AgregarProducto() {
 
                   {formData.precio && (
                     <p className="fw-bold text-success">
-                      ${parseFloat(formData.precio).toFixed(2)}
+                      S/.{parseFloat(formData.precio).toFixed(2)}
                     </p>
                   )}
 

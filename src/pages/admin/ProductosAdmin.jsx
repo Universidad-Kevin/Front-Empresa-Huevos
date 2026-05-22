@@ -286,7 +286,7 @@ function ProductosAdmin() {
             <Card className="border-0 bg-info bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-info">
-                  ${productos.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)}
+                  S/.{productos.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)}
                 </h4>
                 <Card.Text className="text-muted">Valor Inventario</Card.Text>
               </Card.Body>
