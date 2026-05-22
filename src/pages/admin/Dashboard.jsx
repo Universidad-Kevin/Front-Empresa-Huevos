@@ -147,8 +147,8 @@ function Dashboard() {
                 <div className={`fs-1 mb-2 text-${stat.color}`}>
                   {stat.icon}
                 </div>
-                <h3 className={`text-${stat.color}`}>S/.{stat.value}</h3>
-                <Card.Text className="text-muted">S/.{stat.title}</Card.Text>
+                <h3 className={`text-${stat.color}`}>{stat.value}</h3>
+                <Card.Text className="text-muted">{stat.title}</Card.Text>
               </Card.Body>
             </Card>
           </Col>

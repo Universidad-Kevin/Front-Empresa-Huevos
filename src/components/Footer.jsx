@@ -1,10 +1,12 @@
+import { Link } from 'react-router-dom'
+
 function Footer() {
   return (
     <footer className="py-4" style={{ backgroundColor: '#F0F0F0' }}>
       <div className="container">
         <div className="row d-flex align-items-center">
           <div className="col-md-3 d-flex flex-column align-items-center justify-content-center">
-            <img src="src/public/images/LogoCampOrgan-1.webp" alt="logo" style={{ width: '90px' }} />
+            <img src="/images/LogoCampOrgan-1.webp" alt="logo" style={{ width: '90px' }} />
             <div className="d-flex gap-2 mt-2">
               <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" className="btn p-2" style={{ color: '#2D5A27' }} aria-label="TikTok">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
@@ -26,10 +28,10 @@ function Footer() {
           <div className="col-2">
             <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '4px' }}>NAVEGACION</h6>
             <p>
-              <a href="/" className="text-decoration-none" style={{ color: '#2D5A27' }}>Home</a><br />
-              <a href="/productos" className="text-decoration-none" style={{ color: '#2D5A27' }}>Productos</a><br />
-              <a href="/nosotros" className="text-decoration-none" style={{ color: '#2D5A27' }}>Nosotros</a><br />
-              <a href="/contacto" className="text-decoration-none" style={{ color: '#2D5A27' }}>Contacto</a>
+              <Link to="/" className="text-decoration-none" style={{ color: '#2D5A27' }}>Home</Link><br />
+              <Link to="/productos" className="text-decoration-none" style={{ color: '#2D5A27' }}>Productos</Link><br />
+              <Link to="/nosotros" className="text-decoration-none" style={{ color: '#2D5A27' }}>Nosotros</Link><br />
+              <Link to="/contacto" className="text-decoration-none" style={{ color: '#2D5A27' }}>Contacto</Link>
             </p>
           </div>
           <div className="col-2">
@@ -41,12 +43,12 @@ function Footer() {
           <div className="col-2">
             <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '4px' }}>CONTACTO</h6>
             <p>
-              <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" target="_blank" rel="noopener noreferrer" className="text-decoration-none">camporganic@gmail.com</a><br />
-              <a href="https://wa.me/51912959929" target="_blank" rel="noopener noreferrer" className="text-decoration-none">+51 912 959 929</a>
+              <a href="mailto:camporganic@gmail.com" className="text-decoration-none" style={{ color: '#2D5A27' }}>camporganic@gmail.com</a><br />
+              <a href="https://wa.me/51912959929" target="_blank" rel="noopener noreferrer" className="text-decoration-none" style={{ color: '#2D5A27' }}>+51 912 959 929</a>
             </p>
           </div>
           <div className="col-md-3 d-flex flex-column align-items-center justify-content-center">
-            <img src="src/public/images/image-6.webp" alt="logo" style={{ width: '120px' }} />
+            <img src="/images/image-6.webp" alt="logo" style={{ width: '120px' }} />
           </div>
         </div>
         <hr />
