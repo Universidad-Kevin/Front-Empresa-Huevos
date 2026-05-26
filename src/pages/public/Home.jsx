@@ -1,7 +1,46 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Container, Row, Col, Card, Button } from 'react-bootstrap'
+import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
+import api from '../../services/api'
+import { useCart } from '../../context/CartContext'
+
+function SkeletonCard() {
+  return (
+    <Card className="h-100 shadow-sm">
+      <div className="placeholder-glow">
+        <div className="placeholder w-100" style={{ height: '200px' }} />
+      </div>
+      <Card.Body className="d-flex flex-column placeholder-glow">
+        <div className="placeholder col-8 mb-2 rounded" style={{ height: '1.2rem' }} />
+        <div className="placeholder col-12 mb-1 rounded" style={{ height: '0.8rem' }} />
+        <div className="placeholder col-10 mb-3 rounded" style={{ height: '0.8rem' }} />
+        <div className="mt-auto d-flex justify-content-between align-items-center">
+          <div className="placeholder col-4 rounded" style={{ height: '1.5rem' }} />
+          <div className="placeholder col-4 rounded" style={{ height: '2rem' }} />
+        </div>
+      </Card.Body>
+    </Card>
+  )
+}
 
 function Home() {
+  const [destacados, setDestacados] = useState([])
+  const [loadingDestacados, setLoadingDestacados] = useState(true)
+  const { addToCart } = useCart()
+
+  useEffect(() => {
+    api.get('/productos/activos')
+      .then(({ data }) => {
+        const lista = data?.data ?? data ?? []
+        // Tomar los 3 primeros con stock disponible; si no hay suficientes, completar con los demás
+        const conStock = lista.filter(p => p.stock > 0)
+        const sinStock = lista.filter(p => p.stock === 0)
+        setDestacados([...conStock, ...sinStock].slice(0, 3))
+      })
+      .catch(() => setDestacados([]))
+      .finally(() => setLoadingDestacados(false))
+  }, [])
+
   return (
     <main>
       {/* Hero Section */}
@@ -143,75 +182,86 @@ function Home() {
       {/* Productos Destacados */}
       <section className="py-5" style={{ backgroundColor: '#DAF9DD' }}>
         <Container>
-          <Row className="mb-5">
+          <Row className="align-items-center mb-4">
             <Col>
-              <h2 style={{ color: '#23501E' }} className="fw-bold">Lo Mejor De CampOrganic</h2>
+              <h2 style={{ color: '#23501E' }} className="fw-bold mb-0">Lo Mejor De CampOrganic</h2>
+            </Col>
+            <Col xs="auto">
+              <Button as={Link} to="/productos" variant="outline-success" size="sm">
+                Ver todos →
+              </Button>
             </Col>
           </Row>
           <Row>
-            <Col md={4} className="mb-4">
-              <Card className="h-100 border" style={{ borderColor: '#2D5A27', borderWidth: '20px' }}>
-                <Card.Img
-                  variant="top"
-                  src="/images/placeholder.jpg"
-                  style={{ height: '200px', objectFit: 'cover' }}
-                />
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>Huevos Orgánicos Grade A</Card.Title>
-                  <Card.Text className="flex-grow-1">
-                    Huevos frescos de gallinas criadas libremente en pastoreo.
-                  </Card.Text>
-                  <div className="mt-auto">
-                    <h5 className="text-success">S/.8.99</h5>
-                    <Button as={Link} to="/productos" variant="success">
-                      Ver Más
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={4} className="mb-4">
-              <Card className="h-100 shadow-sm">
-                <Card.Img
-                  variant="top"
-                  src="/images/huevo-omega3.jpg"
-                  style={{ height: '200px', objectFit: 'cover' }}
-                />
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>Huevos Premium Omega-3</Card.Title>
-                  <Card.Text className="flex-grow-1">
-                    Enriquecidos naturalmente con ácidos grasos Omega-3.
-                  </Card.Text>
-                  <div className="mt-auto">
-                    <h5 className="text-success">S/.12.99</h5>
-                    <Button as={Link} to="/productos" variant="success">
-                      Ver Más
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={4} className="mb-4">
-              <Card className="h-100 shadow-sm">
-                <Card.Img
-                  variant="top"
-                  src="/images/huevo-codorniz.jpg"
-                  style={{ height: '200px', objectFit: 'cover' }}
-                />
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>Huevos de Codorniz</Card.Title>
-                  <Card.Text className="flex-grow-1">
-                    Huevos pequeños llenos de sabor y nutrientes concentrados.
-                  </Card.Text>
-                  <div className="mt-auto">
-                    <h5 className="text-success">S/.6.99</h5>
-                    <Button as={Link} to="/productos" variant="success">
-                      Ver Más
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
+            {loadingDestacados
+              ? [0, 1, 2].map(i => (
+                  <Col key={i} md={4} className="mb-4">
+                    <SkeletonCard />
+                  </Col>
+                ))
+              : destacados.length === 0
+                ? (
+                  <Col className="text-center py-5">
+                    <p className="text-muted">No hay productos disponibles en este momento.</p>
+                    <Button as={Link} to="/productos" variant="success">Ver Productos</Button>
+                  </Col>
+                )
+                : destacados.map(producto => (
+                  <Col key={producto.id} md={4} className="mb-4">
+                    <Card className="h-100 shadow-sm">
+                      <div style={{ position: 'relative' }}>
+                        <Card.Img
+                          variant="top"
+                          src={producto.imagen || '/images/placeholder.jpg'}
+                          style={{ height: '200px', objectFit: 'cover' }}
+                          onError={e => { e.target.src = '/images/placeholder.jpg' }}
+                        />
+                        {producto.stock === 0 && (
+                          <Badge bg="danger" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            Sin stock
+                          </Badge>
+                        )}
+                        {producto.stock > 0 && producto.stock <= 5 && (
+                          <Badge bg="warning" text="dark" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            Últimas {producto.stock}
+                          </Badge>
+                        )}
+                      </div>
+                      <Card.Body className="d-flex flex-column">
+                        <div className="mb-1">
+                          <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
+                        </div>
+                        <Card.Title className="mt-2">{producto.nombre}</Card.Title>
+                        <Card.Text className="flex-grow-1 text-muted small">
+                          {producto.descripcion}
+                        </Card.Text>
+                        <div className="mt-auto">
+                          <h5 className="text-success">S/.{parseFloat(producto.precio).toFixed(2)}</h5>
+                          <div className="d-flex gap-2">
+                            <Button
+                              as={Link}
+                              to={`/producto/${producto.id}`}
+                              variant="outline-success"
+                              size="sm"
+                              className="flex-grow-1"
+                            >
+                              Ver detalles
+                            </Button>
+                            <Button
+                              variant="success"
+                              size="sm"
+                              disabled={producto.stock === 0}
+                              onClick={() => addToCart(producto)}
+                            >
+                              🛒
+                            </Button>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))
+            }
           </Row>
         </Container>
       </section>
