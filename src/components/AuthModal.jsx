@@ -49,7 +49,7 @@ function AuthModal({ show, onHide, initialView = "login" }) {
         const result = await login(formData.email, formData.password);
         if (result.success) {
           onHide();
-          navigate("/checkout");
+          navigate(result.data?.rol === "admin" ? "/admin" : "/");
         } else {
           setError(result.error || "Credenciales inválidas");
         }
