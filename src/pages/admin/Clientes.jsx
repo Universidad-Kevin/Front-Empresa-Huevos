@@ -103,76 +103,95 @@ function Clientes() {
               </Link>
             </div>
           ) : (
-            <Table responsive hover>
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th>Tipo de Negocio</th>
-                  <th>Contacto</th>
-                  <th>Límite Crédito</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientes.map((cliente) => (
-                  <tr key={cliente.id}>
-                    <td>
-                      <div>
+            <>
+              {/* Tabla — desktop */}
+              <Table responsive hover className="d-none d-md-table">
+                <thead>
+                  <tr>
+                    <th>Empresa</th>
+                    <th>Tipo de Negocio</th>
+                    <th>Contacto</th>
+                    <th>Límite Crédito</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clientes.map((cliente) => (
+                    <tr key={cliente.id}>
+                      <td>
                         <strong>{cliente.nombre_empresa}</strong>
                         <br />
                         <small className="text-muted">{cliente.email}</small>
-                      </div>
-                    </td>
-                    <td>
-                      <Badge bg={getTipoNegocioBadge(cliente.tipo_negocio)}>
-                        {cliente.tipo_negocio}
-                      </Badge>
-                    </td>
-                    <td>
-                      <div>
+                      </td>
+                      <td>
+                        <Badge bg={getTipoNegocioBadge(cliente.tipo_negocio)}>
+                          {cliente.tipo_negocio}
+                        </Badge>
+                      </td>
+                      <td>
                         <strong>{cliente.contacto_nombre}</strong>
                         <br />
                         <small className="text-muted">{cliente.telefono}</small>
+                      </td>
+                      <td><strong>S/.{cliente.limite_credito?.toLocaleString()}</strong></td>
+                      <td>
+                        <Badge bg={cliente.estado === "activo" ? "success" : "secondary"}>
+                          {cliente.estado}
+                        </Badge>
+                      </td>
+                      <td>
+                        <div className="d-flex gap-2">
+                          <Link to={`/admin/editar-cliente/${cliente.id}`} className="btn btn-sm btn-outline-primary">
+                            Editar
+                          </Link>
+                          {cliente.estado === "activo" && (
+                            <Button variant="outline-danger" size="sm" onClick={() => handleDesactivarCliente(cliente.id)}>
+                              Desactivar
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+              {/* Tarjetas — mobile */}
+              <div className="d-md-none">
+                {clientes.map((cliente) => (
+                  <div key={cliente.id} className="border rounded p-3 mb-3">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <strong>{cliente.nombre_empresa}</strong>
+                        <div className="small text-muted">{cliente.email}</div>
                       </div>
-                    </td>
-                    <td>
-                      <strong>
-                        S/.{cliente.limite_credito?.toLocaleString()}
-                      </strong>
-                    </td>
-                    <td>
-                      <Badge
-                        bg={
-                          cliente.estado === "activo" ? "success" : "secondary"
-                        }
-                      >
+                      <Badge bg={cliente.estado === "activo" ? "success" : "secondary"}>
                         {cliente.estado}
                       </Badge>
-                    </td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        <Link
-                          to={`/admin/editar-cliente/${cliente.id}`}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          Editar
-                        </Link>
-                        {cliente.estado === "activo" && (
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleDesactivarCliente(cliente.id)}
-                          >
-                            Desactivar
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="small mb-1">
+                      <span className="text-muted">Contacto: </span>{cliente.contacto_nombre}
+                      {cliente.telefono && <span className="text-muted ms-2">{cliente.telefono}</span>}
+                    </div>
+                    <div className="small mb-1">
+                      <Badge bg={getTipoNegocioBadge(cliente.tipo_negocio)} className="me-2">{cliente.tipo_negocio}</Badge>
+                      <span className="text-muted">Crédito: </span><strong>S/.{cliente.limite_credito?.toLocaleString()}</strong>
+                    </div>
+                    <div className="d-flex gap-2 mt-2">
+                      <Link to={`/admin/editar-cliente/${cliente.id}`} className="btn btn-sm btn-outline-primary">
+                        Editar
+                      </Link>
+                      {cliente.estado === "activo" && (
+                        <Button variant="outline-danger" size="sm" onClick={() => handleDesactivarCliente(cliente.id)}>
+                          Desactivar
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </Table>
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>

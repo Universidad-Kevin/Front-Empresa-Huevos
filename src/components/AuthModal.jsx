@@ -49,7 +49,8 @@ function AuthModal({ show, onHide, initialView = "login" }) {
         const result = await login(formData.email, formData.password);
         if (result.success) {
           onHide();
-          navigate(result.data?.rol === "admin" ? "/admin" : "/");
+          const rol = result.data?.rol;
+          navigate(rol === "admin" ? "/admin" : rol === "mayorista" ? "/mayorista" : "/");
         } else {
           setError(result.error || "Credenciales inválidas");
         }
@@ -81,8 +82,8 @@ function AuthModal({ show, onHide, initialView = "login" }) {
         <div className="text-center mb-4">
           <p className="text-muted">
             {view === "login"
-              ? "Acceso para administradores"
-              : "Crear nuevo usuario"}
+              ? "Bienvenido de vuelta"
+              : "Crear tu cuenta"}
           </p>
         </div>
 

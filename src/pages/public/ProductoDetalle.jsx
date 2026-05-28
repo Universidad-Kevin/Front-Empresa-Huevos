@@ -1,18 +1,48 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Badge, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Badge, Alert, Form, Collapse } from 'react-bootstrap';
 import api from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { SkeletonProductDetail } from '../../components/SkeletonLoader';
 
 function ProductoDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const { addToCart } = useCart();
+
+  const [reporteAbierto, setReporteAbierto] = useState(false);
+  const [reporteTipo, setReporteTipo] = useState('poco_stock');
+  const [reporteMensaje, setReporteMensaje] = useState('');
+  const [reporteEnviando, setReporteEnviando] = useState(false);
+  const [reporteExito, setReporteExito] = useState('');
+  const [reporteError, setReporteError] = useState('');
+
+  const puedeReportar = user && user.rol !== 'admin' && user.rol !== 'mayorista';
+
+  const handleReporte = async (e) => {
+    e.preventDefault();
+    setReporteEnviando(true);
+    setReporteError('');
+    try {
+      const res = await api.post(`/productos/${id}/reportar-stock`, {
+        tipo: reporteTipo,
+        mensaje: reporteMensaje,
+      });
+      setReporteExito(res.data.message);
+      setReporteAbierto(false);
+      setReporteMensaje('');
+    } catch (err) {
+      setReporteError(err.response?.data?.error || 'Error al enviar el reporte');
+    } finally {
+      setReporteEnviando(false);
+    }
+  };
 
   useEffect(() => {
     fetchProducto();
@@ -115,6 +145,59 @@ function ProductoDetalle() {
               🏠 Ir al Inicio
             </Button>
           </div>
+
+          {puedeReportar && (
+            <div className="mt-4 pt-3 border-top">
+              {reporteExito && (
+                <Alert variant="success" className="py-2 small" dismissible onClose={() => setReporteExito('')}>
+                  {reporteExito}
+                </Alert>
+              )}
+              {!reporteAbierto ? (
+                <button
+                  className="btn btn-link text-muted p-0 small"
+                  onClick={() => setReporteAbierto(true)}
+                >
+                  ⚠️ Reportar problema de stock
+                </button>
+              ) : (
+                <div className="border rounded p-3 bg-light">
+                  <p className="fw-bold small mb-2">Reportar problema de stock</p>
+                  {reporteError && <Alert variant="danger" className="py-1 small">{reporteError}</Alert>}
+                  <Form onSubmit={handleReporte}>
+                    <Form.Group className="mb-2">
+                      <Form.Select
+                        size="sm"
+                        value={reporteTipo}
+                        onChange={e => setReporteTipo(e.target.value)}
+                      >
+                        <option value="poco_stock">Stock muy bajo / casi sin existencias</option>
+                        <option value="sin_stock">Sin stock (producto agotado)</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Control
+                        as="textarea"
+                        rows={2}
+                        size="sm"
+                        placeholder="Comentario adicional (opcional)..."
+                        value={reporteMensaje}
+                        onChange={e => setReporteMensaje(e.target.value)}
+                      />
+                    </Form.Group>
+                    <div className="d-flex gap-2">
+                      <Button type="submit" size="sm" variant="warning" disabled={reporteEnviando}>
+                        {reporteEnviando ? 'Enviando...' : 'Enviar reporte'}
+                      </Button>
+                      <Button size="sm" variant="outline-secondary" onClick={() => setReporteAbierto(false)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </Form>
+                </div>
+              )}
+            </div>
+          )}
         </Col>
       </Row>
     </Container>

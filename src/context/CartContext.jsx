@@ -22,6 +22,13 @@ export function CartProvider({ children }) {
       const token = localStorage.getItem('huevos_token');
       if (!token) return;
 
+      // Mayoristas y admins no tienen carrito — no sincronizar
+      const savedUser = localStorage.getItem('huevos_user');
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        if (u.rol === 'mayorista' || u.rol === 'admin') return;
+      }
+
       const items = localItems.map(i => ({
         producto_id: i.id,
         cantidad: i.quantity,
@@ -93,9 +100,12 @@ export function CartProvider({ children }) {
 
   const clearCart = () => {
     setCartItems([]);
-    // Vaciar en servidor también
     const token = localStorage.getItem('huevos_token');
-    if (token) api.delete('/carrito').catch(() => {});
+    const savedUser = localStorage.getItem('huevos_user');
+    const rol = savedUser ? JSON.parse(savedUser).rol : null;
+    if (token && rol !== 'mayorista' && rol !== 'admin') {
+      api.delete('/carrito').catch(() => {});
+    }
   };
 
   const toggleCart = () => setIsCartOpen(p => !p);

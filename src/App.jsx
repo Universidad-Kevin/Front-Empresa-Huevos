@@ -25,8 +25,14 @@ import Estadisticas from "./pages/admin/Estadisticas";
 import Clientes from "./pages/admin/Clientes";
 import AgregarCliente from "./pages/admin/AgregarCliente";
 import EditarCliente from "./pages/admin/EditarCliente";
+import NuevoPedidoMayorista from "./pages/admin/NuevoPedidoMayorista";
 import Pedidos from "./pages/admin/Pedidos";
 import Configuracion from "./pages/admin/Configuracion";
+import Usuarios from "./pages/admin/Usuarios";
+import DashboardMayorista from "./pages/mayorista/DashboardMayorista";
+import { ListaPedidosMayorista, DetallePedidoMayorista } from "./pages/mayorista/PedidosMayorista";
+import PerfilMayorista from "./pages/mayorista/PerfilMayorista";
+import ContactoMayorista from "./pages/mayorista/ContactoMayorista";
 
 import "./styles/App.css";
 
@@ -138,6 +144,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/clientes/:id/nuevo-pedido"
+              element={
+                <ProtectedRoute>
+                  <NuevoPedidoMayorista />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/usuarios"
+              element={
+                <ProtectedRoute>
+                  <Usuarios />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rutas portal mayorista */}
+            <Route path="/mayorista" element={<ProtectedRoute allowedRoles={["mayorista"]}><DashboardMayorista /></ProtectedRoute>} />
+            <Route path="/mayorista/pedidos" element={<ProtectedRoute allowedRoles={["mayorista"]}><ListaPedidosMayorista /></ProtectedRoute>} />
+            <Route path="/mayorista/pedidos/:id" element={<ProtectedRoute allowedRoles={["mayorista"]}><DetallePedidoMayorista /></ProtectedRoute>} />
+            <Route path="/mayorista/perfil" element={<ProtectedRoute allowedRoles={["mayorista"]}><PerfilMayorista /></ProtectedRoute>} />
+            <Route path="/mayorista/contacto" element={<ProtectedRoute allowedRoles={["mayorista"]}><ContactoMayorista /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />

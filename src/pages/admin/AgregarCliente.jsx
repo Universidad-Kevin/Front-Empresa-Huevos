@@ -18,6 +18,8 @@ function AgregarCliente() {
     tipo_negocio: "Restaurante",
     contacto_nombre: "",
     email: "",
+    password: "",
+    confirmar_password: "",
     telefono: "",
     direccion: "",
     ruc: "",
@@ -44,9 +46,16 @@ function AgregarCliente() {
     setError("");
     setSuccess("");
 
+    if (formData.password !== formData.confirmar_password) {
+      setError("Las contraseñas no coinciden");
+      setLoading(false);
+      return;
+    }
+
     try {
+      const { confirmar_password, ...rest } = formData;
       const clienteData = {
-        ...formData,
+        ...rest,
         limite_credito: parseFloat(formData.limite_credito) || 0,
       };
 
@@ -160,6 +169,40 @@ function AgregarCliente() {
                         placeholder="ejemplo@empresa.com"
                         required
                       />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Contraseña *</Form.Label>
+                      <Form.Control
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                        minLength={6}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Confirmar contraseña *</Form.Label>
+                      <Form.Control
+                        type="password"
+                        name="confirmar_password"
+                        value={formData.confirmar_password}
+                        onChange={handleChange}
+                        placeholder="Repetir contraseña"
+                        required
+                        isInvalid={formData.confirmar_password && formData.password !== formData.confirmar_password}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Las contraseñas no coinciden
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                 </Row>

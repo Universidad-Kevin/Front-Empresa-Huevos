@@ -4,10 +4,10 @@ import api from '../../services/api'
 import { SkeletonTable } from '../../components/SkeletonLoader'
 
 const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' }
-const estadoLabel  = { pendiente: 'Pendiente', procesando: 'En proceso', enviado: 'Enviado', completado: 'Completado', cancelado: 'Cancelado' }
+const estadoLabel  = { pendiente: 'Pendiente', procesando: 'En Preparación', enviado: 'En Camino', completado: 'Entregado', cancelado: 'Cancelado' }
 const metodoPagoLabel = { efectivo: '💵 Efectivo', transferencia: '🏦 Transferencia', tarjeta: '💳 Tarjeta' }
 
-function ModalVerificacion({ show, onHide, onActualizar }) {
+function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
   const [codigo, setCodigo]     = useState('')
   const [pedido, setPedido]     = useState(null)
   const [buscando, setBuscando] = useState(false)
@@ -137,10 +137,9 @@ function ModalVerificacion({ show, onHide, onActualizar }) {
                 </Button>
                 <Button
                   variant="outline-danger"
-                  onClick={() => confirmarAccion('cancelado')}
+                  onClick={() => { onCancelar(pedido); }}
                   disabled={!!accion}
                 >
-                  {accion === 'cancelado' ? <Spinner size="sm" className="me-2" /> : null}
                   Cancelar pedido
                 </Button>
               </div>
@@ -159,12 +158,86 @@ function ModalVerificacion({ show, onHide, onActualizar }) {
   )
 }
 
+const MOTIVOS_ADMIN = [
+  'Producto sin stock disponible',
+  'El cliente solicitó la cancelación',
+  'Datos de entrega incorrectos',
+  'Pago no recibido o rechazado',
+  'Pedido duplicado',
+  'Problema con el proveedor',
+  'Otro motivo',
+]
+
+function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
+  const [motivo, setMotivo] = useState('')
+  const [nota, setNota]     = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError]   = useState('')
+
+  useEffect(() => { if (show) { setMotivo(''); setNota(''); setError('') } }, [show])
+
+  const handleConfirmar = async () => {
+    if (!motivo) { setError('Selecciona un motivo'); return }
+    setEnviando(true); setError('')
+    try {
+      const motivoCompleto = nota.trim() ? `${motivo}: ${nota.trim()}` : motivo
+      await onConfirmar(motivoCompleto)
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al cancelar el pedido')
+      setEnviando(false)
+    }
+  }
+
+  if (!pedido) return null
+  return (
+    <Modal show={show} onHide={onCerrar} centered>
+      <Modal.Header closeButton className="bg-danger text-white">
+        <Modal.Title>Cancelar pedido #{pedido.id}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="mb-3 p-3 bg-light rounded">
+          <div className="fw-bold">{pedido.cliente_nombre}</div>
+          <div className="text-muted small">{pedido.cliente_email}</div>
+          <div className="mt-1 fw-bold text-success">S/.{parseFloat(pedido.total).toFixed(2)}</div>
+        </div>
+        <Alert variant="warning" className="small py-2">
+          El stock de todos los productos del pedido será restaurado automáticamente.
+        </Alert>
+        {error && <Alert variant="danger" className="small py-2">{error}</Alert>}
+        <Form.Group className="mb-2">
+          <Form.Label className="small fw-bold">Motivo de cancelación *</Form.Label>
+          <Form.Select value={motivo} onChange={e => setMotivo(e.target.value)}>
+            <option value="">— Selecciona un motivo —</option>
+            {MOTIVOS_ADMIN.map(m => <option key={m} value={m}>{m}</option>)}
+          </Form.Select>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label className="small fw-bold">Nota adicional (opcional)</Form.Label>
+          <Form.Control
+            as="textarea" rows={2} size="sm"
+            placeholder="Detalles adicionales..."
+            value={nota}
+            onChange={e => setNota(e.target.value)}
+          />
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="outline-secondary" onClick={onCerrar} disabled={enviando}>Volver</Button>
+        <Button variant="danger" onClick={handleConfirmar} disabled={enviando || !motivo}>
+          {enviando ? <><Spinner animation="border" size="sm" className="me-2" />Cancelando...</> : 'Confirmar cancelación'}
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  )
+}
+
 function Pedidos() {
   const [pedidos, setPedidos]         = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [showVerificar, setShowVerificar] = useState(false)
+  const [pedidoACancelar, setPedidoACancelar] = useState(null)
 
   useEffect(() => { cargarPedidos() }, [])
 
@@ -180,12 +253,14 @@ function Pedidos() {
   }
 
   const cambiarEstado = async (pedidoId, nuevoEstado) => {
-    try {
-      await api.put(`/pedidos/${pedidoId}/estado`, { estado: nuevoEstado })
-      setPedidos(prev => prev.map(p => p.id === pedidoId ? { ...p, estado: nuevoEstado } : p))
-    } catch {
-      setError('No se pudo actualizar el estado del pedido.')
-    }
+    await api.put(`/pedidos/${pedidoId}/estado`, { estado: nuevoEstado })
+    setPedidos(prev => prev.map(p => p.id === pedidoId ? { ...p, estado: nuevoEstado } : p))
+  }
+
+  const confirmarCancelacion = async (motivo) => {
+    await api.put(`/pedidos/${pedidoACancelar.id}/estado`, { estado: 'cancelado', motivo })
+    setPedidos(prev => prev.map(p => p.id === pedidoACancelar.id ? { ...p, estado: 'cancelado' } : p))
+    setPedidoACancelar(null)
   }
 
   const pedidosFiltrados = filtroEstado ? pedidos.filter(p => p.estado === filtroEstado) : pedidos
@@ -212,9 +287,9 @@ function Pedidos() {
               >
                 <option value="">Todos los estados</option>
                 <option value="pendiente">Pendientes</option>
-                <option value="procesando">En Proceso</option>
-                <option value="enviado">Enviados</option>
-                <option value="completado">Completados</option>
+                <option value="procesando">En Preparación</option>
+                <option value="enviado">En Camino</option>
+                <option value="completado">Entregados</option>
                 <option value="cancelado">Cancelados</option>
               </Form.Select>
             </div>
@@ -241,7 +316,8 @@ function Pedidos() {
         ))}
       </Row>
 
-      <Card className="shadow-sm">
+      {/* Tabla — desktop/tablet */}
+      <Card className="shadow-sm d-none d-md-block">
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0">
             <thead className="bg-light">
@@ -287,16 +363,16 @@ function Pedidos() {
                   <td>
                     <div className="d-flex gap-1 flex-wrap">
                       {pedido.estado === 'pendiente' && (
-                        <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>Procesar</Button>
+                        <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>En Preparación</Button>
                       )}
                       {pedido.estado === 'procesando' && (
-                        <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>Enviar</Button>
+                        <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>En Camino</Button>
                       )}
                       {pedido.estado === 'enviado' && (
-                        <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>Completar</Button>
+                        <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>Entregado</Button>
                       )}
                       {!['completado', 'cancelado'].includes(pedido.estado) && (
-                        <Button size="sm" variant="outline-danger" onClick={() => cambiarEstado(pedido.id, 'cancelado')}>Cancelar</Button>
+                        <Button size="sm" variant="outline-danger" onClick={() => setPedidoACancelar(pedido)}>Cancelar</Button>
                       )}
                     </div>
                   </td>
@@ -312,10 +388,67 @@ function Pedidos() {
         </Card.Body>
       </Card>
 
+      {/* Tarjetas — mobile */}
+      <div className="d-md-none">
+        {pedidosFiltrados.length === 0 && (
+          <div className="text-center py-5">
+            <p className="text-muted">No hay pedidos{filtroEstado ? ` con estado "${filtroEstado}"` : ''}.</p>
+          </div>
+        )}
+        {pedidosFiltrados.map(pedido => (
+          <Card key={pedido.id} className="shadow-sm mb-3">
+            <Card.Body>
+              <div className="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <strong>#{pedido.id}</strong>
+                  <span className="text-muted small ms-2">{new Date(pedido.creado_en).toLocaleDateString('es-ES')}</span>
+                </div>
+                <Badge bg={estadoVariant[pedido.estado]}>{estadoLabel[pedido.estado]}</Badge>
+              </div>
+              <div className="mb-1"><strong>{pedido.cliente_nombre}</strong></div>
+              <div className="text-muted small mb-2">{pedido.cliente_email}</div>
+              <div className="small mb-2">
+                {pedido.items?.map((item, i) => (
+                  <div key={i}>{item.cantidad}× {item.nombre_producto}</div>
+                ))}
+              </div>
+              <div className="d-flex justify-content-between align-items-center">
+                <strong className="text-success">S/.{parseFloat(pedido.total).toFixed(2)}</strong>
+                {pedido.codigo_verificacion && (
+                  <code className="text-dark bg-light px-2 py-1 rounded small">{pedido.codigo_verificacion}</code>
+                )}
+              </div>
+              {!['completado', 'cancelado'].includes(pedido.estado) && (
+                <div className="d-flex gap-2 flex-wrap mt-2">
+                  {pedido.estado === 'pendiente' && (
+                    <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>En Preparación</Button>
+                  )}
+                  {pedido.estado === 'procesando' && (
+                    <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>En Camino</Button>
+                  )}
+                  {pedido.estado === 'enviado' && (
+                    <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>Entregado</Button>
+                  )}
+                  <Button size="sm" variant="outline-danger" onClick={() => setPedidoACancelar(pedido)}>Cancelar</Button>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        ))}
+      </div>
+
       <ModalVerificacion
         show={showVerificar}
         onHide={() => setShowVerificar(false)}
         onActualizar={cambiarEstado}
+        onCancelar={(pedido) => { setShowVerificar(false); setPedidoACancelar(pedido) }}
+      />
+
+      <ModalCancelarAdmin
+        show={!!pedidoACancelar}
+        pedido={pedidoACancelar}
+        onConfirmar={confirmarCancelacion}
+        onCerrar={() => setPedidoACancelar(null)}
       />
     </Container>
   )

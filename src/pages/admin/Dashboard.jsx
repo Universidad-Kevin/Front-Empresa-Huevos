@@ -204,6 +204,14 @@ function Dashboard() {
                 </Col>
                 <Col md={6} className="mb-3">
                   <Link
+                    to="/admin/usuarios"
+                    className="btn btn-outline-primary w-100"
+                  >
+                    👤 Usuarios Web
+                  </Link>
+                </Col>
+                <Col md={6} className="mb-3">
+                  <Link
                     to="/admin/configuracion"
                     className="btn btn-outline-secondary w-100"
                   >
@@ -221,7 +229,7 @@ function Dashboard() {
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="fw-bold mb-0">Clientes Recientes</h5>
                 <Link
-                  to="/admin/clientes"
+                  to="/admin/usuarios"
                   className="btn btn-sm btn-outline-primary"
                 >
                   Ver Todos

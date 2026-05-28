@@ -18,11 +18,13 @@ function EditarProducto() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    codigo: "",
     nombre: "",
     descripcion: "",
     precio: "",
     categoria: "",
     stock: "",
+    unidad: "unidad",
     imagen: "",
     estado: "",
     caracteristicas: [""],
@@ -51,26 +53,30 @@ function EditarProducto() {
       if (response.data.success && response.data.data) {
         const producto = response.data.data;
 
-        // Convertir características de JSON a array si es necesario
+        // Convertir características a array de strings (puede venir como string JSON, array o objeto)
         let caracteristicas = [""];
         if (producto.caracteristicas) {
-          if (typeof producto.caracteristicas === "string") {
-            caracteristicas = JSON.parse(producto.caracteristicas);
-          } else {
-            caracteristicas = producto.caracteristicas;
+          let parsed = producto.caracteristicas;
+          if (typeof parsed === "string") {
+            try { parsed = JSON.parse(parsed); } catch { parsed = [parsed]; }
           }
-          // Asegurarse de que haya al menos un campo vacío
-          if (caracteristicas.length === 0) {
-            caracteristicas = [""];
+          if (Array.isArray(parsed)) {
+            caracteristicas = parsed.length > 0 ? parsed : [""];
+          } else if (parsed && typeof parsed === "object") {
+            // Objeto tipo {certificado: true, ...} → convertir a "clave: valor"
+            caracteristicas = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`);
+            if (caracteristicas.length === 0) caracteristicas = [""];
           }
         }
 
         setFormData({
+          codigo: producto.codigo || "",
           nombre: producto.nombre || "",
           descripcion: producto.descripcion || "",
           precio: producto.precio || "",
           categoria: producto.categoria || "",
           stock: producto.stock || "",
+          unidad: producto.unidad || "unidad",
           imagen: producto.imagen || "",
           estado: producto.estado || "",
           caracteristicas: caracteristicas,
@@ -133,11 +139,13 @@ function EditarProducto() {
       );
 
       const productoData = {
+        codigo: formData.codigo || null,
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         categoria: formData.categoria,
         stock: parseInt(formData.stock),
+        unidad: formData.unidad || 'unidad',
         imagen: formData.imagen || null,
         estado: formData.estado,
         caracteristicas: caracteristicasFiltradas,
@@ -211,7 +219,21 @@ function EditarProducto() {
 
               <Form onSubmit={handleSubmit}>
                 <Row>
-                  <Col md={6}>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Código SKU</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="codigo"
+                        value={formData.codigo}
+                        onChange={handleChange}
+                        placeholder="Ej: HUE-001"
+                        maxLength={20}
+                      />
+                      <Form.Text className="text-muted">Identificador único del producto</Form.Text>
+                    </Form.Group>
+                  </Col>
+                  <Col md={5}>
                     <Form.Group className="mb-3">
                       <Form.Label>Nombre del Producto *</Form.Label>
                       <Form.Control
@@ -223,6 +245,26 @@ function EditarProducto() {
                       />
                     </Form.Group>
                   </Col>
+                  <Col md={3}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Unidad</Form.Label>
+                      <Form.Select
+                        name="unidad"
+                        value={formData.unidad}
+                        onChange={handleChange}
+                      >
+                        <option value="unidad">Unidad</option>
+                        <option value="pack">Pack</option>
+                        <option value="docena">Docena</option>
+                        <option value="caja">Caja</option>
+                        <option value="bandeja">Bandeja</option>
+                        <option value="kg">Kilogramo</option>
+                        <option value="bolsa">Bolsa</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Categoría *</Form.Label>

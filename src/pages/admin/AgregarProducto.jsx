@@ -14,11 +14,13 @@ import api from "../../services/api";
 function AgregarProducto() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    codigo: "",
     nombre: "",
     descripcion: "",
     precio: "",
     categoria: "",
     stock: "",
+    unidad: "unidad",
     imagen: "",
     caracteristicas: [""],
     estado: "",
@@ -72,11 +74,13 @@ function AgregarProducto() {
 
       // Preparar datos para enviar
       const productoData = {
+        codigo: formData.codigo || null,
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         categoria: formData.categoria,
         stock: parseInt(formData.stock),
+        unidad: formData.unidad || 'unidad',
         imagen: formData.imagen || null,
         estado: formData.estado,
         caracteristicas: caracteristicasFiltradas,
@@ -137,7 +141,21 @@ function AgregarProducto() {
 
               <Form onSubmit={handleSubmit}>
                 <Row>
-                  <Col md={6}>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Código SKU</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="codigo"
+                        value={formData.codigo}
+                        onChange={handleChange}
+                        placeholder="Ej: HUE-001"
+                        maxLength={20}
+                      />
+                      <Form.Text className="text-muted">Identificador único del producto</Form.Text>
+                    </Form.Group>
+                  </Col>
+                  <Col md={5}>
                     <Form.Group className="mb-3">
                       <Form.Label>Nombre del Producto *</Form.Label>
                       <Form.Control
@@ -150,6 +168,26 @@ function AgregarProducto() {
                       />
                     </Form.Group>
                   </Col>
+                  <Col md={3}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Unidad</Form.Label>
+                      <Form.Select
+                        name="unidad"
+                        value={formData.unidad}
+                        onChange={handleChange}
+                      >
+                        <option value="unidad">Unidad</option>
+                        <option value="pack">Pack</option>
+                        <option value="docena">Docena</option>
+                        <option value="caja">Caja</option>
+                        <option value="bandeja">Bandeja</option>
+                        <option value="kg">Kilogramo</option>
+                        <option value="bolsa">Bolsa</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Categoría *</Form.Label>
@@ -210,6 +248,9 @@ function AgregarProducto() {
                         required
                         placeholder="0"
                       />
+                      {formData.unidad && (
+                        <Form.Text className="text-muted">en {formData.unidad}s</Form.Text>
+                      )}
                     </Form.Group>
                   </Col>
                 </Row>
@@ -330,12 +371,17 @@ function AgregarProducto() {
                     </div>
                   </div>
 
+                  {formData.codigo && (
+                    <p className="small text-muted mb-1">
+                      <span className="badge bg-light text-dark border">SKU: {formData.codigo}</span>
+                    </p>
+                  )}
                   <h6>{formData.nombre}</h6>
                   <p className="text-muted small">{formData.descripcion}</p>
 
                   {formData.precio && (
                     <p className="fw-bold text-success">
-                      S/.{parseFloat(formData.precio).toFixed(2)}
+                      S/.{parseFloat(formData.precio).toFixed(2)} / {formData.unidad}
                     </p>
                   )}
 
@@ -347,7 +393,7 @@ function AgregarProducto() {
 
                   {formData.stock && (
                     <p className="small text-muted mt-2">
-                      Stock: {formData.stock} unidades
+                      Stock: {formData.stock} {formData.unidad}s
                     </p>
                   )}
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Container, Row, Col, Card, Table, Button, Badge,
-  Alert, Pagination, Form, InputGroup,
+  Alert, Pagination, Form, InputGroup, Spinner,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
@@ -20,9 +20,37 @@ function ProductosAdmin() {
   const [filtroEstado, setFiltroEstado] = useState("");
   const navigate = useNavigate();
 
+  const [reportes, setReportes] = useState([]);
+  const [loadingReportes, setLoadingReportes] = useState(true);
+  const [revisando, setRevisando] = useState(null);
+
   useEffect(() => {
     fetchProductos();
+    fetchReportes();
   }, []);
+
+  const fetchReportes = async () => {
+    try {
+      const res = await api.get("/productos/reportes-stock");
+      setReportes(res.data.data);
+    } catch {
+      // silencioso — no bloquea la página principal
+    } finally {
+      setLoadingReportes(false);
+    }
+  };
+
+  const handleMarcarRevisado = async (reporteId) => {
+    setRevisando(reporteId);
+    try {
+      await api.put(`/productos/reportes-stock/${reporteId}/revisar`);
+      setReportes(prev => prev.map(r => r.id === reporteId ? { ...r, estado: "revisado" } : r));
+    } catch {
+      alert("Error al marcar el reporte");
+    } finally {
+      setRevisando(null);
+    }
+  };
 
   const fetchProductos = async () => {
     try {
@@ -90,13 +118,21 @@ function ProductosAdmin() {
               <h1 className="fw-bold">Gestión de Productos</h1>
               <p className="text-muted">Administra tu inventario de productos</p>
             </div>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 align-items-center">
               <Button as={Link} to="/admin/agregar-producto" variant="success">
                 ➕ Agregar Producto
               </Button>
               <Button as={Link} to="/admin/productos-inactivos" variant="outline-warning">
                 📋 Inactivos
               </Button>
+              <a href="#reportes-stock" className="btn btn-outline-danger position-relative">
+                ⚠️ Reportes
+                {reportes.filter(r => r.estado === "pendiente").length > 0 && (
+                  <Badge bg="danger" className="position-absolute top-0 start-100 translate-middle rounded-pill">
+                    {reportes.filter(r => r.estado === "pendiente").length}
+                  </Badge>
+                )}
+              </a>
               <Button variant="outline-secondary" onClick={() => navigate("/admin")}>
                 ← Volver
               </Button>
@@ -171,7 +207,7 @@ function ProductosAdmin() {
           <Table responsive hover className="mb-0">
             <thead className="bg-light">
               <tr>
-                <th>ID</th>
+                <th>Código</th>
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th>Precio</th>
@@ -183,7 +219,12 @@ function ProductosAdmin() {
             <tbody>
               {productosPagina.map((producto) => (
                 <tr key={producto.id}>
-                  <td><strong>#{producto.id}</strong></td>
+                  <td>
+                    {producto.codigo
+                      ? <Badge bg="light" text="dark" className="border font-monospace">{producto.codigo}</Badge>
+                      : <span className="text-muted small">—</span>
+                    }
+                  </td>
                   <td>
                     <strong>{producto.nombre}</strong>
                     <br />
@@ -194,10 +235,10 @@ function ProductosAdmin() {
                   <td>
                     <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
                   </td>
-                  <td>S/.{parseFloat(producto.precio).toFixed(2)}</td>
+                  <td>S/.{parseFloat(producto.precio).toFixed(2)} <small className="text-muted">/{producto.unidad || 'uds.'}</small></td>
                   <td>
                     <Badge bg={getStockVariant(producto.stock)}>
-                      {producto.stock} uds.
+                      {producto.stock} {producto.unidad || 'uds.'}
                     </Badge>
                   </td>
                   <td>
@@ -254,6 +295,98 @@ function ProductosAdmin() {
           </Pagination>
         </div>
       )}
+
+      {/* Reportes de stock */}
+      <div id="reportes-stock" className="mt-5">
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <h5 className="fw-bold mb-0">⚠️ Reportes de stock de clientes</h5>
+          {reportes.filter(r => r.estado === "pendiente").length > 0 && (
+            <Badge bg="danger">{reportes.filter(r => r.estado === "pendiente").length} pendientes</Badge>
+          )}
+        </div>
+        <Card className="shadow-sm">
+          <Card.Body className="p-0">
+            {loadingReportes ? (
+              <div className="text-center py-4">
+                <Spinner animation="border" size="sm" variant="secondary" />
+              </div>
+            ) : reportes.length === 0 ? (
+              <p className="text-muted text-center py-4 mb-0 small">
+                No hay reportes de stock de los clientes.
+              </p>
+            ) : (
+              <Table responsive hover size="sm" className="mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th>Producto</th>
+                    <th>Stock actual</th>
+                    <th>Tipo</th>
+                    <th>Mensaje</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportes.map(r => (
+                    <tr key={r.id} className={r.estado === "revisado" ? "table-secondary opacity-75" : ""}>
+                      <td>
+                        <div className="fw-bold small">{r.producto_nombre}</div>
+                        {r.producto_codigo && (
+                          <code className="text-muted" style={{ fontSize: 11 }}>{r.producto_codigo}</code>
+                        )}
+                        <Link to={`/admin/editar-producto/${r.producto_id}`} className="d-block" style={{ fontSize: 11 }}>
+                          Ver producto
+                        </Link>
+                      </td>
+                      <td>
+                        <Badge bg={r.producto_stock > 10 ? "success" : r.producto_stock > 0 ? "warning" : "danger"}>
+                          {r.producto_stock} uds.
+                        </Badge>
+                      </td>
+                      <td>
+                        <Badge bg={r.tipo === "sin_stock" ? "danger" : "warning"} text={r.tipo === "sin_stock" ? undefined : "dark"}>
+                          {r.tipo === "sin_stock" ? "Sin stock" : "Poco stock"}
+                        </Badge>
+                      </td>
+                      <td className="small text-muted" style={{ maxWidth: 180 }}>
+                        {r.mensaje || <span className="fst-italic">—</span>}
+                      </td>
+                      <td className="small">
+                        <div>{r.usuario_nombre}</div>
+                        <div className="text-muted">{r.usuario_email}</div>
+                      </td>
+                      <td className="small text-muted text-nowrap">
+                        {new Date(r.creado_en).toLocaleDateString("es-PE", {
+                          day: "2-digit", month: "short", year: "numeric",
+                        })}
+                      </td>
+                      <td>
+                        <Badge bg={r.estado === "revisado" ? "secondary" : "warning"} text={r.estado === "revisado" ? undefined : "dark"}>
+                          {r.estado === "revisado" ? "Revisado" : "Pendiente"}
+                        </Badge>
+                      </td>
+                      <td>
+                        {r.estado === "pendiente" && (
+                          <Button
+                            size="sm"
+                            variant="outline-success"
+                            disabled={revisando === r.id}
+                            onClick={() => handleMarcarRevisado(r.id)}
+                          >
+                            {revisando === r.id ? <Spinner animation="border" size="sm" /> : "✓ Revisado"}
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Card.Body>
+        </Card>
+      </div>
 
       {/* Estadísticas rápidas */}
       {productos.length > 0 && (

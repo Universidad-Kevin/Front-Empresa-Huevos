@@ -12,6 +12,7 @@ function NavigationBar() {
   const location = useLocation()
   const navigate = useNavigate()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [navExpanded, setNavExpanded] = useState(false)
   const { itemCount, toggleCart } = useCart()
   const [pedidosPendientes, setPedidosPendientes] = useState(0)
   const intervalRef = useRef(null)
@@ -41,10 +42,22 @@ function NavigationBar() {
     navigate('/')
   }
 
+  const openLogin = () => {
+    setNavExpanded(false)
+    setShowAuthModal(true)
+  }
+
   return (
-    <Navbar style={{ backgroundColor: '#F0F0F0' }} variant="light" expand="lg" className="shadow custom-navbar">
+    <Navbar
+      style={{ backgroundColor: '#F0F0F0' }}
+      variant="light"
+      expand="lg"
+      className="shadow custom-navbar"
+      expanded={navExpanded}
+      onToggle={setNavExpanded}
+    >
       <Container>
-        <Navbar.Brand as={Link} to="/" className="fw-bold">
+        <Navbar.Brand as={Link} to="/" className="fw-bold" onClick={() => setNavExpanded(false)}>
           <img
             src="/images/LogoCampOrgan-1.webp"
             alt="LogoCampOrgan"
@@ -57,50 +70,36 @@ function NavigationBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link
-              as={Link}
-              to="/"
-              active={location.pathname === '/'}
-            >
+            <Nav.Link as={Link} to="/" active={location.pathname === '/'} onClick={() => setNavExpanded(false)}>
               Inicio
             </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/productos"
-              active={location.pathname === '/productos'}
-            >
+            <Nav.Link as={Link} to="/productos" active={location.pathname === '/productos'} onClick={() => setNavExpanded(false)}>
               Productos
             </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/nosotros"
-              active={location.pathname === '/nosotros'}
-            >
+            <Nav.Link as={Link} to="/nosotros" active={location.pathname === '/nosotros'} onClick={() => setNavExpanded(false)}>
               Nosotros
             </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/contacto"
-              active={location.pathname === '/contacto'}
-            >
+            <Nav.Link as={Link} to="/contacto" active={location.pathname === '/contacto'} onClick={() => setNavExpanded(false)}>
               Contacto
             </Nav.Link>
           </Nav>
 
           <Nav className="align-items-center">
-            <Nav.Link as="button" onClick={toggleCart} className="position-relative me-3 border-0 bg-transparent">
-              <span className="fs-5">🛒</span>
-              {itemCount > 0 && (
-                <Badge 
-                  bg="danger" 
-                  pill 
-                  className="position-absolute top-0 start-100 translate-middle"
-                  style={{ fontSize: '0.65em' }}
-                >
-                  {itemCount}
-                </Badge>
-              )}
-            </Nav.Link>
+            {user?.rol !== 'admin' && user?.rol !== 'mayorista' && (
+              <Nav.Link as="button" onClick={toggleCart} className="position-relative me-3 border-0 bg-transparent">
+                <span className="fs-5">🛒</span>
+                {itemCount > 0 && (
+                  <Badge
+                    bg="danger"
+                    pill
+                    className="position-absolute top-0 start-100 translate-middle"
+                    style={{ fontSize: '0.65em' }}
+                  >
+                    {itemCount}
+                  </Badge>
+                )}
+              </Nav.Link>
+            )}
 
             {user ? (
               <Dropdown>
@@ -129,7 +128,15 @@ function NavigationBar() {
                         )}
                       </Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/clientes">Clientes</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/usuarios">Usuarios Web</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/estadisticas">Estadísticas</Dropdown.Item>
+                    </>
+                  ) : user.rol === 'mayorista' ? (
+                    <>
+                      <Dropdown.Item as={Link} to="/mayorista">Mi Portal</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/mayorista/pedidos">Mis Pedidos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/mayorista/perfil">Mi Empresa</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/mayorista/contacto">Contactar</Dropdown.Item>
                     </>
                   ) : (
                     <>
@@ -142,7 +149,7 @@ function NavigationBar() {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Nav.Link as="button" onClick={() => setShowAuthModal(true)} className="btn btn-outline-2D5A27">
+              <Nav.Link as="button" onClick={openLogin} className="btn btn-outline-2D5A27">
                 Ingresar
               </Nav.Link>
             )}

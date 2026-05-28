@@ -36,9 +36,10 @@ function Checkout() {
 
   useEffect(() => {
     if (!user) navigate('/');
+    else if (user.rol === 'admin' || user.rol === 'mayorista') navigate('/');
   }, [user, navigate]);
 
-  if (!user) return null;
+  if (!user || user.rol === 'admin' || user.rol === 'mayorista') return null;
 
   const handleConfirmar = async () => {
     if (cartItems.length === 0) return;

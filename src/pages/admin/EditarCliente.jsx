@@ -8,7 +8,7 @@ import {
   Alert,
   Spinner,
 } from "react-bootstrap";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { SkeletonForm } from "../../components/SkeletonLoader";
@@ -31,8 +31,14 @@ function EditarCliente() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [passwordAcceso, setPasswordAcceso] = useState("");
+  const [loadingCred, setLoadingCred] = useState(false);
+  const [successCred, setSuccessCred] = useState("");
+  const [tieneAcceso, setTieneAcceso] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const successFromPedido = location.state?.successMsg || "";
 
   const fetchCliente = async () => {
     try {
@@ -52,6 +58,7 @@ function EditarCliente() {
         limite_credito: cliente.limite_credito || "",
         estado: cliente.estado || "activo",
       });
+      setTieneAcceso(!!cliente.password);
     } catch (error) {
       console.error("Error cargando cliente:", error);
       setError("Error al cargar los datos del cliente");
@@ -101,6 +108,24 @@ function EditarCliente() {
     }
   }, [id]);
 
+  const handleAsignarCredenciales = async () => {
+    if (!passwordAcceso || passwordAcceso.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    setLoadingCred(true);
+    try {
+      await api.post(`/clientes/${id}/credenciales`, { password: passwordAcceso, enviarEmail: true });
+      setSuccessCred("Credenciales asignadas y email enviado al cliente.");
+      setTieneAcceso(true);
+      setPasswordAcceso("");
+    } catch (err) {
+      alert(err.response?.data?.error || "Error al asignar credenciales");
+    } finally {
+      setLoadingCred(false);
+    }
+  };
+
   const tiposNegocio = [
     "Restaurante",
     "Supermercado",
@@ -126,9 +151,17 @@ function EditarCliente() {
               <h1 className="fw-bold">Editar Cliente</h1>
               <p className="text-muted">Modificar información del cliente</p>
             </div>
-            <Link to="/admin/clientes" className="btn btn-outline-secondary">
-              ← Volver a Clientes
-            </Link>
+            <div className="d-flex gap-2">
+              <Link
+                to={`/admin/clientes/${id}/nuevo-pedido`}
+                className="btn btn-success"
+              >
+                + Crear Pedido
+              </Link>
+              <Link to="/admin/clientes" className="btn btn-outline-secondary">
+                ← Volver a Clientes
+              </Link>
+            </div>
           </div>
         </Col>
       </Row>
@@ -137,6 +170,7 @@ function EditarCliente() {
         <Col lg={8}>
           <Card>
             <Card.Body>
+              {successFromPedido && <Alert variant="success">{successFromPedido}</Alert>}
               {error && <Alert variant="danger">{error}</Alert>}
               {success && <Alert variant="success">{success}</Alert>}
 
@@ -291,21 +325,49 @@ function EditarCliente() {
                 </Row>
 
                 <div className="d-flex gap-2 justify-content-end">
-                  <Link
-                    to="/admin/clientes"
-                    className="btn btn-outline-secondary"
-                  >
-                    Cancelar
-                  </Link>
+                  <Link to="/admin/clientes" className="btn btn-outline-secondary">Cancelar</Link>
                   <Button type="submit" variant="primary" disabled={loading}>
-                    {loading ? (
-                      <Spinner animation="border" size="sm" />
-                    ) : (
-                      "Actualizar Cliente"
-                    )}
+                    {loading ? <Spinner animation="border" size="sm" /> : "Actualizar Cliente"}
                   </Button>
                 </div>
               </Form>
+
+              {/* Sección acceso al portal mayorista */}
+              <hr className="my-4" />
+              <h6 className="fw-bold mb-3">
+                🔐 Acceso al Portal Mayorista
+                {tieneAcceso && <span className="badge bg-success ms-2">Activo</span>}
+              </h6>
+              {successCred && <Alert variant="success" className="py-2">{successCred}</Alert>}
+              <p className="text-muted small mb-3">
+                {tieneAcceso
+                  ? "Este cliente ya tiene acceso al portal. Puedes cambiar su contraseña asignando una nueva."
+                  : "Asigna una contraseña para que este cliente pueda acceder al portal mayorista."}
+              </p>
+              <Row className="align-items-end g-2">
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="small">{tieneAcceso ? "Nueva contraseña" : "Contraseña de acceso"}</Form.Label>
+                    <Form.Control
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={passwordAcceso}
+                      onChange={e => setPasswordAcceso(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Button
+                    variant={tieneAcceso ? "outline-warning" : "success"}
+                    onClick={handleAsignarCredenciales}
+                    disabled={loadingCred || !passwordAcceso}
+                  >
+                    {loadingCred
+                      ? <Spinner animation="border" size="sm" />
+                      : tieneAcceso ? "🔄 Cambiar contraseña" : "✅ Dar acceso y enviar email"}
+                  </Button>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </Col>
