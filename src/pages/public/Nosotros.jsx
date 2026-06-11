@@ -35,13 +35,13 @@ function Nosotros() {
       nombre: 'Carlos Rodríguez',
       puesto: 'Director de Producción',
       descripcion: 'Especialista en bienestar animal y producción sostenible.',
-      imagen: '/images/DIRECTOR DE PRODUCCION.webp'
+      imagen: '/images/DIRECTOR-DE-PRODUCCION.webp'
     },
     {
       nombre: 'Ana Martínez',
       puesto: 'Directora de Calidad',
       descripcion: 'Encargada de garantizar los más altos estándares de calidad.',
-      imagen: '/images/DIRECTORA DE CALIDAD.webp'
+      imagen: '/images/DIRECTORA-DE-CALIDAD.webp'
     }
   ]
 
