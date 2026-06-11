@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Container, Row, Col, Card, Table, Button, Badge,
-  Alert, Form, InputGroup,
+  Alert, Form, InputGroup, Spinner,
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
@@ -12,6 +12,8 @@ function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("activo");
+  const [cambiando, setCambiando] = useState(null);
   const navigate = useNavigate();
 
   const fetchUsuarios = async () => {
@@ -31,24 +33,31 @@ function Usuarios() {
     fetchUsuarios();
   }, []);
 
-  const handleEliminar = async (id, nombre) => {
-    if (!window.confirm(`¿Eliminar al usuario "${nombre}"? Esta acción también eliminará sus pedidos y no se puede deshacer.`)) return;
+  const handleToggleEstado = async (id, nombre, estadoActual) => {
+    const nuevoEstado = estadoActual === "activo" ? "inactivo" : "activo";
+    const accion = nuevoEstado === "inactivo" ? "desactivar" : "activar";
+    if (!window.confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} al usuario "${nombre}"?`)) return;
+    setCambiando(id);
     try {
-      await api.delete(`/usuarios/${id}`);
-      setUsuarios(prev => prev.filter(u => u.id !== id));
+      await api.patch(`/usuarios/${id}/estado`, { estado: nuevoEstado });
+      setUsuarios(prev => prev.map(u => u.id === id ? { ...u, estado: nuevoEstado } : u));
     } catch (err) {
-      console.error("Error eliminando usuario:", err);
-      alert("Error al eliminar el usuario");
+      console.error("Error cambiando estado de usuario:", err);
+      alert("Error al cambiar el estado del usuario");
+    } finally {
+      setCambiando(null);
     }
   };
 
   const usuariosFiltrados = useMemo(() => {
-    if (!busqueda) return usuarios;
-    const q = busqueda.toLowerCase();
-    return usuarios.filter(u =>
-      u.nombre?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
-    );
-  }, [usuarios, busqueda]);
+    let lista = [...usuarios];
+    if (filtroEstado) lista = lista.filter(u => u.estado === filtroEstado);
+    if (busqueda) {
+      const q = busqueda.toLowerCase();
+      lista = lista.filter(u => u.nombre?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
+    }
+    return lista;
+  }, [usuarios, busqueda, filtroEstado]);
 
   const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -92,10 +101,16 @@ function Usuarios() {
                 />
               </InputGroup>
             </Col>
+            <Col md={3}>
+              <Form.Select size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+                <option value="">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+              </Form.Select>
+            </Col>
             <Col>
               <small className="text-muted">
                 {usuariosFiltrados.length} usuario{usuariosFiltrados.length !== 1 ? "s" : ""}
-                {busqueda && " encontrados"}
               </small>
             </Col>
           </Row>
@@ -110,6 +125,7 @@ function Usuarios() {
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
+                <th>Estado</th>
                 <th>Registro</th>
                 <th>Acciones</th>
               </tr>
@@ -129,6 +145,11 @@ function Usuarios() {
                   </td>
                   <td className="text-muted">{usuario.email}</td>
                   <td>
+                    <Badge bg={usuario.estado === "activo" ? "success" : "secondary"} className="text-capitalize">
+                      {usuario.estado ?? "activo"}
+                    </Badge>
+                  </td>
+                  <td>
                     <small className="text-muted">
                       {new Date(usuario.creado_en).toLocaleDateString("es-PE", {
                         day: "2-digit", month: "short", year: "numeric"
@@ -138,10 +159,13 @@ function Usuarios() {
                   <td>
                     <Button
                       size="sm"
-                      variant="outline-danger"
-                      onClick={() => handleEliminar(usuario.id, usuario.nombre)}
+                      variant={usuario.estado === "activo" ? "outline-danger" : "outline-success"}
+                      disabled={cambiando === usuario.id}
+                      onClick={() => handleToggleEstado(usuario.id, usuario.nombre, usuario.estado ?? "activo")}
                     >
-                      Eliminar
+                      {cambiando === usuario.id
+                        ? <Spinner animation="border" size="sm" />
+                        : usuario.estado === "activo" ? "Desactivar" : "Activar"}
                     </Button>
                   </td>
                 </tr>
@@ -166,7 +190,7 @@ function Usuarios() {
 
       {usuarios.length > 0 && (
         <Row className="mt-4">
-          <Col md={4} className="mb-3">
+          <Col md={3} className="mb-3">
             <Card className="border-0 bg-primary bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-primary">{usuarios.length}</h4>
@@ -174,23 +198,29 @@ function Usuarios() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={4} className="mb-3">
+          <Col md={3} className="mb-3">
             <Card className="border-0 bg-success bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-success">
-                  {usuarios.filter(u => new Date(u.creado_en) > hace30dias).length}
-                </h4>
-                <Card.Text className="text-muted">Nuevos (30 días)</Card.Text>
+                <h4 className="text-success">{usuarios.filter(u => (u.estado ?? "activo") === "activo").length}</h4>
+                <Card.Text className="text-muted">Activos</Card.Text>
               </Card.Body>
             </Card>
           </Col>
-          <Col md={4} className="mb-3">
+          <Col md={3} className="mb-3">
+            <Card className="border-0 bg-secondary bg-opacity-10">
+              <Card.Body className="text-center">
+                <h4 className="text-secondary">{usuarios.filter(u => u.estado === "inactivo").length}</h4>
+                <Card.Text className="text-muted">Inactivos</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={3} className="mb-3">
             <Card className="border-0 bg-info bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-info">
-                  {new Date(Math.max(...usuarios.map(u => new Date(u.creado_en)))).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}
+                  {usuarios.filter(u => new Date(u.creado_en) > hace30dias).length}
                 </h4>
-                <Card.Text className="text-muted">Último registro</Card.Text>
+                <Card.Text className="text-muted">Nuevos (30 días)</Card.Text>
               </Card.Body>
             </Card>
           </Col>

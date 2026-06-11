@@ -14,6 +14,8 @@ import Contacto from "./pages/public/Contacto";
 import Checkout from "./pages/public/Checkout";
 import { MisPedidos, DetallePedidoPage } from "./pages/public/MisPedidos";
 import MiPerfil from "./pages/public/MiPerfil";
+import MisFavoritos from "./pages/public/MisFavoritos";
+import MisNotificaciones from "./pages/public/MisNotificaciones";
 
 // Páginas admin
 import Dashboard from "./pages/admin/Dashboard";
@@ -29,6 +31,17 @@ import NuevoPedidoMayorista from "./pages/admin/NuevoPedidoMayorista";
 import Pedidos from "./pages/admin/Pedidos";
 import Configuracion from "./pages/admin/Configuracion";
 import Usuarios from "./pages/admin/Usuarios";
+import Categorias from "./pages/admin/Categorias";
+import Marcas from "./pages/admin/Marcas";
+import Inventario from "./pages/admin/Inventario";
+import Proveedores from "./pages/admin/Proveedores";
+import Pagos from "./pages/admin/Pagos";
+import Facturas from "./pages/admin/Facturas";
+import Cupones from "./pages/admin/Cupones";
+import Valoraciones from "./pages/admin/Valoraciones";
+import Auditoria from "./pages/admin/Auditoria";
+import ForgotPassword from "./pages/public/ForgotPassword";
+import ResetPassword from "./pages/public/ResetPassword";
 import DashboardMayorista from "./pages/mayorista/DashboardMayorista";
 import { ListaPedidosMayorista, DetallePedidoMayorista } from "./pages/mayorista/PedidosMayorista";
 import PerfilMayorista from "./pages/mayorista/PerfilMayorista";
@@ -54,6 +67,10 @@ function App() {
             <Route path="/mis-pedidos" element={<MisPedidos />} />
             <Route path="/mis-pedidos/:id" element={<DetallePedidoPage />} />
             <Route path="/mi-perfil" element={<MiPerfil />} />
+            <Route path="/mis-favoritos" element={<MisFavoritos />} />
+            <Route path="/mis-notificaciones" element={<MisNotificaciones />} />
+            <Route path="/recuperar-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Rutas protegidas - Admin */}
             <Route
@@ -157,6 +174,78 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Usuarios />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/categorias"
+              element={
+                <ProtectedRoute>
+                  <Categorias />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/marcas"
+              element={
+                <ProtectedRoute>
+                  <Marcas />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/inventario"
+              element={
+                <ProtectedRoute>
+                  <Inventario />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/proveedores"
+              element={
+                <ProtectedRoute>
+                  <Proveedores />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/pagos"
+              element={
+                <ProtectedRoute>
+                  <Pagos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/facturas"
+              element={
+                <ProtectedRoute>
+                  <Facturas />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/cupones"
+              element={
+                <ProtectedRoute>
+                  <Cupones />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/valoraciones"
+              element={
+                <ProtectedRoute>
+                  <Valoraciones />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/auditoria"
+              element={
+                <ProtectedRoute>
+                  <Auditoria />
                 </ProtectedRoute>
               }
             />

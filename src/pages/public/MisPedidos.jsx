@@ -71,9 +71,74 @@ function FormularioCancelacion({ pedidoId, onCancelado, onCerrar }) {
   );
 }
 
-const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' };
-const estadoLabel = { pendiente: 'Pendiente', procesando: 'En Preparación', enviado: 'En Camino', completado: 'Entregado', cancelado: 'Cancelado' };
+const estadoVariant = {
+  pendiente: 'warning', confirmado: 'info', preparando: 'secondary',
+  enviado: 'primary', entregado: 'success', cancelado: 'danger', devuelto: 'dark',
+  procesando: 'info', completado: 'success',
+};
+const estadoLabel = {
+  pendiente: 'Pendiente', confirmado: 'Confirmado', preparando: 'En Preparación',
+  enviado: 'En Camino', entregado: 'Entregado', cancelado: 'Cancelado', devuelto: 'Devuelto',
+  procesando: 'En Preparación', completado: 'Entregado',
+};
 const metodoPagoLabel = { efectivo: '💵 Pago contra entrega', transferencia: '🏦 Transferencia bancaria', tarjeta: '💳 Tarjeta de crédito/débito' };
+
+const PASOS_TIMELINE = [
+  { key: 'pendiente',  label: 'Recibido',      icono: '🛒' },
+  { key: 'confirmado', label: 'Confirmado',     icono: '✓'  },
+  { key: 'preparando', label: 'Preparando',     icono: '📦' },
+  { key: 'enviado',    label: 'En camino',      icono: '🚚' },
+  { key: 'entregado',  label: 'Entregado',      icono: '✅' },
+];
+
+function TimelinePedido({ estado }) {
+  const normalizado = estado === 'procesando' ? 'preparando' : estado === 'completado' ? 'entregado' : estado;
+  if (normalizado === 'cancelado') return (
+    <div className="d-flex align-items-center gap-2 my-3 p-3 rounded bg-danger bg-opacity-10">
+      <span>❌</span>
+      <span className="fw-bold text-danger">Pedido Cancelado</span>
+    </div>
+  );
+  if (normalizado === 'devuelto') return (
+    <div className="d-flex align-items-center gap-2 my-3 p-3 rounded" style={{ background: '#f8f9fa' }}>
+      <span>↩️</span>
+      <span className="fw-bold text-secondary">Devolución Registrada</span>
+    </div>
+  );
+  const currentIdx = PASOS_TIMELINE.findIndex(p => p.key === normalizado);
+  return (
+    <div className="d-flex align-items-start my-3 overflow-auto">
+      {PASOS_TIMELINE.map((paso, i) => {
+        const done    = i < currentIdx;
+        const active  = i === currentIdx;
+        const pending = i > currentIdx;
+        return (
+          <div key={paso.key} className="d-flex align-items-center" style={{ flex: i < PASOS_TIMELINE.length - 1 ? 1 : 'none', minWidth: 56 }}>
+            <div className="text-center" style={{ minWidth: 52 }}>
+              <div
+                className="rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                style={{
+                  width: 36, height: 36, fontSize: 16,
+                  background: active ? '#198754' : done ? '#d1e7dd' : '#f8f9fa',
+                  border: `2px solid ${active ? '#198754' : done ? '#198754' : '#dee2e6'}`,
+                  color: active ? '#fff' : done ? '#198754' : '#adb5bd',
+                }}
+              >
+                {paso.icono}
+              </div>
+              <div style={{ fontSize: 10, marginTop: 4, color: active ? '#198754' : pending ? '#adb5bd' : '#6c757d', fontWeight: active ? 700 : 400 }}>
+                {paso.label}
+              </div>
+            </div>
+            {i < PASOS_TIMELINE.length - 1 && (
+              <div style={{ flex: 1, height: 2, background: done ? '#198754' : '#dee2e6', marginBottom: 20 }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function DetallePedido() {
   const { id } = useParams();
@@ -123,7 +188,7 @@ function DetallePedido() {
           ← Mis pedidos
         </Button>
         <div className="d-flex gap-2">
-          {['pendiente', 'procesando'].includes(pedido.estado) && (
+          {['pendiente', 'confirmado', 'preparando'].includes(pedido.estado) && (
             <Button
               size="sm"
               variant="outline-danger"
@@ -132,8 +197,8 @@ function DetallePedido() {
               Cancelar pedido
             </Button>
           )}
-          {pedido.estado === 'enviado' && (
-            <small className="text-muted align-self-center">No cancelable — ya está en camino</small>
+          {['enviado', 'entregado'].includes(pedido.estado) && (
+            <small className="text-muted align-self-center">No cancelable — contacta con nosotros si hay algún problema</small>
           )}
           <Button variant="outline-success" size="sm" onClick={() => window.print()}>
             🖨️ Imprimir / Guardar PDF
@@ -186,6 +251,7 @@ function DetallePedido() {
               </div>
             </Col>
           </Row>
+          <TimelinePedido estado={pedido.estado} />
         </div>
 
         {/* Tabla de productos */}
@@ -315,7 +381,7 @@ function ListaPedidos() {
                 <Button as={Link} to={`/mis-pedidos/${pedido.id}`} size="sm" variant="outline-success">
                   Ver detalle
                 </Button>
-                {['pendiente', 'procesando'].includes(pedido.estado) && (
+                {['pendiente', 'confirmado', 'preparando'].includes(pedido.estado) && (
                   <Button
                     size="sm"
                     variant="outline-danger"
@@ -324,8 +390,8 @@ function ListaPedidos() {
                     Cancelar pedido
                   </Button>
                 )}
-                {pedido.estado === 'enviado' && (
-                  <small className="text-muted">No cancelable — ya está en camino</small>
+                {['enviado', 'entregado'].includes(pedido.estado) && (
+                  <small className="text-muted">No cancelable — contacta con nosotros si hay algún problema</small>
                 )}
               </div>
               {cancelando === pedido.id && (

@@ -175,6 +175,18 @@ function AuthModal({ show, onHide, initialView = "login" }) {
               ? "Registrar nuevo cliente"
               : "¿Ya tienes cuenta? Ingresar"}
           </Button>
+
+          {view === "login" && (
+            <div className="text-center mt-3">
+              <a
+                href="/recuperar-password"
+                className="text-muted small"
+                onClick={onHide}
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+          )}
         </Form>
       </Modal.Body>
     </Modal>

@@ -3,9 +3,40 @@ import { Container, Row, Col, Card, Table, Button, Badge, Form, Alert, Modal, In
 import api from '../../services/api'
 import { SkeletonTable } from '../../components/SkeletonLoader'
 
-const estadoVariant = { pendiente: 'warning', procesando: 'info', enviado: 'primary', completado: 'success', cancelado: 'danger' }
-const estadoLabel  = { pendiente: 'Pendiente', procesando: 'En Preparación', enviado: 'En Camino', completado: 'Entregado', cancelado: 'Cancelado' }
+const estadoVariant = {
+  pendiente: 'warning', confirmado: 'info', preparando: 'secondary',
+  enviado: 'primary', entregado: 'success', cancelado: 'danger', devuelto: 'dark',
+  procesando: 'info', completado: 'success', // backward compat
+}
+const estadoLabel = {
+  pendiente: 'Pendiente', confirmado: 'Confirmado', preparando: 'En Preparación',
+  enviado: 'En Camino', entregado: 'Entregado', cancelado: 'Cancelado', devuelto: 'Devuelto',
+  procesando: 'En Preparación', completado: 'Entregado', // backward compat
+}
 const metodoPagoLabel = { efectivo: '💵 Efectivo', transferencia: '🏦 Transferencia', tarjeta: '💳 Tarjeta' }
+
+const PASOS_FLUJO = ['pendiente', 'confirmado', 'preparando', 'enviado', 'entregado']
+
+function StepperPedido({ estado }) {
+  const normalizado = estado === 'procesando' ? 'preparando' : estado === 'completado' ? 'entregado' : estado
+  const idx = PASOS_FLUJO.indexOf(normalizado)
+  if (idx === -1) return null
+  return (
+    <div className="d-flex align-items-center mt-1">
+      {PASOS_FLUJO.map((p, i) => (
+        <span key={p} className="d-flex align-items-center" title={estadoLabel[p]}>
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%', display: 'inline-block',
+            backgroundColor: i <= idx ? '#0d6efd' : '#dee2e6',
+          }} />
+          {i < PASOS_FLUJO.length - 1 && (
+            <span style={{ width: 8, height: 2, display: 'inline-block', backgroundColor: i < idx ? '#0d6efd' : '#dee2e6' }} />
+          )}
+        </span>
+      ))}
+    </div>
+  )
+}
 
 function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
   const [codigo, setCodigo]     = useState('')
@@ -125,14 +156,14 @@ function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
               </tfoot>
             </Table>
 
-            {!['completado', 'cancelado'].includes(pedido.estado) && (
+            {!['entregado', 'cancelado', 'devuelto'].includes(pedido.estado) && (
               <div className="d-flex gap-2 justify-content-end">
                 <Button
                   variant="success"
-                  onClick={() => confirmarAccion('completado')}
+                  onClick={() => confirmarAccion('entregado')}
                   disabled={!!accion}
                 >
-                  {accion === 'completado' ? <Spinner size="sm" className="me-2" /> : null}
+                  {accion === 'entregado' ? <Spinner size="sm" className="me-2" /> : null}
                   Validar entrega
                 </Button>
                 <Button
@@ -145,11 +176,14 @@ function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
               </div>
             )}
 
-            {pedido.estado === 'completado' && (
+            {pedido.estado === 'entregado' && (
               <Alert variant="success" className="mb-0">Pedido entregado y completado correctamente.</Alert>
             )}
             {pedido.estado === 'cancelado' && (
               <Alert variant="danger" className="mb-0">Este pedido fue cancelado.</Alert>
+            )}
+            {pedido.estado === 'devuelto' && (
+              <Alert variant="secondary" className="mb-0">Devolución registrada.</Alert>
             )}
           </>
         )}
@@ -158,7 +192,7 @@ function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
   )
 }
 
-const MOTIVOS_ADMIN = [
+const MOTIVOS_CANCELACION = [
   'Producto sin stock disponible',
   'El cliente solicitó la cancelación',
   'Datos de entrega incorrectos',
@@ -168,7 +202,15 @@ const MOTIVOS_ADMIN = [
   'Otro motivo',
 ]
 
-function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
+const MOTIVOS_DEVOLUCION = [
+  'Producto en mal estado',
+  'Producto incorrecto enviado',
+  'El cliente rechazó la entrega',
+  'Dirección incorrecta',
+  'Otro motivo',
+]
+
+function ModalMotivoAdmin({ show, pedido, titulo, variante, motivos, labelBoton, onConfirmar, onCerrar }) {
   const [motivo, setMotivo] = useState('')
   const [nota, setNota]     = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -183,7 +225,7 @@ function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
       const motivoCompleto = nota.trim() ? `${motivo}: ${nota.trim()}` : motivo
       await onConfirmar(motivoCompleto)
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al cancelar el pedido')
+      setError(err.response?.data?.error || 'Error al procesar la acción')
       setEnviando(false)
     }
   }
@@ -191,8 +233,8 @@ function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
   if (!pedido) return null
   return (
     <Modal show={show} onHide={onCerrar} centered>
-      <Modal.Header closeButton className="bg-danger text-white">
-        <Modal.Title>Cancelar pedido #{pedido.id}</Modal.Title>
+      <Modal.Header closeButton className={`bg-${variante} text-white`}>
+        <Modal.Title>{titulo} #{pedido.id}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="mb-3 p-3 bg-light rounded">
@@ -205,10 +247,10 @@ function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
         </Alert>
         {error && <Alert variant="danger" className="small py-2">{error}</Alert>}
         <Form.Group className="mb-2">
-          <Form.Label className="small fw-bold">Motivo de cancelación *</Form.Label>
+          <Form.Label className="small fw-bold">Motivo *</Form.Label>
           <Form.Select value={motivo} onChange={e => setMotivo(e.target.value)}>
             <option value="">— Selecciona un motivo —</option>
-            {MOTIVOS_ADMIN.map(m => <option key={m} value={m}>{m}</option>)}
+            {motivos.map(m => <option key={m} value={m}>{m}</option>)}
           </Form.Select>
         </Form.Group>
         <Form.Group>
@@ -223,13 +265,29 @@ function ModalCancelarAdmin({ show, pedido, onConfirmar, onCerrar }) {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="outline-secondary" onClick={onCerrar} disabled={enviando}>Volver</Button>
-        <Button variant="danger" onClick={handleConfirmar} disabled={enviando || !motivo}>
-          {enviando ? <><Spinner animation="border" size="sm" className="me-2" />Cancelando...</> : 'Confirmar cancelación'}
+        <Button variant={variante} onClick={handleConfirmar} disabled={enviando || !motivo}>
+          {enviando ? <><Spinner animation="border" size="sm" className="me-2" />{labelBoton}...</> : labelBoton}
         </Button>
       </Modal.Footer>
     </Modal>
   )
 }
+
+const ModalCancelarAdmin = ({ show, pedido, onConfirmar, onCerrar }) => (
+  <ModalMotivoAdmin
+    show={show} pedido={pedido} onConfirmar={onConfirmar} onCerrar={onCerrar}
+    titulo="Cancelar pedido" variante="danger" labelBoton="Confirmar cancelación"
+    motivos={MOTIVOS_CANCELACION}
+  />
+)
+
+const ModalDevolverAdmin = ({ show, pedido, onConfirmar, onCerrar }) => (
+  <ModalMotivoAdmin
+    show={show} pedido={pedido} onConfirmar={onConfirmar} onCerrar={onCerrar}
+    titulo="Registrar devolución" variante="dark" labelBoton="Registrar devolución"
+    motivos={MOTIVOS_DEVOLUCION}
+  />
+)
 
 function Pedidos() {
   const [pedidos, setPedidos]         = useState([])
@@ -238,6 +296,7 @@ function Pedidos() {
   const [filtroEstado, setFiltroEstado] = useState('')
   const [showVerificar, setShowVerificar] = useState(false)
   const [pedidoACancelar, setPedidoACancelar] = useState(null)
+  const [pedidoADevolver, setPedidoADevolver] = useState(null)
 
   useEffect(() => { cargarPedidos() }, [])
 
@@ -261,6 +320,12 @@ function Pedidos() {
     await api.put(`/pedidos/${pedidoACancelar.id}/estado`, { estado: 'cancelado', motivo })
     setPedidos(prev => prev.map(p => p.id === pedidoACancelar.id ? { ...p, estado: 'cancelado' } : p))
     setPedidoACancelar(null)
+  }
+
+  const confirmarDevolucion = async (motivo) => {
+    await api.put(`/pedidos/${pedidoADevolver.id}/estado`, { estado: 'devuelto', motivo })
+    setPedidos(prev => prev.map(p => p.id === pedidoADevolver.id ? { ...p, estado: 'devuelto' } : p))
+    setPedidoADevolver(null)
   }
 
   const pedidosFiltrados = filtroEstado ? pedidos.filter(p => p.estado === filtroEstado) : pedidos
@@ -287,10 +352,12 @@ function Pedidos() {
               >
                 <option value="">Todos los estados</option>
                 <option value="pendiente">Pendientes</option>
-                <option value="procesando">En Preparación</option>
+                <option value="confirmado">Confirmados</option>
+                <option value="preparando">En Preparación</option>
                 <option value="enviado">En Camino</option>
-                <option value="completado">Entregados</option>
+                <option value="entregado">Entregados</option>
                 <option value="cancelado">Cancelados</option>
+                <option value="devuelto">Devueltos</option>
               </Form.Select>
             </div>
           </div>
@@ -300,16 +367,21 @@ function Pedidos() {
       {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
 
       <Row className="mb-4">
-        {['pendiente', 'procesando', 'enviado', 'completado', 'cancelado'].map(estado => (
-          <Col key={estado} lg={2} md={4} xs={6} className="mb-3">
+        {['pendiente', 'confirmado', 'preparando', 'enviado', 'entregado', 'cancelado', 'devuelto'].map(estado => (
+          <Col key={estado} lg={true} md={4} xs={6} className="mb-3">
             <Card
               className={`border-0 bg-${estadoVariant[estado]} bg-opacity-10 text-center`}
               style={{ cursor: 'pointer' }}
               onClick={() => setFiltroEstado(filtroEstado === estado ? '' : estado)}
             >
-              <Card.Body className="py-3">
-                <h5 className={`text-${estadoVariant[estado]}`}>{pedidos.filter(p => p.estado === estado).length}</h5>
-                <small className="text-muted text-capitalize">{estado}</small>
+              <Card.Body className="py-2 px-1">
+                <h5 className={`text-${estadoVariant[estado]} mb-0`}>
+                  {pedidos.filter(p => {
+                    const norm = p.estado === 'procesando' ? 'preparando' : p.estado === 'completado' ? 'entregado' : p.estado
+                    return norm === estado
+                  }).length}
+                </h5>
+                <small className="text-muted" style={{ fontSize: 10 }}>{estadoLabel[estado]}</small>
               </Card.Body>
             </Card>
           </Col>
@@ -359,19 +431,18 @@ function Pedidos() {
                     <Badge bg={estadoVariant[pedido.estado]} className="text-capitalize">
                       {estadoLabel[pedido.estado]}
                     </Badge>
+                    <StepperPedido estado={pedido.estado} />
                   </td>
                   <td>
                     <div className="d-flex gap-1 flex-wrap">
-                      {pedido.estado === 'pendiente' && (
-                        <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>En Preparación</Button>
+                      {pedido.estado === 'pendiente'  && <Button size="sm" variant="outline-info"    onClick={() => cambiarEstado(pedido.id, 'confirmado')}>Confirmar</Button>}
+                      {pedido.estado === 'confirmado' && <Button size="sm" variant="outline-secondary" onClick={() => cambiarEstado(pedido.id, 'preparando')}>Preparar</Button>}
+                      {pedido.estado === 'preparando' && <Button size="sm" variant="outline-primary"  onClick={() => cambiarEstado(pedido.id, 'enviado')}>Enviar</Button>}
+                      {pedido.estado === 'enviado'    && <Button size="sm" variant="outline-success"  onClick={() => cambiarEstado(pedido.id, 'entregado')}>Entregado</Button>}
+                      {['enviado','entregado'].includes(pedido.estado) && (
+                        <Button size="sm" variant="outline-dark" onClick={() => setPedidoADevolver(pedido)}>Devolver</Button>
                       )}
-                      {pedido.estado === 'procesando' && (
-                        <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>En Camino</Button>
-                      )}
-                      {pedido.estado === 'enviado' && (
-                        <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>Entregado</Button>
-                      )}
-                      {!['completado', 'cancelado'].includes(pedido.estado) && (
+                      {!['enviado','entregado','cancelado','devuelto'].includes(pedido.estado) && (
                         <Button size="sm" variant="outline-danger" onClick={() => setPedidoACancelar(pedido)}>Cancelar</Button>
                       )}
                     </div>
@@ -418,18 +489,18 @@ function Pedidos() {
                   <code className="text-dark bg-light px-2 py-1 rounded small">{pedido.codigo_verificacion}</code>
                 )}
               </div>
-              {!['completado', 'cancelado'].includes(pedido.estado) && (
+              {!['cancelado','devuelto'].includes(pedido.estado) && (
                 <div className="d-flex gap-2 flex-wrap mt-2">
-                  {pedido.estado === 'pendiente' && (
-                    <Button size="sm" variant="outline-info" onClick={() => cambiarEstado(pedido.id, 'procesando')}>En Preparación</Button>
+                  {pedido.estado === 'pendiente'  && <Button size="sm" variant="outline-info"     onClick={() => cambiarEstado(pedido.id, 'confirmado')}>Confirmar</Button>}
+                  {pedido.estado === 'confirmado' && <Button size="sm" variant="outline-secondary" onClick={() => cambiarEstado(pedido.id, 'preparando')}>Preparar</Button>}
+                  {pedido.estado === 'preparando' && <Button size="sm" variant="outline-primary"   onClick={() => cambiarEstado(pedido.id, 'enviado')}>Enviar</Button>}
+                  {pedido.estado === 'enviado'    && <Button size="sm" variant="outline-success"   onClick={() => cambiarEstado(pedido.id, 'entregado')}>Entregado</Button>}
+                  {['enviado','entregado'].includes(pedido.estado) && (
+                    <Button size="sm" variant="outline-dark" onClick={() => setPedidoADevolver(pedido)}>Devolver</Button>
                   )}
-                  {pedido.estado === 'procesando' && (
-                    <Button size="sm" variant="outline-primary" onClick={() => cambiarEstado(pedido.id, 'enviado')}>En Camino</Button>
+                  {!['enviado','entregado'].includes(pedido.estado) && (
+                    <Button size="sm" variant="outline-danger" onClick={() => setPedidoACancelar(pedido)}>Cancelar</Button>
                   )}
-                  {pedido.estado === 'enviado' && (
-                    <Button size="sm" variant="outline-success" onClick={() => cambiarEstado(pedido.id, 'completado')}>Entregado</Button>
-                  )}
-                  <Button size="sm" variant="outline-danger" onClick={() => setPedidoACancelar(pedido)}>Cancelar</Button>
                 </div>
               )}
             </Card.Body>
@@ -449,6 +520,13 @@ function Pedidos() {
         pedido={pedidoACancelar}
         onConfirmar={confirmarCancelacion}
         onCerrar={() => setPedidoACancelar(null)}
+      />
+
+      <ModalDevolverAdmin
+        show={!!pedidoADevolver}
+        pedido={pedidoADevolver}
+        onConfirmar={confirmarDevolucion}
+        onCerrar={() => setPedidoADevolver(null)}
       />
     </Container>
   )

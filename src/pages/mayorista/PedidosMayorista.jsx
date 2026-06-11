@@ -3,8 +3,16 @@ import { Container, Row, Col, Card, Badge, Button, Alert } from "react-bootstrap
 import { Link, useParams, useLocation } from "react-router-dom";
 import api from "../../services/api";
 
-const estadoVariant = { pendiente: "warning", procesando: "info", enviado: "primary", completado: "success", cancelado: "danger" };
-const estadoLabel = { pendiente: "Pendiente", procesando: "En Preparación", enviado: "En Camino", completado: "Entregado", cancelado: "Cancelado" };
+const estadoVariant = {
+  pendiente: "warning", confirmado: "info", preparando: "secondary",
+  enviado: "primary", entregado: "success", cancelado: "danger", devuelto: "dark",
+  procesando: "info", completado: "success",
+};
+const estadoLabel = {
+  pendiente: "Pendiente", confirmado: "Confirmado", preparando: "En Preparación",
+  enviado: "En Camino", entregado: "Entregado", cancelado: "Cancelado", devuelto: "Devuelto",
+  procesando: "En Preparación", completado: "Entregado",
+};
 const metodoPagoLabel = { efectivo: "💵 Pago contra entrega", transferencia: "🏦 Transferencia bancaria", tarjeta: "💳 Tarjeta" };
 
 export function ListaPedidosMayorista() {

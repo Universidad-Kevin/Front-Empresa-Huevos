@@ -6,6 +6,8 @@ import {
 } from "react-bootstrap";
 import api from "../../services/api";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import { useFavoritos } from "../../hooks/useFavoritos";
 import { SkeletonProductGrid } from "../../components/SkeletonLoader";
 
 const POR_PAGINA = 8;
@@ -14,7 +16,9 @@ function Productos() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { addToCart } = useCart();
+  const { addToCart, isStaff } = useCart();
+  const { user } = useAuth();
+  const { isFav, toggle: toggleFav, esCliente } = useFavoritos(user);
 
   // Filtros
   const [busqueda, setBusqueda] = useState("");
@@ -25,6 +29,8 @@ function Productos() {
   const [orden, setOrden] = useState("reciente");
   const [pagina, setPagina] = useState(1);
 
+  const [categoriasApi, setCategoriasApi] = useState([]);
+
   useEffect(() => {
     api.get("/productos/activos")
       .then(({ data }) => {
@@ -34,10 +40,14 @@ function Productos() {
       })
       .catch(() => setError("Error al cargar los productos. Verifica que el backend esté corriendo."))
       .finally(() => setLoading(false));
+    api.get("/categorias").then(({ data }) => setCategoriasApi(data.data || [])).catch(() => {});
   }, []);
 
-  // Categorías únicas derivadas de los datos reales
-  const categorias = useMemo(() => [...new Set(productos.map(p => p.categoria).filter(Boolean))], [productos]);
+  // Categorías para el filtro: preferir API, fallback a derivar de productos
+  const categorias = useMemo(() => {
+    if (categoriasApi.length > 0) return categoriasApi.map(c => c.nombre);
+    return [...new Set(productos.map(p => p.categoria).filter(Boolean))];
+  }, [categoriasApi, productos]);
 
   // Rango de precios real
   const precios = useMemo(() => productos.map(p => parseFloat(p.precio)), [productos]);
@@ -213,12 +223,24 @@ function Productos() {
             {productosPagina.map(producto => (
               <Col key={producto.id} lg={3} md={6} className="mb-4">
                 <Card className="h-100 shadow-sm">
-                  <Card.Img
-                    variant="top"
-                    src={producto.imagen || "/images/placeholder.jpg"}
-                    style={{ height: "200px", objectFit: "cover" }}
-                    onError={e => { e.target.src = "/images/placeholder.jpg"; }}
-                  />
+                  <div className="position-relative">
+                    <Card.Img
+                      variant="top"
+                      src={producto.imagen || "/images/placeholder.jpg"}
+                      style={{ height: "200px", objectFit: "cover" }}
+                      onError={e => { e.target.src = "/images/placeholder.jpg"; }}
+                    />
+                    {esCliente && (
+                      <button
+                        onClick={() => toggleFav(producto.id)}
+                        className="position-absolute top-0 end-0 m-2 border-0 rounded-circle d-flex align-items-center justify-content-center"
+                        style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.85)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+                        title={isFav(producto.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                      >
+                        {isFav(producto.id) ? '❤️' : '🤍'}
+                      </button>
+                    )}
+                  </div>
                   <Card.Body className="d-flex flex-column">
                     <div className="d-flex justify-content-between mb-1">
                       <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
@@ -244,14 +266,16 @@ function Productos() {
                         >
                           Ver detalles
                         </Button>
-                        <Button
-                          variant="success"
-                          size="sm"
-                          disabled={producto.stock === 0}
-                          onClick={() => addToCart(producto)}
-                        >
-                          🛒
-                        </Button>
+                        {!isStaff && (
+                          <Button
+                            variant="success"
+                            size="sm"
+                            disabled={producto.stock === 0}
+                            onClick={() => addToCart(producto)}
+                          >
+                            🛒
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </Card.Body>

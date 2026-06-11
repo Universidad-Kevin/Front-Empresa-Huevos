@@ -4,7 +4,9 @@ import { Container, Row, Col, Button, Badge, Alert, Form, Collapse } from 'react
 import api from '../../services/api';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useFavoritos } from '../../hooks/useFavoritos';
 import { SkeletonProductDetail } from '../../components/SkeletonLoader';
+import SeccionValoraciones from '../../components/SeccionValoraciones';
 
 function ProductoDetalle() {
   const { id } = useParams();
@@ -14,7 +16,7 @@ function ProductoDetalle() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cantidad, setCantidad] = useState(1);
-  const { addToCart } = useCart();
+  const { addToCart, isStaff } = useCart();
 
   const [reporteAbierto, setReporteAbierto] = useState(false);
   const [reporteTipo, setReporteTipo] = useState('poco_stock');
@@ -24,6 +26,7 @@ function ProductoDetalle() {
   const [reporteError, setReporteError] = useState('');
 
   const puedeReportar = user && user.rol !== 'admin' && user.rol !== 'mayorista';
+  const { isFav, toggle: toggleFav, esCliente } = useFavoritos(user);
 
   const handleReporte = async (e) => {
     e.preventDefault();
@@ -126,24 +129,34 @@ function ProductoDetalle() {
                   <option key={i + 1} value={i + 1}>{i + 1}</option>
                 ))}
               </select>
-              <Button 
-                variant="success" 
-                size="lg"
-                onClick={handleAgregarCarrito}
-                disabled={producto.stock === 0}
-              >
-                🛒 Agregar al Carrito
-              </Button>
+              {!isStaff && (
+                <Button
+                  variant="success"
+                  size="lg"
+                  onClick={handleAgregarCarrito}
+                  disabled={producto.stock === 0}
+                >
+                  🛒 Agregar al Carrito
+                </Button>
+              )}
             </div>
           </div>
 
-          <div className="d-flex gap-3 mt-4">
+          <div className="d-flex gap-3 mt-4 flex-wrap">
             <Button as={Link} to="/productos" variant="outline-success">
               ← Volver a Productos
             </Button>
             <Button as={Link} to="/" variant="outline-primary">
               🏠 Ir al Inicio
             </Button>
+            {esCliente && producto && (
+              <Button
+                variant={isFav(producto.id) ? 'danger' : 'outline-danger'}
+                onClick={() => toggleFav(producto.id)}
+              >
+                {isFav(producto.id) ? '❤️ En favoritos' : '🤍 Guardar'}
+              </Button>
+            )}
           </div>
 
           {puedeReportar && (
@@ -198,6 +211,12 @@ function ProductoDetalle() {
               )}
             </div>
           )}
+        </Col>
+      </Row>
+
+      <Row>
+        <Col>
+          <SeccionValoraciones productoId={id} user={user} />
         </Col>
       </Row>
     </Container>

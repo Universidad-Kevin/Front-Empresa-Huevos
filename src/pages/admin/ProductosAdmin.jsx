@@ -23,10 +23,12 @@ function ProductosAdmin() {
   const [reportes, setReportes] = useState([]);
   const [loadingReportes, setLoadingReportes] = useState(true);
   const [revisando, setRevisando] = useState(null);
+  const [categoriasApi, setCategoriasApi] = useState([]);
 
   useEffect(() => {
     fetchProductos();
     fetchReportes();
+    api.get("/categorias").then(({ data }) => setCategoriasApi(data.data || [])).catch(() => {});
   }, []);
 
   const fetchReportes = async () => {
@@ -65,15 +67,16 @@ function ProductosAdmin() {
     }
   };
 
-  const handleEliminar = async (id, nombre) => {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar el producto "${nombre}"?`)) {
-      try {
-        await api.delete(`/productos/${id}`);
-        fetchProductos();
-      } catch (error) {
-        console.error("Error eliminando producto:", error);
-        alert("Error al eliminar el producto");
-      }
+  const handleToggleEstado = async (id, nombre, estadoActual) => {
+    const nuevoEstado = estadoActual === "activo" ? "inactivo" : "activo";
+    const accion = nuevoEstado === "inactivo" ? "desactivar" : "activar";
+    if (!window.confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} el producto "${nombre}"?`)) return;
+    try {
+      await api.patch(`/productos/${id}/estado`, { estado: nuevoEstado });
+      fetchProductos();
+    } catch (error) {
+      console.error("Error cambiando estado del producto:", error);
+      alert("Error al cambiar el estado del producto");
     }
   };
 
@@ -167,10 +170,9 @@ function ProductosAdmin() {
             <Col md={3}>
               <Form.Select size="sm" value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}>
                 <option value="">Todas las categorías</option>
-                <option value="standard">Standard</option>
-                <option value="premium">Premium</option>
-                <option value="especial">Especial</option>
-                <option value="gourmet">Gourmet</option>
+                {categoriasApi.map(c => (
+                  <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                ))}
               </Form.Select>
             </Col>
             <Col md={3}>
@@ -251,8 +253,12 @@ function ProductosAdmin() {
                       <Button size="sm" variant="outline-primary" as={Link} to={`/admin/editar-producto/${producto.id}`}>
                         Editar
                       </Button>
-                      <Button size="sm" variant="outline-danger" onClick={() => handleEliminar(producto.id, producto.nombre)}>
-                        Eliminar
+                      <Button
+                        size="sm"
+                        variant={producto.estado === "activo" ? "outline-danger" : "outline-success"}
+                        onClick={() => handleToggleEstado(producto.id, producto.nombre, producto.estado)}
+                      >
+                        {producto.estado === "activo" ? "Desactivar" : "Activar"}
                       </Button>
                     </div>
                   </td>

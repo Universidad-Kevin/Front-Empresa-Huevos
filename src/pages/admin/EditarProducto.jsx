@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -23,16 +23,23 @@ function EditarProducto() {
     descripcion: "",
     precio: "",
     categoria: "",
+    categoria_id: "",
+    marca_id: "",
     stock: "",
     unidad: "unidad",
     imagen: "",
     estado: "",
     caracteristicas: [""],
   });
+  const [categorias, setCategorias] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [enviado, setEnviado] = useState(false);
+  const autoMatchedRef = useRef(false);
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const [imgError, setImgError] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -41,7 +48,21 @@ function EditarProducto() {
       setError("No se proporcionó ID del producto");
       setCargando(false);
     }
+    api.get("/categorias").then(({ data }) => setCategorias(data.data || [])).catch(() => {});
+    api.get("/marcas").then(({ data }) => setMarcas(data.data || [])).catch(() => {});
   }, [id]);
+
+  // Auto-match categoria text → categoria_id para productos pre-migración
+  useEffect(() => {
+    if (autoMatchedRef.current || categorias.length === 0) return;
+    if (!formData.categoria_id && formData.categoria) {
+      const match = categorias.find(c => c.nombre.toLowerCase() === formData.categoria.toLowerCase());
+      if (match) {
+        setFormData(prev => ({ ...prev, categoria_id: match.id }));
+        autoMatchedRef.current = true;
+      }
+    }
+  }, [categorias]);
 
   const fetchProducto = async () => {
     try {
@@ -75,6 +96,8 @@ function EditarProducto() {
           descripcion: producto.descripcion || "",
           precio: producto.precio || "",
           categoria: producto.categoria || "",
+          categoria_id: producto.categoria_id || "",
+          marca_id: producto.marca_id || "",
           stock: producto.stock || "",
           unidad: producto.unidad || "unidad",
           imagen: producto.imagen || "",
@@ -97,10 +120,12 @@ function EditarProducto() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "categoria") {
+      const cat = categorias.find(c => c.nombre === value);
+      setFormData(prev => ({ ...prev, categoria: value, categoria_id: cat?.id || "" }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCaracteristicaChange = (index, value) => {
@@ -127,6 +152,25 @@ function EditarProducto() {
     }));
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImgError("");
+    setUploadingImg(true);
+    const form = new FormData();
+    form.append("imagen", file);
+    try {
+      const { data } = await api.post(`/productos/${id}/imagen`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setFormData((prev) => ({ ...prev, imagen: data.imagen }));
+    } catch (err) {
+      setImgError(err.response?.data?.error || "Error al subir imagen");
+    } finally {
+      setUploadingImg(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -144,6 +188,8 @@ function EditarProducto() {
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         categoria: formData.categoria,
+        categoria_id: formData.categoria_id || null,
+        marca_id: formData.marca_id || null,
         stock: parseInt(formData.stock),
         unidad: formData.unidad || 'unidad',
         imagen: formData.imagen || null,
@@ -275,11 +321,31 @@ function EditarProducto() {
                         required
                       >
                         <option value="">Seleccionar categoría</option>
-                        <option value="standard">Standard</option>
-                        <option value="premium">Premium</option>
-                        <option value="especial">Especial</option>
-                        <option value="gourmet">Gourmet</option>
+                        {categorias.map(c => (
+                          <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                        ))}
                       </Form.Select>
+                      <Form.Text className="text-muted">
+                        <a href="/admin/categorias" className="text-decoration-none" target="_blank">+ Gestionar categorías</a>
+                      </Form.Text>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Marca</Form.Label>
+                      <Form.Select
+                        name="marca_id"
+                        value={formData.marca_id}
+                        onChange={handleChange}
+                      >
+                        <option value="">Sin marca</option>
+                        {marcas.map(m => (
+                          <option key={m.id} value={m.id}>{m.nombre}</option>
+                        ))}
+                      </Form.Select>
+                      <Form.Text className="text-muted">
+                        <a href="/admin/marcas" className="text-decoration-none" target="_blank">+ Gestionar marcas</a>
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                 </Row>
@@ -327,14 +393,26 @@ function EditarProducto() {
                 </Row>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>URL de Imagen</Form.Label>
+                  <Form.Label>Imagen del producto</Form.Label>
                   <Form.Control
                     type="url"
                     name="imagen"
-                    value={formData.imagen}
+                    value={formData.imagen?.startsWith("data:") ? "" : (formData.imagen || "")}
                     onChange={handleChange}
-                    placeholder="https://ejemplo.com/imagen.jpg"
+                    placeholder="URL de imagen (o sube un archivo abajo)"
+                    className="mb-2"
                   />
+                  <Form.Control
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImg}
+                  />
+                  {uploadingImg && <Form.Text className="text-muted">Subiendo imagen...</Form.Text>}
+                  {imgError && <Form.Text className="text-danger">{imgError}</Form.Text>}
+                  {!imgError && !uploadingImg && formData.imagen?.startsWith("data:") && (
+                    <Form.Text className="text-success">Imagen subida correctamente</Form.Text>
+                  )}
                 </Form.Group>
 
                 {/* Características */}

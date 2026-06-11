@@ -33,17 +33,16 @@ function Clientes() {
     }
   };
 
-  const handleDesactivarCliente = async (id) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres desactivar este cliente?")
-    ) {
-      try {
-        await api.delete(`/clientes/${id}`);
-        fetchClientes(); // Recargar la lista
-      } catch (error) {
-        console.error("Error desactivando cliente:", error);
-        setError("Error al desactivar el cliente");
-      }
+  const handleToggleEstado = async (id, estadoActual) => {
+    const nuevoEstado = estadoActual === "activo" ? "inactivo" : "activo";
+    const accion = nuevoEstado === "inactivo" ? "desactivar" : "activar";
+    if (!window.confirm(`¿Estás seguro de que quieres ${accion} este cliente?`)) return;
+    try {
+      await api.patch(`/clientes/${id}/estado`, { estado: nuevoEstado });
+      fetchClientes();
+    } catch (error) {
+      console.error(`Error al ${accion} cliente:`, error);
+      setError(`Error al ${accion} el cliente`);
     }
   };
 
@@ -145,11 +144,13 @@ function Clientes() {
                           <Link to={`/admin/editar-cliente/${cliente.id}`} className="btn btn-sm btn-outline-primary">
                             Editar
                           </Link>
-                          {cliente.estado === "activo" && (
-                            <Button variant="outline-danger" size="sm" onClick={() => handleDesactivarCliente(cliente.id)}>
-                              Desactivar
-                            </Button>
-                          )}
+                          <Button
+                            variant={cliente.estado === "activo" ? "outline-danger" : "outline-success"}
+                            size="sm"
+                            onClick={() => handleToggleEstado(cliente.id, cliente.estado)}
+                          >
+                            {cliente.estado === "activo" ? "Desactivar" : "Activar"}
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -182,11 +183,13 @@ function Clientes() {
                       <Link to={`/admin/editar-cliente/${cliente.id}`} className="btn btn-sm btn-outline-primary">
                         Editar
                       </Link>
-                      {cliente.estado === "activo" && (
-                        <Button variant="outline-danger" size="sm" onClick={() => handleDesactivarCliente(cliente.id)}>
-                          Desactivar
-                        </Button>
-                      )}
+                      <Button
+                        variant={cliente.estado === "activo" ? "outline-danger" : "outline-success"}
+                        size="sm"
+                        onClick={() => handleToggleEstado(cliente.id, cliente.estado)}
+                      >
+                        {cliente.estado === "activo" ? "Desactivar" : "Activar"}
+                      </Button>
                     </div>
                   </div>
                 ))}

@@ -5,6 +5,7 @@ import { Navbar, Nav, Container, Dropdown, Badge } from 'react-bootstrap'
 import AuthModal from './AuthModal'
 import CartOffcanvas from './CartOffcanvas'
 import { useCart } from '../context/CartContext'
+import { useNotificaciones } from '../hooks/useNotificaciones'
 import api from '../services/api'
 
 function NavigationBar() {
@@ -16,6 +17,8 @@ function NavigationBar() {
   const { itemCount, toggleCart } = useCart()
   const [pedidosPendientes, setPedidosPendientes] = useState(0)
   const intervalRef = useRef(null)
+  const { noLeidas, recientes, fetchRecientes, marcarLeida, marcarTodasLeidas, esCliente } = useNotificaciones(user)
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false)
 
   useEffect(() => {
     if (user?.rol !== 'admin') {
@@ -85,7 +88,7 @@ function NavigationBar() {
           </Nav>
 
           <Nav className="align-items-center">
-            {user?.rol !== 'admin' && user?.rol !== 'mayorista' && (
+            {!['admin', 'empleado', 'mayorista'].includes(user?.rol) && (
               <Nav.Link as="button" onClick={toggleCart} className="position-relative me-3 border-0 bg-transparent">
                 <span className="fs-5">🛒</span>
                 {itemCount > 0 && (
@@ -99,6 +102,69 @@ function NavigationBar() {
                   </Badge>
                 )}
               </Nav.Link>
+            )}
+
+            {esCliente && (
+              <Dropdown
+                show={showNotifDropdown}
+                onToggle={(open) => { setShowNotifDropdown(open); if (open) fetchRecientes(); }}
+                className="me-2"
+              >
+                <Dropdown.Toggle
+                  as="button"
+                  className="position-relative border-0 bg-transparent nav-link"
+                  style={{ fontSize: '1.3rem', lineHeight: 1 }}
+                >
+                  🔔
+                  {noLeidas > 0 && (
+                    <Badge
+                      bg="danger"
+                      pill
+                      className="position-absolute top-0 start-100 translate-middle"
+                      style={{ fontSize: '0.65em' }}
+                    >
+                      {noLeidas > 9 ? '9+' : noLeidas}
+                    </Badge>
+                  )}
+                </Dropdown.Toggle>
+                <Dropdown.Menu align="end" style={{ width: 320, maxHeight: 420, overflowY: 'auto' }}>
+                  <div className="px-3 py-2 d-flex justify-content-between align-items-center border-bottom">
+                    <strong className="small">Notificaciones</strong>
+                    {noLeidas > 0 && (
+                      <button
+                        className="btn btn-link btn-sm p-0 text-decoration-none small"
+                        onClick={marcarTodasLeidas}
+                      >
+                        Marcar todas leídas
+                      </button>
+                    )}
+                  </div>
+                  {recientes.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-muted small">Sin notificaciones</div>
+                  ) : (
+                    recientes.map(n => (
+                      <div
+                        key={n.id}
+                        className={`px-3 py-2 border-bottom d-flex gap-2 align-items-start${!n.leida ? ' bg-light' : ''}`}
+                        style={{ cursor: !n.leida ? 'pointer' : 'default', fontSize: '0.85rem' }}
+                        onClick={() => !n.leida && marcarLeida(n.id)}
+                      >
+                        <span style={{ fontSize: '1rem' }}>
+                          {{ pedido_nuevo:'📦', pedido_confirmado:'✅', pedido_preparando:'📋', pedido_enviado:'🚚', pedido_entregado:'🎉', pedido_cancelado:'❌', pedido_devuelto:'↩️', pago_verificado:'💳', pago_rechazado:'⚠️' }[n.tipo] || '🔔'}
+                        </span>
+                        <div className="flex-grow-1">
+                          <div className={n.leida ? 'text-muted' : 'fw-bold'}>{n.titulo}</div>
+                          {n.mensaje && <div className="text-secondary small">{n.mensaje}</div>}
+                        </div>
+                        {!n.leida && <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#0d6efd', marginTop: 4, flexShrink: 0 }} />}
+                      </div>
+                    ))
+                  )}
+                  <Dropdown.Item as={Link} to="/mis-notificaciones" className="text-center small py-2">
+                    Ver todas las notificaciones →
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             )}
 
             {user ? (
@@ -130,6 +196,9 @@ function NavigationBar() {
                       <Dropdown.Item as={Link} to="/admin/clientes">Clientes</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/usuarios">Usuarios Web</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/estadisticas">Estadísticas</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/pagos">Pagos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/facturas">Comprobantes</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/cupones">Cupones</Dropdown.Item>
                     </>
                   ) : user.rol === 'mayorista' ? (
                     <>
@@ -142,6 +211,10 @@ function NavigationBar() {
                     <>
                       <Dropdown.Item as={Link} to="/mi-perfil">Mi Perfil</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/mis-pedidos">Mis Pedidos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/mis-favoritos">❤️ Mis Favoritos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/mis-notificaciones">
+                        🔔 Notificaciones{noLeidas > 0 && <Badge bg="danger" pill className="ms-2">{noLeidas}</Badge>}
+                      </Dropdown.Item>
                     </>
                   )}
                   <Dropdown.Divider />

@@ -1,13 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Alert,
+  Container, Row, Col, Card, Form, Button, Alert,
 } from "react-bootstrap";
 import api from "../../services/api";
 
@@ -19,22 +13,34 @@ function AgregarProducto() {
     descripcion: "",
     precio: "",
     categoria: "",
+    categoria_id: "",
+    marca_id: "",
     stock: "",
     unidad: "unidad",
     imagen: "",
     caracteristicas: [""],
-    estado: "",
+    estado: "activo",
   });
+  const [categorias, setCategorias] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const imageFileRef = useRef(null);
+
+  useEffect(() => {
+    api.get("/categorias").then(({ data }) => setCategorias(data.data || [])).catch(() => {});
+    api.get("/marcas").then(({ data }) => setMarcas(data.data || [])).catch(() => {});
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "categoria") {
+      const cat = categorias.find(c => c.nombre === value);
+      setFormData(prev => ({ ...prev, categoria: value, categoria_id: cat?.id || "" }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCaracteristicaChange = (index, value) => {
@@ -79,10 +85,12 @@ function AgregarProducto() {
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         categoria: formData.categoria,
+        categoria_id: formData.categoria_id || null,
+        marca_id: formData.marca_id || null,
         stock: parseInt(formData.stock),
         unidad: formData.unidad || 'unidad',
         imagen: formData.imagen || null,
-        estado: formData.estado,
+        estado: formData.estado || 'activo',
         caracteristicas: caracteristicasFiltradas,
       };
 
@@ -91,6 +99,14 @@ function AgregarProducto() {
       const response = await api.post("/productos", productoData);
 
       if (response.data.success) {
+        const nuevoId = response.data.data?.id;
+        if (nuevoId && imageFileRef.current?.files?.[0]) {
+          const imgForm = new FormData();
+          imgForm.append("imagen", imageFileRef.current.files[0]);
+          await api.post(`/productos/${nuevoId}/imagen`, imgForm, {
+            headers: { "Content-Type": "multipart/form-data" },
+          }).catch(() => {});
+        }
         setEnviado(true);
         setTimeout(() => {
           navigate("/admin/productos");
@@ -198,11 +214,31 @@ function AgregarProducto() {
                         required
                       >
                         <option value="">Seleccionar categoría</option>
-                        <option value="standard">Standard</option>
-                        <option value="premium">Premium</option>
-                        <option value="especial">Especial</option>
-                        <option value="gourmet">Gourmet</option>
+                        {categorias.map(c => (
+                          <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                        ))}
                       </Form.Select>
+                      <Form.Text className="text-muted">
+                        <a href="/admin/categorias" className="text-decoration-none" target="_blank">+ Gestionar categorías</a>
+                      </Form.Text>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Marca</Form.Label>
+                      <Form.Select
+                        name="marca_id"
+                        value={formData.marca_id}
+                        onChange={handleChange}
+                      >
+                        <option value="">Sin marca</option>
+                        {marcas.map(m => (
+                          <option key={m.id} value={m.id}>{m.nombre}</option>
+                        ))}
+                      </Form.Select>
+                      <Form.Text className="text-muted">
+                        <a href="/admin/marcas" className="text-decoration-none" target="_blank">+ Gestionar marcas</a>
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                 </Row>
@@ -256,16 +292,22 @@ function AgregarProducto() {
                 </Row>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>URL de Imagen</Form.Label>
+                  <Form.Label>Imagen del producto</Form.Label>
                   <Form.Control
                     type="url"
                     name="imagen"
                     value={formData.imagen}
                     onChange={handleChange}
-                    placeholder="https://ejemplo.com/imagen.jpg"
+                    placeholder="URL de imagen (opcional)"
+                    className="mb-2"
+                  />
+                  <Form.Control
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    ref={imageFileRef}
                   />
                   <Form.Text className="text-muted">
-                    Puedes subir la imagen después si lo prefieres
+                    Sube un archivo o proporciona una URL
                   </Form.Text>
                 </Form.Group>
 

@@ -22,11 +22,11 @@ export function CartProvider({ children }) {
       const token = localStorage.getItem('huevos_token');
       if (!token) return;
 
-      // Mayoristas y admins no tienen carrito — no sincronizar
+      // Personal y mayoristas no tienen carrito — no sincronizar
       const savedUser = localStorage.getItem('huevos_user');
       if (savedUser) {
         const u = JSON.parse(savedUser);
-        if (u.rol === 'mayorista' || u.rol === 'admin') return;
+        if (['mayorista', 'admin', 'empleado'].includes(u.rol)) return;
       }
 
       const items = localItems.map(i => ({
@@ -64,7 +64,15 @@ export function CartProvider({ children }) {
     return () => window.removeEventListener('userLoggedIn', onLogin);
   }, [cartItems, syncWithServer]);
 
+  const getStaffRol = () => {
+    try {
+      const u = JSON.parse(localStorage.getItem('huevos_user') || 'null');
+      return u?.rol === 'admin' || u?.rol === 'empleado';
+    } catch { return false; }
+  };
+
   const addToCart = (product, quantity = 1) => {
+    if (getStaffRol()) return;
     setCartItems(prev => {
       const idx = prev.findIndex(i => i.id === product.id);
       let next;
@@ -74,7 +82,6 @@ export function CartProvider({ children }) {
       } else {
         next = [...prev, { ...product, quantity }];
       }
-      // Sync silencioso en background
       syncWithServer(next);
       return next;
     });
@@ -103,7 +110,7 @@ export function CartProvider({ children }) {
     const token = localStorage.getItem('huevos_token');
     const savedUser = localStorage.getItem('huevos_user');
     const rol = savedUser ? JSON.parse(savedUser).rol : null;
-    if (token && rol !== 'mayorista' && rol !== 'admin') {
+    if (token && !['mayorista', 'admin', 'empleado'].includes(rol)) {
       api.delete('/carrito').catch(() => {});
     }
   };
@@ -114,6 +121,7 @@ export function CartProvider({ children }) {
 
   const cartTotal = cartItems.reduce((t, i) => t + i.precio * i.quantity, 0);
   const itemCount = cartItems.reduce((t, i) => t + i.quantity, 0);
+  const isStaff = getStaffRol();
 
   return (
     <CartContext.Provider value={{
@@ -121,6 +129,7 @@ export function CartProvider({ children }) {
       addToCart, removeFromCart, updateQuantity, clearCart,
       toggleCart, closeCart, openCart,
       cartTotal, itemCount, syncWithServer,
+      isStaff,
     }}>
       {children}
     </CartContext.Provider>

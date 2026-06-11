@@ -1,287 +1,351 @@
-import { Container, Row, Col, Card, Table } from 'react-bootstrap'
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Table, Alert, Spinner, Badge } from 'react-bootstrap';
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from 'recharts';
+import api from '../../services/api';
+
+const COLORES_ESTADO = {
+  pendiente:   '#ffc107',
+  confirmado:  '#0dcaf0',
+  preparando:  '#6f42c1',
+  enviado:     '#0d6efd',
+  entregado:   '#198754',
+  cancelado:   '#dc3545',
+  devuelto:    '#6c757d',
+};
+
+const ESTADO_LABEL = {
+  pendiente: 'Pendiente', confirmado: 'Confirmado', preparando: 'En Preparación',
+  enviado: 'Enviado', entregado: 'Entregado', cancelado: 'Cancelado', devuelto: 'Devuelto',
+};
+
+const fmtSol = (v) => `S/.${parseFloat(v).toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmtSolCompleto = (v) => `S/.${parseFloat(v).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`;
+
+function TooltipVentas({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border rounded shadow-sm p-2" style={{ fontSize: '0.8rem' }}>
+      <strong>{label}</strong>
+      <div className="text-success">{fmtSolCompleto(payload[0]?.value || 0)}</div>
+      {payload[1] && <div className="text-secondary">{payload[1].value} pedidos</div>}
+    </div>
+  );
+}
+
+function MetricaCard({ icono, valor, etiqueta, color, extra }) {
+  return (
+    <Card className="border-0 shadow-sm h-100">
+      <Card.Body className="text-center py-4">
+        <div className={`fs-2 text-${color} mb-1`}>{icono}</div>
+        <h3 className={`fw-bold text-${color} mb-0`}>{valor}</h3>
+        {extra && <div className="small mt-1">{extra}</div>}
+        <p className="text-muted small mb-0 mt-1">{etiqueta}</p>
+      </Card.Body>
+    </Card>
+  );
+}
 
 function Estadisticas() {
-  // Datos de ejemplo para las estadísticas
-  const estadisticas = {
-    ventas: {
-      total: 2845,
-      mensual: 12450,
-      crecimiento: 12.5
-    },
-    productos: {
-      masVendidos: [
-        { nombre: 'Huevos Orgánicos Grade A', ventas: 245, ingresos: 2200.55 },
-        { nombre: 'Huevos Premium Omega-3', ventas: 189, ingresos: 2456.11 },
-        { nombre: 'Huevos de Codorniz', ventas: 156, ingresos: 1089.84 }
-      ]
-    },
-    tendencias: {
-      mensual: [
-        { mes: 'Ene', ventas: 9800 },
-        { mes: 'Feb', ventas: 10200 },
-        { mes: 'Mar', ventas: 11000 },
-        { mes: 'Abr', ventas: 12450 },
-        { mes: 'May', ventas: 11800 },
-        { mes: 'Jun', ventas: 13200 }
-      ]
-    }
-  }
+  const [datos, setDatos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api.get('/admin/estadisticas')
+      .then(({ data }) => setDatos(data.data))
+      .catch(() => setError('Error al cargar las estadísticas.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div className="text-center py-5">
+      <Spinner animation="border" variant="success" />
+      <p className="mt-3 text-muted">Cargando estadísticas…</p>
+    </div>
+  );
+
+  if (error) return <Container className="py-4"><Alert variant="danger">{error}</Alert></Container>;
+
+  const crecimientoNum = datos.crecimiento !== null ? parseFloat(datos.crecimiento) : null;
+
+  // Preparar datos para recharts
+  const tendenciasData = (datos.tendencias || []).map(t => ({
+    mes: t.mes_corto,
+    total: parseFloat(t.total),
+    pedidos: parseInt(t.pedidos),
+  }));
+
+  const ventasDiariasData = (datos.ventas_diarias || []).map(t => ({
+    dia: new Date(t.dia).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' }),
+    total: parseFloat(t.total),
+    pedidos: parseInt(t.pedidos),
+  }));
+
+  const topData = (datos.top_productos || []).map(p => ({
+    nombre: p.nombre.length > 18 ? p.nombre.slice(0, 16) + '…' : p.nombre,
+    unidades: parseInt(p.unidades),
+    ingresos: parseFloat(p.ingresos),
+  }));
+
+  const estadoData = (datos.pedidos_por_estado || []).map(e => ({
+    name: ESTADO_LABEL[e.estado] || e.estado,
+    value: parseInt(e.total),
+    color: COLORES_ESTADO[e.estado] || '#adb5bd',
+  }));
+
+  const ticketPromedio = datos.pedidos_mes > 0
+    ? (datos.ventas_mes / datos.pedidos_mes).toFixed(2)
+    : 0;
 
   return (
-    <Container className="py-4">
+    <Container fluid className="py-4 px-4">
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Estadísticas</h1>
-          <p className="text-muted">Métricas y análisis de rendimiento</p>
+          <p className="text-muted mb-0">Métricas y análisis de rendimiento — datos en tiempo real</p>
         </Col>
       </Row>
 
-      {/* Tarjetas de métricas principales */}
-      <Row className="mb-5">
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center">
-              <div className="text-primary fs-2">💰</div>
-              <h3 className="text-primary">S/.{estadisticas.ventas.mensual.toLocaleString()}</h3>
-              <Card.Text className="text-muted">Ventas del Mes</Card.Text>
-            </Card.Body>
-          </Card>
+      {/* KPIs */}
+      <Row className="g-3 mb-4">
+        <Col xl={3} md={6}>
+          <MetricaCard
+            icono="💰"
+            valor={fmtSol(datos.ventas_mes)}
+            etiqueta="Ventas del Mes"
+            color="success"
+            extra={
+              crecimientoNum !== null ? (
+                <Badge bg={crecimientoNum >= 0 ? 'success' : 'danger'}>
+                  {crecimientoNum >= 0 ? '▲' : '▼'} {Math.abs(crecimientoNum)}% vs mes ant.
+                </Badge>
+              ) : null
+            }
+          />
         </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center">
-              <div className="text-success fs-2">📦</div>
-              <h3 className="text-success">{estadisticas.ventas.total}</h3>
-              <Card.Text className="text-muted">Total Ventas</Card.Text>
-            </Card.Body>
-          </Card>
+        <Col xl={3} md={6}>
+          <MetricaCard
+            icono="📦"
+            valor={datos.pedidos_mes}
+            etiqueta="Pedidos este Mes"
+            color="primary"
+            extra={<span className="text-muted">Ticket prom. {fmtSolCompleto(ticketPromedio)}</span>}
+          />
         </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center">
-              <div className="text-warning fs-2">📈</div>
-              <h3 className="text-warning">{estadisticas.ventas.crecimiento}%</h3>
-              <Card.Text className="text-muted">Crecimiento</Card.Text>
-            </Card.Body>
-          </Card>
+        <Col xl={3} md={6}>
+          <MetricaCard
+            icono="👥"
+            valor={datos.clientes_nuevos}
+            etiqueta="Clientes Nuevos (30 días)"
+            color="info"
+          />
         </Col>
-        <Col lg={3} md={6} className="mb-3">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center">
-              <div className="text-info fs-2">👥</div>
-              <h3 className="text-info">48</h3>
-              <Card.Text className="text-muted">Clientes Nuevos</Card.Text>
-            </Card.Body>
-          </Card>
+        <Col xl={3} md={6}>
+          <MetricaCard
+            icono="📅"
+            valor={fmtSol(datos.ventas_mes_anterior)}
+            etiqueta="Ventas Mes Anterior"
+            color="secondary"
+          />
         </Col>
       </Row>
 
-      <Row>
-        {/* Productos Más Vendidos */}
-        <Col lg={6} className="mb-4">
+      {/* Ventas diarias — 30 días */}
+      <Row className="g-3 mb-4">
+        <Col xl={8}>
           <Card className="border-0 shadow-sm h-100">
-            <Card.Header>
-              <h5 className="mb-0">🏆 Productos Más Vendidos</h5>
+            <Card.Header className="bg-transparent border-0 pt-3 pb-0">
+              <h6 className="fw-bold mb-0">📈 Ventas diarias — últimos 30 días</h6>
             </Card.Header>
             <Card.Body>
-              <Table responsive>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Ventas</th>
-                    <th>Ingresos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {estadisticas.productos.masVendidos.map((producto, index) => (
-                    <tr key={index}>
-                      <td>
-                        <strong>{producto.nombre}</strong>
-                      </td>
-                      <td>{producto.ventas}</td>
-                      <td>S/.{producto.ingresos.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+              {ventasDiariasData.length === 0 ? (
+                <div className="text-center py-4 text-muted">Sin ventas en los últimos 30 días</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={ventasDiariasData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradVentas" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#198754" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#198754" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="dia"
+                      tick={{ fontSize: 11 }}
+                      interval={Math.floor(ventasDiariasData.length / 6)}
+                    />
+                    <YAxis
+                      tickFormatter={v => `S/.${(v/1000).toFixed(0)}k`}
+                      tick={{ fontSize: 11 }}
+                      width={55}
+                    />
+                    <Tooltip content={<TooltipVentas />} />
+                    <Area
+                      type="monotone"
+                      dataKey="total"
+                      stroke="#198754"
+                      strokeWidth={2}
+                      fill="url(#gradVentas)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </Card.Body>
           </Card>
         </Col>
 
-        {/* Tendencias de Ventas */}
-        <Col lg={6} className="mb-4">
+        {/* Pedidos por estado — PieChart */}
+        <Col xl={4}>
           <Card className="border-0 shadow-sm h-100">
-            <Card.Header>
-              <h5 className="mb-0">📈 Tendencias de Ventas</h5>
+            <Card.Header className="bg-transparent border-0 pt-3 pb-0">
+              <h6 className="fw-bold mb-0">🥧 Pedidos por estado</h6>
             </Card.Header>
-            <Card.Body>
-              <div className="text-center py-4">
-                {/* Simulación de gráfico */}
-                <div className="bg-light rounded p-4">
-                  <p className="text-muted mb-3">Gráfico de Ventas Mensuales</p>
-                  <div className="d-flex align-items-end justify-content-around" style={{ height: '150px' }}>
-                    {estadisticas.tendencias.mensual.map((item, index) => (
-                      <div key={index} className="text-center">
-                        <div 
-                          className="bg-success rounded mx-auto"
-                          style={{ 
-                            width: '20px', 
-                            height: `${(item.ventas / 15000) * 100}px`,
-                            minHeight: '10px'
-                          }}
-                        ></div>
-                        <small className="text-muted">{item.mes}</small>
-                        <br/>
-                        <small>S/.{(item.ventas / 1000).toFixed(0)}k</small>
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+              {estadoData.length === 0 ? (
+                <p className="text-muted">Sin pedidos</p>
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie
+                        data={estadoData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={75}
+                        dataKey="value"
+                        paddingAngle={2}
+                      >
+                        {estadoData.map((entry, i) => (
+                          <Cell key={i} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(v, n) => [v, n]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                    {estadoData.map((e, i) => (
+                      <div key={i} className="d-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: e.color }} />
+                        <span>{e.name} ({e.value})</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* Métricas Adicionales */}
-      <Row>
-        <Col lg={4} className="mb-4">
-          <Card className="border-0 shadow-sm">
+      {/* Tendencias mensuales + Top productos */}
+      <Row className="g-3 mb-4">
+        <Col xl={7}>
+          <Card className="border-0 shadow-sm h-100">
+            <Card.Header className="bg-transparent border-0 pt-3 pb-0">
+              <h6 className="fw-bold mb-0">📊 Ventas mensuales — últimos 6 meses</h6>
+            </Card.Header>
             <Card.Body>
-              <h6 className="fw-bold">📊 Rendimiento por Categoría</h6>
-              <div className="mt-3">
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Standard</span>
-                  <span className="fw-bold">45%</span>
-                </div>
-                <div className="progress mb-3" style={{ height: '8px' }}>
-                  <div className="progress-bar bg-success" style={{ width: '45%' }}></div>
-                </div>
-
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Premium</span>
-                  <span className="fw-bold">30%</span>
-                </div>
-                <div className="progress mb-3" style={{ height: '8px' }}>
-                  <div className="progress-bar bg-primary" style={{ width: '30%' }}></div>
-                </div>
-
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Especial</span>
-                  <span className="fw-bold">15%</span>
-                </div>
-                <div className="progress mb-3" style={{ height: '8px' }}>
-                  <div className="progress-bar bg-warning" style={{ width: '15%' }}></div>
-                </div>
-
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Gourmet</span>
-                  <span className="fw-bold">10%</span>
-                </div>
-                <div className="progress" style={{ height: '8px' }}>
-                  <div className="progress-bar bg-info" style={{ width: '10%' }}></div>
-                </div>
-              </div>
+              {tendenciasData.length === 0 ? (
+                <p className="text-muted text-center py-3">Sin datos</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={tendenciasData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+                    <YAxis
+                      tickFormatter={v => `S/.${(v/1000).toFixed(0)}k`}
+                      tick={{ fontSize: 11 }}
+                      width={55}
+                    />
+                    <Tooltip content={<TooltipVentas />} />
+                    <Bar dataKey="total" fill="#198754" radius={[4, 4, 0, 0]} name="Ventas" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </Card.Body>
           </Card>
         </Col>
 
-        <Col lg={4} className="mb-4">
-          <Card className="border-0 shadow-sm">
+        <Col xl={5}>
+          <Card className="border-0 shadow-sm h-100">
+            <Card.Header className="bg-transparent border-0 pt-3 pb-0">
+              <h6 className="fw-bold mb-0">🏆 Top 5 productos más vendidos</h6>
+            </Card.Header>
             <Card.Body>
-              <h6 className="fw-bold">🎯 Objetivos del Mes</h6>
-              <div className="mt-3">
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between mb-1">
-                    <small>Ventas</small>
-                    <small>75%</small>
-                  </div>
-                  <div className="progress" style={{ height: '6px' }}>
-                    <div className="progress-bar bg-success" style={{ width: '75%' }}></div>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between mb-1">
-                    <small>Nuevos Clientes</small>
-                    <small>60%</small>
-                  </div>
-                  <div className="progress" style={{ height: '6px' }}>
-                    <div className="progress-bar bg-primary" style={{ width: '60%' }}></div>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between mb-1">
-                    <small>Productos Vendidos</small>
-                    <small>85%</small>
-                  </div>
-                  <div className="progress" style={{ height: '6px' }}>
-                    <div className="progress-bar bg-warning" style={{ width: '85%' }}></div>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between mb-1">
-                    <small>Satisfacción</small>
-                    <small>92%</small>
-                  </div>
-                  <div className="progress" style={{ height: '6px' }}>
-                    <div className="progress-bar bg-info" style={{ width: '92%' }}></div>
-                  </div>
-                </div>
-              </div>
+              {topData.length === 0 ? (
+                <p className="text-muted text-center py-3">Sin ventas aún</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={topData}
+                    layout="vertical"
+                    margin={{ top: 0, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 11 }} />
+                    <YAxis
+                      dataKey="nombre"
+                      type="category"
+                      tick={{ fontSize: 11 }}
+                      width={100}
+                    />
+                    <Tooltip
+                      formatter={(v, n) => [
+                        n === 'unidades' ? `${v} uds` : fmtSolCompleto(v),
+                        n === 'unidades' ? 'Unidades' : 'Ingresos',
+                      ]}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                    <Bar dataKey="unidades" fill="#0d6efd" radius={[0, 3, 3, 0]} name="Unidades" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </Card.Body>
           </Card>
         </Col>
+      </Row>
 
-        <Col lg={4} className="mb-4">
+      {/* Comparativo mensual detallado */}
+      <Row className="g-3">
+        <Col>
           <Card className="border-0 shadow-sm">
             <Card.Body>
-              <h6 className="fw-bold">📋 Resumen de Actividad</h6>
-              <div className="mt-3">
-                <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                  <div>
-                    <small className="fw-bold">Pedidos Hoy</small>
-                    <br/>
-                    <span className="text-success">12</span>
-                  </div>
-                  <div className="text-success">📦</div>
-                </div>
-
-                <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                  <div>
-                    <small className="fw-bold">Productos Bajos</small>
-                    <br/>
-                    <span className="text-warning">3</span>
-                  </div>
-                  <div className="text-warning">⚠️</div>
-                </div>
-
-                <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                  <div>
-                    <small className="fw-bold">Clientes Activos</small>
-                    <br/>
-                    <span className="text-primary">156</span>
-                  </div>
-                  <div className="text-primary">👥</div>
-                </div>
-
-                <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                  <div>
-                    <small className="fw-bold">Calificación</small>
-                    <br/>
-                    <span className="text-info">4.8/5</span>
-                  </div>
-                  <div className="text-info">⭐</div>
-                </div>
-              </div>
+              <h6 className="fw-bold mb-3">📋 Comparativo mensual</h6>
+              <Row className="text-center g-3">
+                <Col md={3}>
+                  <p className="text-muted small mb-1">Mes Anterior</p>
+                  <h5 className="text-secondary">{fmtSolCompleto(datos.ventas_mes_anterior)}</h5>
+                </Col>
+                <Col md={3}>
+                  <p className="text-muted small mb-1">Mes Actual</p>
+                  <h5 className="text-success">{fmtSolCompleto(datos.ventas_mes)}</h5>
+                </Col>
+                <Col md={3}>
+                  <p className="text-muted small mb-1">Crecimiento</p>
+                  {crecimientoNum === null ? (
+                    <h5 className="text-secondary">Sin datos previos</h5>
+                  ) : (
+                    <h5 className={crecimientoNum >= 0 ? 'text-success' : 'text-danger'}>
+                      {crecimientoNum >= 0 ? '+' : ''}{crecimientoNum}%
+                    </h5>
+                  )}
+                </Col>
+                <Col md={3}>
+                  <p className="text-muted small mb-1">Ticket Promedio</p>
+                  <h5 className="text-primary">{fmtSolCompleto(ticketPromedio)}</h5>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </Col>
       </Row>
     </Container>
-  )
+  );
 }
 
-export default Estadisticas
+export default Estadisticas;

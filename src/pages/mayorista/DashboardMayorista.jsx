@@ -4,8 +4,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 
-const estadoVariant = { pendiente: "warning", procesando: "info", enviado: "primary", completado: "success", cancelado: "danger" };
-const estadoLabel = { pendiente: "Pendiente", procesando: "En Preparación", enviado: "En Camino", completado: "Entregado", cancelado: "Cancelado" };
+const estadoVariant = {
+  pendiente: "warning", confirmado: "info", preparando: "secondary",
+  enviado: "primary", entregado: "success", cancelado: "danger", devuelto: "dark",
+};
+const estadoLabel = {
+  pendiente: "Pendiente", confirmado: "Confirmado", preparando: "En Preparación",
+  enviado: "En Camino", entregado: "Entregado", cancelado: "Cancelado", devuelto: "Devuelto",
+};
 
 function DashboardMayorista() {
   const { user } = useAuth();
@@ -20,7 +26,7 @@ function DashboardMayorista() {
       .finally(() => setLoading(false));
   }, []);
 
-  const activos = pedidos.filter(p => !["completado", "cancelado"].includes(p.estado));
+  const activos = pedidos.filter(p => !["entregado", "devuelto", "cancelado"].includes(p.estado));
   const total = pedidos.reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const ultimoPedido = pedidos[0];
 

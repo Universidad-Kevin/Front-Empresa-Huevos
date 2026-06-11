@@ -26,7 +26,7 @@ function SkeletonCard() {
 function Home() {
   const [destacados, setDestacados] = useState([])
   const [loadingDestacados, setLoadingDestacados] = useState(true)
-  const { addToCart } = useCart()
+  const { addToCart, isStaff } = useCart()
 
   useEffect(() => {
     api.get('/productos/activos')
@@ -247,14 +247,16 @@ function Home() {
                             >
                               Ver detalles
                             </Button>
-                            <Button
-                              variant="success"
-                              size="sm"
-                              disabled={producto.stock === 0}
-                              onClick={() => addToCart(producto)}
-                            >
-                              🛒
-                            </Button>
+                            {!isStaff && (
+                              <Button
+                                variant="success"
+                                size="sm"
+                                disabled={producto.stock === 0}
+                                onClick={() => addToCart(producto)}
+                              >
+                                🛒
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </Card.Body>
