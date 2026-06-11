@@ -178,13 +178,13 @@ function AuthModal({ show, onHide, initialView = "login" }) {
 
           {view === "login" && (
             <div className="text-center mt-3">
-              <a
-                href="/recuperar-password"
-                className="text-muted small"
-                onClick={onHide}
+              <button
+                type="button"
+                className="btn btn-link p-0 text-muted small text-decoration-none"
+                onClick={() => { onHide(); navigate("/recuperar-password"); }}
               >
                 ¿Olvidaste tu contraseña?
-              </a>
+              </button>
             </div>
           )}
         </Form>
