@@ -29,19 +29,19 @@ function Nosotros() {
       nombre: 'María González',
       puesto: 'Fundadora & CEO',
       descripcion: 'Más de 15 años de experiencia en agricultura orgánica.',
-      imagen: '/images/team1.jpg'
+      imagen: '/images/CEO.webp'
     },
     {
       nombre: 'Carlos Rodríguez',
       puesto: 'Director de Producción',
       descripcion: 'Especialista en bienestar animal y producción sostenible.',
-      imagen: '/images/team2.jpg'
+      imagen: '/images/DIRECTOR DE PRODUCCION.webp'
     },
     {
       nombre: 'Ana Martínez',
       puesto: 'Directora de Calidad',
       descripcion: 'Encargada de garantizar los más altos estándares de calidad.',
-      imagen: '/images/team3.jpg'
+      imagen: '/images/DIRECTORA DE CALIDAD.webp'
     }
   ]
 
