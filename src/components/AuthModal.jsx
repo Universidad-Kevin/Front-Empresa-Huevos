@@ -53,6 +53,7 @@ function AuthModal({ show, onHide, initialView = "login" }) {
           navigate(rol === "admin" ? "/admin" : rol === "mayorista" ? "/mayorista" : "/");
         } else {
           setError(result.error || "Credenciales inválidas");
+          setFormData({ nombre: "", email: "", password: "" });
         }
       } else {
         const result = await Register(formData);

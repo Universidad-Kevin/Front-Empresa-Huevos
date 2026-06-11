@@ -20,7 +20,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginAttempt = error.config?.url?.includes("/auth/login");
+    if (error.response?.status === 401 && !isLoginAttempt) {
       localStorage.removeItem("huevos_token");
       localStorage.removeItem("huevos_user");
       window.location.href = "/";
