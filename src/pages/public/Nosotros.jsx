@@ -96,7 +96,7 @@ function Nosotros() {
             </Col>
             <Col lg={6}>
               <img 
-                src="/images/gallinas-nosotros.webp"
+                src="/images/gallinas-fabrica-pollos-jaulas_335224-1406.webp"
                 alt="Nuestra granja"
                 className="img-fluid rounded shadow"
               />
