@@ -21,7 +21,7 @@ function NavigationBar() {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false)
 
   useEffect(() => {
-    if (user?.rol !== 'admin') {
+    if (!['admin', 'empleado'].includes(user?.rol)) {
       setPedidosPendientes(0)
       return
     }
@@ -171,7 +171,7 @@ function NavigationBar() {
               <Dropdown>
                 <Dropdown.Toggle variant="outline-dark" id="dropdown-basic" className="position-relative">
                   👋 {user.nombre}
-                  {user.rol === 'admin' && pedidosPendientes > 0 && (
+                  {['admin','empleado'].includes(user.rol) && pedidosPendientes > 0 && (
                     <Badge
                       bg="danger"
                       pill
@@ -189,16 +189,32 @@ function NavigationBar() {
                       <Dropdown.Item as={Link} to="/admin/productos">Productos</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/pedidos">
                         Pedidos
-                        {pedidosPendientes > 0 && (
-                          <Badge bg="danger" pill className="ms-2">{pedidosPendientes}</Badge>
-                        )}
+                        {pedidosPendientes > 0 && <Badge bg="danger" pill className="ms-2">{pedidosPendientes}</Badge>}
                       </Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/inventario">Inventario</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/pagos">Pagos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/facturas">Comprobantes</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/clientes">Clientes</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/usuarios">Usuarios Web</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/estadisticas">Estadísticas</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/cupones">Cupones</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/proveedores">Proveedores</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/auditoria">Auditoría</Dropdown.Item>
+                    </>
+                  ) : user.rol === 'empleado' ? (
+                    <>
+                      <Dropdown.Item as={Link} to="/admin">Dashboard</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/productos">Productos</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/pedidos">
+                        Pedidos
+                        {pedidosPendientes > 0 && <Badge bg="danger" pill className="ms-2">{pedidosPendientes}</Badge>}
+                      </Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/inventario">Inventario</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/pagos">Pagos</Dropdown.Item>
                       <Dropdown.Item as={Link} to="/admin/facturas">Comprobantes</Dropdown.Item>
-                      <Dropdown.Item as={Link} to="/admin/cupones">Cupones</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/proveedores">Proveedores</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/marcas">Marcas</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/categorias">Categorías</Dropdown.Item>
                     </>
                   ) : user.rol === 'mayorista' ? (
                     <>

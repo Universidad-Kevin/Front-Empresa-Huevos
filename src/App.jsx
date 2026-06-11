@@ -72,183 +72,31 @@ function App() {
             <Route path="/recuperar-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Rutas protegidas - Admin */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/productos"
-              element={
-                <ProtectedRoute>
-                  <ProductosAdmin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agregar-producto"
-              element={
-                <ProtectedRoute>
-                  <AgregarProducto />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/editar-producto/:id"
-              element={
-                <ProtectedRoute>
-                  <EditarProducto />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/productos-inactivos"
-              element={
-                <ProtectedRoute>
-                  <ProductosInactivos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/estadisticas"
-              element={
-                <ProtectedRoute>
-                  <Estadisticas />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/pedidos"
-              element={
-                <ProtectedRoute>
-                  <Pedidos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/configuracion"
-              element={
-                <ProtectedRoute>
-                  <Configuracion />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/clientes"
-              element={
-                <ProtectedRoute>
-                  <Clientes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agregar-cliente"
-              element={
-                <ProtectedRoute>
-                  <AgregarCliente />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/editar-cliente/:id"
-              element={
-                <ProtectedRoute>
-                  <EditarCliente />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/clientes/:id/nuevo-pedido"
-              element={
-                <ProtectedRoute>
-                  <NuevoPedidoMayorista />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/usuarios"
-              element={
-                <ProtectedRoute>
-                  <Usuarios />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/categorias"
-              element={
-                <ProtectedRoute>
-                  <Categorias />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/marcas"
-              element={
-                <ProtectedRoute>
-                  <Marcas />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/inventario"
-              element={
-                <ProtectedRoute>
-                  <Inventario />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/proveedores"
-              element={
-                <ProtectedRoute>
-                  <Proveedores />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/pagos"
-              element={
-                <ProtectedRoute>
-                  <Pagos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/facturas"
-              element={
-                <ProtectedRoute>
-                  <Facturas />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/cupones"
-              element={
-                <ProtectedRoute>
-                  <Cupones />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/valoraciones"
-              element={
-                <ProtectedRoute>
-                  <Valoraciones />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/auditoria"
-              element={
-                <ProtectedRoute>
-                  <Auditoria />
-                </ProtectedRoute>
-              }
-            />
+            {/* Rutas protegidas - Admin + Empleado */}
+            <Route path="/admin"                        element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Dashboard /></ProtectedRoute>} />
+            <Route path="/admin/productos"              element={<ProtectedRoute allowedRoles={["admin","empleado"]}><ProductosAdmin /></ProtectedRoute>} />
+            <Route path="/admin/agregar-producto"       element={<ProtectedRoute allowedRoles={["admin","empleado"]}><AgregarProducto /></ProtectedRoute>} />
+            <Route path="/admin/editar-producto/:id"    element={<ProtectedRoute allowedRoles={["admin","empleado"]}><EditarProducto /></ProtectedRoute>} />
+            <Route path="/admin/productos-inactivos"    element={<ProtectedRoute allowedRoles={["admin","empleado"]}><ProductosInactivos /></ProtectedRoute>} />
+            <Route path="/admin/pedidos"                element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Pedidos /></ProtectedRoute>} />
+            <Route path="/admin/inventario"             element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Inventario /></ProtectedRoute>} />
+            <Route path="/admin/proveedores"            element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Proveedores /></ProtectedRoute>} />
+            <Route path="/admin/pagos"                  element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Pagos /></ProtectedRoute>} />
+            <Route path="/admin/facturas"               element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Facturas /></ProtectedRoute>} />
+            <Route path="/admin/marcas"                 element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Marcas /></ProtectedRoute>} />
+            <Route path="/admin/categorias"             element={<ProtectedRoute allowedRoles={["admin","empleado"]}><Categorias /></ProtectedRoute>} />
+
+            {/* Rutas protegidas - Solo Admin */}
+            <Route path="/admin/estadisticas"           element={<ProtectedRoute allowedRoles={["admin"]}><Estadisticas /></ProtectedRoute>} />
+            <Route path="/admin/clientes"               element={<ProtectedRoute allowedRoles={["admin"]}><Clientes /></ProtectedRoute>} />
+            <Route path="/admin/agregar-cliente"        element={<ProtectedRoute allowedRoles={["admin"]}><AgregarCliente /></ProtectedRoute>} />
+            <Route path="/admin/editar-cliente/:id"     element={<ProtectedRoute allowedRoles={["admin"]}><EditarCliente /></ProtectedRoute>} />
+            <Route path="/admin/clientes/:id/nuevo-pedido" element={<ProtectedRoute allowedRoles={["admin"]}><NuevoPedidoMayorista /></ProtectedRoute>} />
+            <Route path="/admin/usuarios"               element={<ProtectedRoute allowedRoles={["admin"]}><Usuarios /></ProtectedRoute>} />
+            <Route path="/admin/cupones"                element={<ProtectedRoute allowedRoles={["admin"]}><Cupones /></ProtectedRoute>} />
+            <Route path="/admin/valoraciones"           element={<ProtectedRoute allowedRoles={["admin"]}><Valoraciones /></ProtectedRoute>} />
+            <Route path="/admin/auditoria"              element={<ProtectedRoute allowedRoles={["admin"]}><Auditoria /></ProtectedRoute>} />
+            <Route path="/admin/configuracion"          element={<ProtectedRoute allowedRoles={["admin"]}><Configuracion /></ProtectedRoute>} />
 
             {/* Rutas portal mayorista */}
             <Route path="/mayorista" element={<ProtectedRoute allowedRoles={["mayorista"]}><DashboardMayorista /></ProtectedRoute>} />
