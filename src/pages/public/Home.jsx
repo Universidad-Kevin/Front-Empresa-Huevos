@@ -59,16 +59,16 @@ function Home() {
                 cultivados sin químicos y con el cuidado que solo los procesos
                 artesanales pueden ofrecer.
               </p>
-              <div className="d-flex gap-3" style={{ color: '#ffffff', variant: 'success', size: 'lg' }}>
-                <Button as={Link} to="/productos" style={{ backgroundColor: '#2D5A27' }}>
+              <div className="d-flex gap-3">
+                <Button as={Link} to="/productos" style={{ backgroundColor: '#2D5A27', borderColor: '#2D5A27' }}>
                   Ver Productos {'->'}
                 </Button>
-                <Button as={Link} to="/nosotros" style={{ backgroundColor: '#CCEACF', color: '#2D5A27' }}>
+                <Button as={Link} to="/nosotros" style={{ backgroundColor: '#CCEACF', borderColor: '#CCEACF', color: '#2D5A27' }}>
                   Conócenos
                 </Button>
               </div>
             </Col>
-            <Col lg={6}>
+            <Col lg={6} className="mt-4 mt-lg-0">
               <img
                 src="/images/image-1-home.webp"
                 alt="Huevos orgánicos"
