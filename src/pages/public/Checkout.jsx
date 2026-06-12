@@ -150,6 +150,10 @@ function Checkout() {
 
   const handleConfirmar = async () => {
     if (cartItems.length === 0) return;
+    if (metodoActual?.requiereVoucher && !voucherFile) {
+      setError('Debes adjuntar el comprobante de pago antes de confirmar el pedido.');
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -168,12 +172,10 @@ function Checkout() {
       });
       const pedidoId = data.data.id;
 
-      // Si hay voucher, registrarlo en /pagos
-      if (voucherFile && metodoActual.requiereVoucher) {
+      // Registrar voucher en /pagos (obligatorio para yape/plin/transferencia)
+      if (metodoActual.requiereVoucher) {
         const base64 = await leerBase64(voucherFile);
         await api.post('/pagos', { pedido_id: pedidoId, voucher: base64 });
-      } else if (metodoActual.requiereVoucher) {
-        await api.post('/pagos', { pedido_id: pedidoId });
       }
 
       // Generar comprobante
@@ -299,8 +301,8 @@ function Checkout() {
               {metodoActual?.requiereVoucher && (
                 <div className="mt-3 p-3 rounded border" style={{ borderColor: '#dee2e6' }}>
                   <p className="mb-2 fw-bold small">
-                    📎 Comprobante de pago
-                    <span className="text-muted fw-normal ms-1">(opcional, también puedes subirlo después)</span>
+                    📎 Comprobante de pago <span className="text-danger">*</span>
+                    <span className="text-muted fw-normal ms-1">(obligatorio para confirmar el pedido)</span>
                   </p>
                   <Form.Control
                     ref={fileRef}
@@ -492,7 +494,7 @@ function Checkout() {
                 size="lg"
                 className="w-100"
                 onClick={handleConfirmar}
-                disabled={cartItems.length === 0 || loading}
+                disabled={cartItems.length === 0 || loading || (metodoActual?.requiereVoucher && !voucherFile)}
               >
                 {loading
                   ? <><Spinner size="sm" className="me-2" />Procesando...</>
