@@ -128,8 +128,12 @@ function MiPerfil() {
                         <Form.Control
                           value={formDatos.nombre}
                           onChange={e => setFormDatos(p => ({ ...p, nombre: e.target.value }))}
+                          maxLength={50}
                           required
                         />
+                        <Form.Text className={formDatos.nombre.length >= 45 ? 'text-danger' : 'text-muted'}>
+                          {formDatos.nombre.length}/50 caracteres
+                        </Form.Text>
                       </Form.Group>
                       <Form.Group className="mb-4">
                         <Form.Label>Correo electrónico</Form.Label>

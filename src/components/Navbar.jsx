@@ -170,7 +170,7 @@ function NavigationBar() {
             {user ? (
               <Dropdown>
                 <Dropdown.Toggle variant="outline-dark" id="dropdown-basic" className="position-relative">
-                  👋 {user.nombre}
+                  👋 <span style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>{user.nombre}</span>
                   {['admin','empleado'].includes(user.rol) && pedidosPendientes > 0 && (
                     <Badge
                       bg="danger"
