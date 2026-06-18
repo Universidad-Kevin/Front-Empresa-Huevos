@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Container, Row, Col, Card, Button, Form,
-  InputGroup, Alert, Badge, Pagination,
+  InputGroup, Alert, Badge,
 } from "react-bootstrap";
+import PaginacionVentana from "../../components/PaginacionVentana";
 import api from "../../services/api";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
@@ -151,7 +152,7 @@ function Productos() {
               </Col>
 
               {/* Precio mín */}
-              <Col md={1}>
+              <Col xs={6} md={1}>
                 <Form.Label className="small fw-bold text-muted">PRECIO MÍN</Form.Label>
                 <Form.Control
                   type="number"
@@ -163,7 +164,7 @@ function Productos() {
               </Col>
 
               {/* Precio máx */}
-              <Col md={1}>
+              <Col xs={6} md={1}>
                 <Form.Label className="small fw-bold text-muted">PRECIO MÁX</Form.Label>
                 <Form.Control
                   type="number"
@@ -221,7 +222,7 @@ function Productos() {
         <Container className="py-4">
           <Row>
             {productosPagina.map(producto => (
-              <Col key={producto.id} lg={3} md={6} className="mb-4">
+              <Col key={producto.id} xs={6} md={6} lg={3} className="mb-4">
                 <Card className="h-100 shadow-sm">
                   <div className="position-relative">
                     <Card.Img
@@ -294,25 +295,11 @@ function Productos() {
           )}
 
           {/* Paginación */}
-          {totalPaginas > 1 && (
-            <div className="d-flex justify-content-center mt-4">
-              <Pagination>
-                <Pagination.First onClick={() => setPagina(1)} disabled={paginaActual === 1} />
-                <Pagination.Prev onClick={() => setPagina(p => p - 1)} disabled={paginaActual === 1} />
-                {[...Array(totalPaginas)].map((_, i) => (
-                  <Pagination.Item
-                    key={i + 1}
-                    active={paginaActual === i + 1}
-                    onClick={() => setPagina(i + 1)}
-                  >
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next onClick={() => setPagina(p => p + 1)} disabled={paginaActual === totalPaginas} />
-                <Pagination.Last onClick={() => setPagina(totalPaginas)} disabled={paginaActual === totalPaginas} />
-              </Pagination>
-            </div>
-          )}
+          <PaginacionVentana
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            onChange={setPagina}
+          />
         </Container>
       </section>
     </>

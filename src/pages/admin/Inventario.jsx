@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Container, Row, Col, Card, Table, Button, Badge,
-  Alert, Form, Modal, Spinner, InputGroup, Tabs, Tab, Pagination,
+  Alert, Form, Modal, Spinner, InputGroup, Tabs, Tab,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import PaginacionVentana from "../../components/PaginacionVentana";
 
 const TIPOS_LABEL = {
   entrada:     { label: "Entrada",     bg: "success"  },
@@ -367,19 +368,13 @@ function Inventario() {
                       )}
                     </tbody>
                   </Table>
-                  {totalPaginasMov > 1 && (
-                    <div className="d-flex justify-content-center py-3">
-                      <Pagination size="sm">
-                        <Pagination.Prev onClick={() => setPaginaMov(p => p - 1)} disabled={paginaMov === 1} />
-                        {[...Array(Math.min(totalPaginasMov, 7))].map((_, i) => {
-                          const pg = i + 1;
-                          return <Pagination.Item key={pg} active={paginaMov === pg} onClick={() => setPaginaMov(pg)}>{pg}</Pagination.Item>;
-                        })}
-                        {totalPaginasMov > 7 && <Pagination.Ellipsis disabled />}
-                        <Pagination.Next onClick={() => setPaginaMov(p => p + 1)} disabled={paginaMov === totalPaginasMov} />
-                      </Pagination>
-                    </div>
-                  )}
+                  <PaginacionVentana
+                    paginaActual={paginaMov}
+                    totalPaginas={totalPaginasMov}
+                    onChange={setPaginaMov}
+                    size="sm"
+                    className="py-3"
+                  />
                 </>
               )}
             </Card.Body>

@@ -210,7 +210,7 @@ function Checkout() {
 
       <Row>
         {/* Columna izquierda */}
-        <Col lg={8} className="mb-4">
+        <Col lg={8} className="mb-4 order-2 order-lg-1">
           {/* Productos */}
           <Card className="shadow-sm mb-4">
             <Card.Header className="bg-white">
@@ -420,7 +420,7 @@ function Checkout() {
         </Col>
 
         {/* Resumen */}
-        <Col lg={4}>
+        <Col lg={4} className="order-1 order-lg-2">
           <Card className="shadow-sm">
             <Card.Header className="bg-white">
               <h5 className="mb-0 fw-bold">Resumen del Pedido</h5>

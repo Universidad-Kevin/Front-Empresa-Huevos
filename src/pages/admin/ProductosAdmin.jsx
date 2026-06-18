@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Container, Row, Col, Card, Table, Button, Badge,
-  Alert, Pagination, Form, InputGroup, Spinner,
+  Alert, Form, InputGroup, Spinner,
 } from "react-bootstrap";
+import PaginacionVentana from "../../components/PaginacionVentana";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { SkeletonTable } from "../../components/SkeletonLoader";
@@ -282,25 +283,13 @@ function ProductosAdmin() {
       </Card>
 
       {/* Paginación */}
-      {totalPaginas > 1 && (
-        <div className="d-flex justify-content-center mt-3">
-          <Pagination size="sm">
-            <Pagination.First onClick={() => setPagina(1)} disabled={paginaActual === 1} />
-            <Pagination.Prev onClick={() => setPagina(p => p - 1)} disabled={paginaActual === 1} />
-            {[...Array(totalPaginas)].map((_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={paginaActual === i + 1}
-                onClick={() => setPagina(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next onClick={() => setPagina(p => p + 1)} disabled={paginaActual === totalPaginas} />
-            <Pagination.Last onClick={() => setPagina(totalPaginas)} disabled={paginaActual === totalPaginas} />
-          </Pagination>
-        </div>
-      )}
+      <PaginacionVentana
+        paginaActual={paginaActual}
+        totalPaginas={totalPaginas}
+        onChange={setPagina}
+        size="sm"
+        className="mt-3"
+      />
 
       {/* Reportes de stock */}
       <div id="reportes-stock" className="mt-5">

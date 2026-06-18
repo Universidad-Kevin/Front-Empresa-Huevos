@@ -238,7 +238,7 @@ function NavigationBar() {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Nav.Link as="button" onClick={openLogin} className="btn btn-outline-2D5A27">
+              <Nav.Link as="button" onClick={openLogin} className="btn btn-outline-success">
                 Ingresar
               </Nav.Link>
             )}

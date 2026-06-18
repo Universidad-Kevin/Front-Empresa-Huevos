@@ -1,8 +1,18 @@
-/* Estilos personalizados para Huevos Orgánicos */
+/* Estilos personalizados para CampOrganic */
 :root {
-  --color-primary: #198754;
-  --color-secondary: #146c43;
-  --color-light: #f8f9fa;
+  /* Paleta de marca */
+  --color-primary:   #2D5A27;
+  --color-secondary: #23501E;
+  --color-accent:    #CCEACF;
+  --color-section:   #DAF9DD;
+  --color-bg:        #F0F0F0;
+  --color-brown:     #785740;
+  --color-light:     #f8f9fa;
+
+  /* Sobreescribir Bootstrap para que bg-success / text-success / btn-success
+     usen el verde de marca en lugar del verde por defecto de Bootstrap */
+  --bs-success:     #2D5A27;
+  --bs-success-rgb: 45, 90, 39;
 }
 
 body {
@@ -36,7 +46,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Botones personalizados */
+/* Botones */
 .btn-success {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -45,6 +55,19 @@ body {
 .btn-success:hover {
   background-color: var(--color-secondary);
   border-color: var(--color-secondary);
+}
+
+/* Botón acento (fondo verde claro, texto verde oscuro) */
+.btn-accent {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+.btn-accent:hover {
+  background-color: #b8e0bc;
+  border-color: #b8e0bc;
+  color: var(--color-secondary);
 }
 
 /* Hero section */
@@ -87,10 +110,10 @@ footer {
   margin-top: auto;
 }
 
-/* Estilos para formularios */
+/* Formularios */
 .form-control:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-success-rgb), 0.25);
 }
 
 /* Estilos para badges */
@@ -195,6 +218,41 @@ footer {
 }
 
 @media (max-width: 576px) {
+  /* Reducir padding de secciones en móvil */
+  .py-5 {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* Heading hero más compacto */
+  .display-4 {
+    font-size: 1.75rem;
+  }
+
+  /* Cards de producto en 2 columnas: imagen más corta */
+  .col-6 .card .card-img-top,
+  .col-6 .card img[style*="height"] {
+    height: 140px !important;
+  }
+
+  /* Cards de producto: body más compacto */
+  .col-6 .card .card-body {
+    padding: 0.6rem;
+  }
+
+  .col-6 .card .card-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .col-6 .card .card-text {
+    display: none; /* ocultar descripción en tarjetas pequeñas */
+  }
+
+  .col-6 .card h5 {
+    font-size: 0.95rem;
+  }
+
   .container {
     padding-left: 15px;
     padding-right: 15px;
@@ -211,6 +269,12 @@ footer {
   .btn-group .btn {
     margin-bottom: 0.5rem;
     border-radius: 0.375rem !important;
+  }
+
+  /* Feature cards de Home: radio de borde más pequeño */
+  [style*="borderRadius: '40px'"],
+  [style*="border-radius: 40px"] {
+    border-radius: 20px !important;
   }
 }
 
@@ -231,7 +295,8 @@ footer {
   animation: fadeIn 0.5s ease-in;
 }
 
-/* Estilos para estados */
+/* text-success y bg-success ya usan --bs-success sobreescrito arriba;
+   estos overrides refuerzan compatibilidad con versiones antiguas de Bootstrap */
 .text-success {
   color: var(--color-primary) !important;
 }

@@ -79,18 +79,18 @@ function Nosotros() {
                 huevos orgánicos en toda la región, manteniendo siempre nuestros valores 
                 fundamentales de calidad, sostenibilidad y bienestar animal.
               </p>
-              <div className="d-flex gap-3">
+              <div className="d-flex flex-wrap gap-4">
                 <div className="text-center">
                   <h3 className="text-success fw-bold">5,000+</h3>
-                  <p className="text-muted">Gallinas felices</p>
+                  <p className="text-muted mb-0">Gallinas felices</p>
                 </div>
                 <div className="text-center">
                   <h3 className="text-success fw-bold">14 años</h3>
-                  <p className="text-muted">De experiencia</p>
+                  <p className="text-muted mb-0">De experiencia</p>
                 </div>
                 <div className="text-center">
                   <h3 className="text-success fw-bold">100%</h3>
-                  <p className="text-muted">Orgánico certificado</p>
+                  <p className="text-muted mb-0">Orgánico certificado</p>
                 </div>
               </div>
             </Col>

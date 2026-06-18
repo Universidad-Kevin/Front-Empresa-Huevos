@@ -60,10 +60,10 @@ function Home() {
                 artesanales pueden ofrecer.
               </p>
               <div className="d-flex gap-3">
-                <Button as={Link} to="/productos" style={{ backgroundColor: '#2D5A27', borderColor: '#2D5A27' }}>
-                  Ver Productos {'->'}
+                <Button as={Link} to="/productos" variant="success">
+                  Ver Productos →
                 </Button>
-                <Button as={Link} to="/nosotros" style={{ backgroundColor: '#CCEACF', borderColor: '#CCEACF', color: '#2D5A27' }}>
+                <Button as={Link} to="/nosotros" className="btn-accent">
                   Conócenos
                 </Button>
               </div>
@@ -72,8 +72,8 @@ function Home() {
               <img
                 src="/images/image-1-home.webp"
                 alt="Huevos orgánicos"
-                className="img-fluid rounded"
-                style={{ width: '697px', height: '371px' }}
+                className="img-fluid rounded w-100"
+                style={{ maxHeight: '370px', objectFit: 'cover' }}
               />
             </Col>
           </Row>
@@ -195,7 +195,7 @@ function Home() {
           <Row>
             {loadingDestacados
               ? [0, 1, 2].map(i => (
-                  <Col key={i} md={4} className="mb-4">
+                  <Col key={i} xs={12} sm={6} md={4} className="mb-4">
                     <SkeletonCard />
                   </Col>
                 ))
@@ -207,7 +207,7 @@ function Home() {
                   </Col>
                 )
                 : destacados.map(producto => (
-                  <Col key={producto.id} md={4} className="mb-4">
+                  <Col key={producto.id} xs={12} sm={6} md={4} className="mb-4">
                     <Card className="h-100 shadow-sm">
                       <div style={{ position: 'relative' }}>
                         <Card.Img

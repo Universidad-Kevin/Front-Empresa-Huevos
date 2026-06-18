@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import ReclamacionModal from './ReclamacionModal'
 
 function Footer() {
+  const [showReclamo, setShowReclamo] = useState(false)
+
   return (
     <footer className="py-4" style={{ backgroundColor: '#F0F0F0' }}>
       <div className="container">
@@ -60,7 +64,23 @@ function Footer() {
 
           {/* Libro de reclamaciones */}
           <div className="col-6 col-md-2 d-flex flex-column align-items-center justify-content-start">
-            <img src="/images/image-6.webp" alt="Libro de reclamaciones" style={{ width: '100px' }} />
+            <button
+              onClick={() => setShowReclamo(true)}
+              className="border-0 bg-transparent p-0"
+              style={{ cursor: 'pointer' }}
+              title="Abrir Libro de Reclamaciones"
+            >
+              <img
+                src="/images/image-6.webp"
+                alt="Libro de reclamaciones"
+                style={{ width: '100px', transition: 'transform 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              />
+            </button>
+            <small className="text-muted mt-1" style={{ fontSize: '0.7rem', textAlign: 'center' }}>
+              Libro de<br />Reclamaciones
+            </small>
           </div>
 
         </div>
@@ -69,6 +89,8 @@ function Footer() {
           <small style={{ color: '#666' }}>&copy; 2026 – CampOrganic</small>
         </div>
       </div>
+
+      <ReclamacionModal show={showReclamo} onHide={() => setShowReclamo(false)} />
     </footer>
   )
 }
