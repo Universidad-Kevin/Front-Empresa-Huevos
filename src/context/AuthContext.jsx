@@ -27,34 +27,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log("🔐 Intentando login con:", { email, password });
-
       const response = await api.post("/auth/login", { email, password });
 
-      console.log("📨 Respuesta completa:", response);
-      console.log("📊 response.data:", response.data);
-
-      // VERIFICACIÓN DE SEGURIDAD
-      if (!response.data || !response.data.success) {
-        throw new Error(
-          response.data?.error || "Error en la respuesta del servidor"
-        );
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || "Error en la respuesta del servidor");
       }
-
-      if (
-        !response.data.data ||
-        !response.data.data.user ||
-        !response.data.data.token
-      ) {
+      if (!response.data.data?.user || !response.data.data?.token) {
         throw new Error("Estructura de respuesta inválida");
       }
 
       const { user: userData, token } = response.data.data;
 
-      console.log("👤 User data:", userData);
-      console.log("🔑 Token:", token);
-
-      // Guardar en localStorage
       localStorage.setItem("huevos_token", token);
       localStorage.setItem("huevos_user", JSON.stringify(userData));
 
@@ -62,7 +45,6 @@ export const AuthProvider = ({ children }) => {
       window.dispatchEvent(new CustomEvent('userLoggedIn'));
       return { success: true, data: userData };
     } catch (error) {
-      console.error("❌ Error en login:", error);
 
       // Manejo de errores
       let errorMessage = "Error al iniciar sesión";

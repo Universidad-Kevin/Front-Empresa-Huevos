@@ -167,7 +167,7 @@ function Inventario() {
 
       {/* Stat cards */}
       <Row className="mb-4 g-3">
-        <Col sm={3}>
+        <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-primary">{inventario.length}</h3>
@@ -175,7 +175,7 @@ function Inventario() {
             </Card.Body>
           </Card>
         </Col>
-        <Col sm={3}>
+        <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm border-danger">
             <Card.Body>
               <h3 className="fw-bold text-danger">{alertas.length}</h3>
@@ -183,7 +183,7 @@ function Inventario() {
             </Card.Body>
           </Card>
         </Col>
-        <Col sm={3}>
+        <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-success">
@@ -193,7 +193,7 @@ function Inventario() {
             </Card.Body>
           </Card>
         </Col>
-        <Col sm={3}>
+        <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-secondary">

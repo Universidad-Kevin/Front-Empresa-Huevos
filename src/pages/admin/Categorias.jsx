@@ -110,7 +110,7 @@ function Categorias() {
 
       {/* Stats cards */}
       <Row className="mb-4 g-3">
-        <Col sm={4}>
+        <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-primary">{categorias.length}</h3>
@@ -118,7 +118,7 @@ function Categorias() {
             </Card.Body>
           </Card>
         </Col>
-        <Col sm={4}>
+        <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-success">
@@ -128,7 +128,7 @@ function Categorias() {
             </Card.Body>
           </Card>
         </Col>
-        <Col sm={4}>
+        <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
               <h3 className="fw-bold text-warning">
@@ -159,59 +159,91 @@ function Categorias() {
               {busqueda ? "No se encontraron categorías" : "No hay categorías. ¡Crea la primera!"}
             </div>
           ) : (
-            <Table hover responsive className="mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th>Color</th>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th className="text-center">Productos</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Tabla — escritorio */}
+              <Table hover responsive className="mb-0 d-none d-md-table">
+                <thead className="table-light">
+                  <tr>
+                    <th>Color</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th className="text-center">Productos</th>
+                    <th className="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoriasFiltradas.map(cat => (
+                    <tr key={cat.id}>
+                      <td>
+                        <span
+                          className="d-inline-block rounded"
+                          style={{ width: 24, height: 24, backgroundColor: cat.color || "#6c757d", border: "1px solid #dee2e6" }}
+                          title={cat.color}
+                        />
+                      </td>
+                      <td>
+                        <span className="fw-semibold">{cat.nombre}</span>
+                        <small className="text-muted ms-2">#{cat.id}</small>
+                      </td>
+                      <td className="text-muted small">{cat.descripcion || "—"}</td>
+                      <td className="text-center">
+                        <Badge bg={cat.total_productos > 0 ? "success" : "secondary"}>
+                          {cat.total_productos}
+                        </Badge>
+                      </td>
+                      <td className="text-end">
+                        <Button variant="outline-primary" size="sm" className="me-1" onClick={() => abrirEditar(cat)}>
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleEliminar(cat)}
+                          disabled={cat.total_productos > 0}
+                          title={cat.total_productos > 0 ? "Tiene productos asociados" : "Eliminar"}
+                        >
+                          Eliminar
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+              {/* Tarjetas — móvil */}
+              <div className="d-md-none">
                 {categoriasFiltradas.map(cat => (
-                  <tr key={cat.id}>
-                    <td>
+                  <div key={cat.id} className="border-bottom p-3">
+                    <div className="d-flex align-items-center gap-2 mb-2">
                       <span
-                        className="d-inline-block rounded"
-                        style={{ width: 24, height: 24, backgroundColor: cat.color || "#6c757d", border: "1px solid #dee2e6" }}
-                        title={cat.color}
+                        className="d-inline-block rounded flex-shrink-0"
+                        style={{ width: 20, height: 20, backgroundColor: cat.color || "#6c757d", border: "1px solid #dee2e6" }}
                       />
-                    </td>
-                    <td>
-                      <span className="fw-semibold">{cat.nombre}</span>
-                      <small className="text-muted ms-2">#{cat.id}</small>
-                    </td>
-                    <td className="text-muted small">{cat.descripcion || "—"}</td>
-                    <td className="text-center">
-                      <Badge bg={cat.total_productos > 0 ? "success" : "secondary"}>
-                        {cat.total_productos}
+                      <strong>{cat.nombre}</strong>
+                      <small className="text-muted">#{cat.id}</small>
+                      <Badge bg={cat.total_productos > 0 ? "success" : "secondary"} className="ms-auto">
+                        {cat.total_productos} productos
                       </Badge>
-                    </td>
-                    <td className="text-end">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-1"
-                        onClick={() => abrirEditar(cat)}
-                      >
+                    </div>
+                    {cat.descripcion && <p className="small text-muted mb-2">{cat.descripcion}</p>}
+                    <div className="d-flex gap-2">
+                      <Button size="sm" variant="outline-primary" onClick={() => abrirEditar(cat)}>
                         Editar
                       </Button>
                       <Button
-                        variant="outline-danger"
                         size="sm"
+                        variant="outline-danger"
                         onClick={() => handleEliminar(cat)}
                         disabled={cat.total_productos > 0}
                         title={cat.total_productos > 0 ? "Tiene productos asociados" : "Eliminar"}
                       >
                         Eliminar
                       </Button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </Table>
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>

@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 
 const CartContext = createContext();
@@ -16,7 +16,11 @@ export function CartProvider({ children }) {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Sincronizar carrito con el servidor
+  // skipSyncRef: evita que el resultado de una sync del servidor vuelva a disparar otra sync
+  const skipSyncRef = useRef(false);
+  // isFirstRenderRef: no sincronizar al montar (el carrito viene de localStorage, no es un cambio del usuario)
+  const isFirstRenderRef = useRef(true);
+
   const syncWithServer = useCallback(async (localItems) => {
     try {
       const token = localStorage.getItem('huevos_token');
@@ -46,6 +50,8 @@ export function CartProvider({ children }) {
         quantity: item.cantidad,
       }));
 
+      // Marcar que el próximo cambio de cartItems viene del servidor (no re-sincronizar)
+      skipSyncRef.current = true;
       setCartItems(merged);
     } catch {
       // Si falla la sync, el carrito local sigue funcionando
@@ -57,7 +63,22 @@ export function CartProvider({ children }) {
     localStorage.setItem('campOrganicCart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Sincronizar al login
+  // Auto-sincronizar con el servidor cada vez que el carrito cambia (excepto carga inicial y respuestas del servidor)
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
+    if (skipSyncRef.current) {
+      skipSyncRef.current = false;
+      return;
+    }
+    const token = localStorage.getItem('huevos_token');
+    if (!token) return;
+    syncWithServer(cartItems);
+  }, [cartItems, syncWithServer]);
+
+  // Sincronizar al login (el carrito local puede tener items añadidos antes de autenticarse)
   useEffect(() => {
     const onLogin = () => syncWithServer(cartItems);
     window.addEventListener('userLoggedIn', onLogin);
@@ -75,37 +96,29 @@ export function CartProvider({ children }) {
     if (getStaffRol()) return;
     setCartItems(prev => {
       const idx = prev.findIndex(i => i.id === product.id);
-      let next;
       if (idx >= 0) {
-        next = [...prev];
+        const next = [...prev];
         next[idx] = { ...next[idx], quantity: Math.min(next[idx].quantity + quantity, product.stock) };
-      } else {
-        next = [...prev, { ...product, quantity }];
+        return next;
       }
-      syncWithServer(next);
-      return next;
+      return [...prev, { ...product, quantity }];
     });
     setIsCartOpen(true);
   };
 
   const removeFromCart = (productId) => {
-    setCartItems(prev => {
-      const next = prev.filter(i => i.id !== productId);
-      syncWithServer(next);
-      return next;
-    });
+    setCartItems(prev => prev.filter(i => i.id !== productId));
   };
 
   const updateQuantity = (productId, quantity) => {
     if (quantity <= 0) { removeFromCart(productId); return; }
-    setCartItems(prev => {
-      const next = prev.map(i => i.id === productId ? { ...i, quantity: Math.min(quantity, i.stock) } : i);
-      syncWithServer(next);
-      return next;
-    });
+    setCartItems(prev =>
+      prev.map(i => i.id === productId ? { ...i, quantity: Math.min(quantity, i.stock) } : i)
+    );
   };
 
   const clearCart = () => {
+    skipSyncRef.current = true; // El DELETE /carrito ya limpia el servidor; no necesitamos sync
     setCartItems([]);
     const token = localStorage.getItem('huevos_token');
     const savedUser = localStorage.getItem('huevos_user');

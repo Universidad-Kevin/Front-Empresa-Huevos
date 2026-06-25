@@ -187,90 +187,123 @@ function Pagos() {
               <p className="mt-2">No hay pagos{filtro !== 'todos' ? ` en estado "${filtro}"` : ''}</p>
             </div>
           ) : (
-            <div className="table-responsive">
-              <Table hover className="mb-0 align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th>Pedido #</th>
-                    <th>Cliente</th>
-                    <th>Método</th>
-                    <th>Monto</th>
-                    <th>Comprobante</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagosFiltrados.map(pago => (
-                    <tr key={pago.id}>
-                      <td>
-                        <strong>#{pago.pedido_id}</strong>
-                        {pago.codigo_verificacion && (
-                          <div>
-                            <small className="text-muted font-monospace">{pago.codigo_verificacion}</small>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        <div>{pago.cliente_nombre || '—'}</div>
-                        <small className="text-muted">{pago.cliente_email || ''}</small>
-                      </td>
-                      <td>{metodoPagoLabel[pago.metodo] || pago.metodo}</td>
-                      <td className="fw-bold">S/.{parseFloat(pago.monto).toFixed(2)}</td>
-                      <td>
-                        {pago.tiene_voucher ? (
-                          <Button
-                            size="sm"
-                            variant="outline-info"
-                            onClick={() => abrirVoucher(pago)}
-                          >
-                            🖼 Ver
-                          </Button>
-                        ) : (
-                          <span className="text-muted small">Sin comprobante</span>
-                        )}
-                      </td>
-                      <td>
-                        <Badge bg={estadoVariant[pago.estado] || 'secondary'}>
-                          {pago.estado.charAt(0).toUpperCase() + pago.estado.slice(1)}
-                        </Badge>
-                        {pago.notas_admin && (
-                          <div><small className="text-muted">{pago.notas_admin}</small></div>
-                        )}
-                      </td>
-                      <td>
-                        <small className="text-muted">
-                          {new Date(pago.creado_en).toLocaleDateString('es-PE', {
-                            day: '2-digit', month: 'short', year: 'numeric',
-                          })}
-                        </small>
-                      </td>
-                      <td>
-                        {pago.estado === 'pendiente' && (
-                          <div className="d-flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="success"
-                              onClick={() => abrirAccion(pago, 'verificar')}
-                            >
-                              ✓ Verificar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline-danger"
-                              onClick={() => abrirAccion(pago, 'rechazar')}
-                            >
-                              ✗
-                            </Button>
-                          </div>
-                        )}
-                      </td>
+            <>
+              {/* Tabla — escritorio */}
+              <div className="table-responsive d-none d-md-block">
+                <Table hover className="mb-0 align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Pedido #</th>
+                      <th>Cliente</th>
+                      <th>Método</th>
+                      <th>Monto</th>
+                      <th>Comprobante</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {pagosFiltrados.map(pago => (
+                      <tr key={pago.id}>
+                        <td>
+                          <strong>#{pago.pedido_id}</strong>
+                          {pago.codigo_verificacion && (
+                            <div>
+                              <small className="text-muted font-monospace">{pago.codigo_verificacion}</small>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div>{pago.cliente_nombre || '—'}</div>
+                          <small className="text-muted">{pago.cliente_email || ''}</small>
+                        </td>
+                        <td>{metodoPagoLabel[pago.metodo] || pago.metodo}</td>
+                        <td className="fw-bold">S/.{parseFloat(pago.monto).toFixed(2)}</td>
+                        <td>
+                          {pago.tiene_voucher ? (
+                            <Button size="sm" variant="outline-info" onClick={() => abrirVoucher(pago)}>
+                              🖼 Ver
+                            </Button>
+                          ) : (
+                            <span className="text-muted small">Sin comprobante</span>
+                          )}
+                        </td>
+                        <td>
+                          <Badge bg={estadoVariant[pago.estado] || 'secondary'}>
+                            {pago.estado.charAt(0).toUpperCase() + pago.estado.slice(1)}
+                          </Badge>
+                          {pago.notas_admin && (
+                            <div><small className="text-muted">{pago.notas_admin}</small></div>
+                          )}
+                        </td>
+                        <td>
+                          <small className="text-muted">
+                            {new Date(pago.creado_en).toLocaleDateString('es-PE', {
+                              day: '2-digit', month: 'short', year: 'numeric',
+                            })}
+                          </small>
+                        </td>
+                        <td>
+                          {pago.estado === 'pendiente' && (
+                            <div className="d-flex gap-1">
+                              <Button size="sm" variant="success" onClick={() => abrirAccion(pago, 'verificar')}>
+                                ✓ Verificar
+                              </Button>
+                              <Button size="sm" variant="outline-danger" onClick={() => abrirAccion(pago, 'rechazar')}>
+                                ✗
+                              </Button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+
+              {/* Tarjetas — móvil */}
+              <div className="d-md-none">
+                {pagosFiltrados.map(pago => (
+                  <div key={pago.id} className="border-bottom p-3">
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <strong>Pedido #{pago.pedido_id}</strong>
+                      <Badge bg={estadoVariant[pago.estado] || 'secondary'} className="ms-2 flex-shrink-0">
+                        {pago.estado.charAt(0).toUpperCase() + pago.estado.slice(1)}
+                      </Badge>
+                    </div>
+                    <div className="mb-1">
+                      <div className="small fw-semibold">{pago.cliente_nombre || '—'}</div>
+                      <small className="text-muted">{pago.cliente_email || ''}</small>
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <small className="text-muted">{metodoPagoLabel[pago.metodo] || pago.metodo}</small>
+                      <strong className="text-success">S/.{parseFloat(pago.monto).toFixed(2)}</strong>
+                    </div>
+                    {pago.notas_admin && (
+                      <small className="text-muted d-block mb-2">{pago.notas_admin}</small>
+                    )}
+                    <div className="d-flex gap-2 flex-wrap">
+                      {pago.tiene_voucher && (
+                        <Button size="sm" variant="outline-info" onClick={() => abrirVoucher(pago)}>
+                          🖼 Comprobante
+                        </Button>
+                      )}
+                      {pago.estado === 'pendiente' && (
+                        <>
+                          <Button size="sm" variant="success" onClick={() => abrirAccion(pago, 'verificar')}>
+                            ✓ Verificar
+                          </Button>
+                          <Button size="sm" variant="outline-danger" onClick={() => abrirAccion(pago, 'rechazar')}>
+                            ✗ Rechazar
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>

@@ -122,7 +122,7 @@ function ProductosAdmin() {
               <h1 className="fw-bold">Gestión de Productos</h1>
               <p className="text-muted">Administra tu inventario de productos</p>
             </div>
-            <div className="d-flex gap-2 align-items-center">
+            <div className="d-flex flex-wrap gap-2 align-items-center">
               <Button as={Link} to="/admin/agregar-producto" variant="success">
                 ➕ Agregar Producto
               </Button>
@@ -207,7 +207,8 @@ function ProductosAdmin() {
 
       <Card className="shadow-sm">
         <Card.Body className="p-0">
-          <Table responsive hover className="mb-0">
+          {/* Tabla — escritorio */}
+          <Table responsive hover className="mb-0 d-none d-md-table">
             <thead className="bg-light">
               <tr>
                 <th>Código</th>
@@ -267,6 +268,45 @@ function ProductosAdmin() {
               ))}
             </tbody>
           </Table>
+
+          {/* Tarjetas — móvil */}
+          <div className="d-md-none">
+            {productosPagina.map(producto => (
+              <div key={producto.id} className="border-bottom p-3">
+                <div className="d-flex justify-content-between align-items-start mb-1">
+                  <div>
+                    <strong>{producto.nombre}</strong>
+                    {producto.codigo && (
+                      <small className="text-muted ms-2 font-monospace">{producto.codigo}</small>
+                    )}
+                  </div>
+                  <Badge bg={getEstadoBadge(producto.estado)} className="text-capitalize ms-2 flex-shrink-0">
+                    {producto.estado}
+                  </Badge>
+                </div>
+                <div className="d-flex gap-2 flex-wrap mb-2">
+                  <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
+                  <Badge bg={getStockVariant(producto.stock)}>Stock: {producto.stock}</Badge>
+                </div>
+                <div className="mb-2">
+                  <strong className="text-success">S/.{parseFloat(producto.precio).toFixed(2)}</strong>
+                  <small className="text-muted ms-1">/{producto.unidad || 'uds.'}</small>
+                </div>
+                <div className="d-flex gap-2">
+                  <Button size="sm" variant="outline-primary" as={Link} to={`/admin/editar-producto/${producto.id}`}>
+                    Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={producto.estado === "activo" ? "outline-danger" : "outline-success"}
+                    onClick={() => handleToggleEstado(producto.id, producto.nombre, producto.estado)}
+                  >
+                    {producto.estado === "activo" ? "Desactivar" : "Activar"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {productosFiltrados.length === 0 && (
             <div className="text-center py-5">

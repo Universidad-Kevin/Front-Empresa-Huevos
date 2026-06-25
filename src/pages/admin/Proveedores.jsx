@@ -134,7 +134,7 @@ function Proveedores() {
               <h1 className="fw-bold">Proveedores</h1>
               <p className="text-muted">Gestiona los proveedores de productos</p>
             </div>
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-wrap gap-2">
               <Button variant="success" onClick={abrirAgregar}>➕ Nuevo Proveedor</Button>
               <Button variant="outline-secondary" onClick={() => navigate("/admin/inventario")}>← Inventario</Button>
             </div>
@@ -152,7 +152,7 @@ function Proveedores() {
           { label: "Inactivos", valor: proveedores.filter(p => p.estado === "inactivo").length, color: "secondary" },
           { label: "Con entradas", valor: proveedores.filter(p => p.total_entradas > 0).length, color: "info" },
         ].map(s => (
-          <Col sm={3} key={s.label}>
+          <Col xs={6} sm={3} key={s.label}>
             <Card className="text-center shadow-sm">
               <Card.Body>
                 <h3 className={`fw-bold text-${s.color}`}>{s.valor}</h3>
@@ -197,67 +197,119 @@ function Proveedores() {
               {busqueda || filtroEstado ? "Sin resultados para los filtros aplicados" : "No hay proveedores registrados"}
             </div>
           ) : (
-            <Table hover responsive className="mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th>Nombre</th>
-                  <th>Contacto</th>
-                  <th>Teléfono</th>
-                  <th>RUC</th>
-                  <th className="text-center">Entradas</th>
-                  <th className="text-center">Última entrada</th>
-                  <th className="text-center">Estado</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Tabla — escritorio */}
+              <Table hover responsive className="mb-0 d-none d-md-table">
+                <thead className="table-light">
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>RUC</th>
+                    <th className="text-center">Entradas</th>
+                    <th className="text-center">Última entrada</th>
+                    <th className="text-center">Estado</th>
+                    <th className="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proveedoresFiltrados.map(p => (
+                    <tr key={p.id}>
+                      <td>
+                        <Button variant="link" className="p-0 text-start fw-semibold" onClick={() => abrirDetalle(p)}>
+                          {p.nombre}
+                        </Button>
+                        {p.email && <div className="text-muted small">{p.email}</div>}
+                      </td>
+                      <td className="text-muted small">{p.contacto_nombre || "—"}</td>
+                      <td className="text-muted small">{p.telefono || "—"}</td>
+                      <td className="text-muted small">{p.ruc || "—"}</td>
+                      <td className="text-center">
+                        <Badge bg={p.total_entradas > 0 ? "success" : "secondary"}>{p.total_entradas}</Badge>
+                      </td>
+                      <td className="text-center text-muted small">
+                        {p.ultima_entrada ? new Date(p.ultima_entrada).toLocaleDateString("es-PE") : "—"}
+                      </td>
+                      <td className="text-center">
+                        <Badge bg={p.estado === "activo" ? "success" : "secondary"}>
+                          {p.estado === "activo" ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </td>
+                      <td className="text-end">
+                        <Button variant="outline-primary" size="sm" className="me-1" onClick={() => abrirEditar(p)}>Editar</Button>
+                        <Button
+                          variant={p.estado === "activo" ? "outline-warning" : "outline-success"}
+                          size="sm"
+                          className="me-1"
+                          onClick={() => handleToggleEstado(p)}
+                          disabled={cambiando === p.id}
+                        >
+                          {cambiando === p.id ? <Spinner animation="border" size="sm" /> : p.estado === "activo" ? "Desactivar" : "Activar"}
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleEliminar(p)}
+                          disabled={p.total_entradas > 0}
+                          title={p.total_entradas > 0 ? "Tiene entradas asociadas" : "Eliminar"}
+                        >
+                          Eliminar
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+              {/* Tarjetas — móvil */}
+              <div className="d-md-none">
                 {proveedoresFiltrados.map(p => (
-                  <tr key={p.id}>
-                    <td>
-                      <Button variant="link" className="p-0 text-start fw-semibold" onClick={() => abrirDetalle(p)}>
-                        {p.nombre}
-                      </Button>
-                      {p.email && <div className="text-muted small">{p.email}</div>}
-                    </td>
-                    <td className="text-muted small">{p.contacto_nombre || "—"}</td>
-                    <td className="text-muted small">{p.telefono || "—"}</td>
-                    <td className="text-muted small">{p.ruc || "—"}</td>
-                    <td className="text-center">
-                      <Badge bg={p.total_entradas > 0 ? "success" : "secondary"}>{p.total_entradas}</Badge>
-                    </td>
-                    <td className="text-center text-muted small">
-                      {p.ultima_entrada ? new Date(p.ultima_entrada).toLocaleDateString("es-PE") : "—"}
-                    </td>
-                    <td className="text-center">
-                      <Badge bg={p.estado === "activo" ? "success" : "secondary"}>
+                  <div key={p.id} className="border-bottom p-3">
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <div>
+                        <Button variant="link" className="p-0 text-start fw-semibold" onClick={() => abrirDetalle(p)}>
+                          {p.nombre}
+                        </Button>
+                        {p.email && <div className="text-muted small">{p.email}</div>}
+                      </div>
+                      <Badge bg={p.estado === "activo" ? "success" : "secondary"} className="ms-2 flex-shrink-0">
                         {p.estado === "activo" ? "Activo" : "Inactivo"}
                       </Badge>
-                    </td>
-                    <td className="text-end">
-                      <Button variant="outline-primary" size="sm" className="me-1" onClick={() => abrirEditar(p)}>Editar</Button>
+                    </div>
+                    <div className="d-flex flex-wrap gap-3 small text-muted mb-2">
+                      {p.contacto_nombre && <span>👤 {p.contacto_nombre}</span>}
+                      {p.telefono && <span>📞 {p.telefono}</span>}
+                      {p.ruc && <span>RUC: {p.ruc}</span>}
+                    </div>
+                    <div className="small text-muted mb-2">
+                      <Badge bg={p.total_entradas > 0 ? "success" : "secondary"}>{p.total_entradas} entradas</Badge>
+                      {p.ultima_entrada && (
+                        <span className="ms-2">· Última: {new Date(p.ultima_entrada).toLocaleDateString("es-PE")}</span>
+                      )}
+                    </div>
+                    <div className="d-flex gap-2 flex-wrap">
+                      <Button size="sm" variant="outline-primary" onClick={() => abrirEditar(p)}>Editar</Button>
                       <Button
-                        variant={p.estado === "activo" ? "outline-warning" : "outline-success"}
                         size="sm"
-                        className="me-1"
+                        variant={p.estado === "activo" ? "outline-warning" : "outline-success"}
                         onClick={() => handleToggleEstado(p)}
                         disabled={cambiando === p.id}
                       >
                         {cambiando === p.id ? <Spinner animation="border" size="sm" /> : p.estado === "activo" ? "Desactivar" : "Activar"}
                       </Button>
                       <Button
-                        variant="outline-danger"
                         size="sm"
+                        variant="outline-danger"
                         onClick={() => handleEliminar(p)}
                         disabled={p.total_entradas > 0}
-                        title={p.total_entradas > 0 ? "Tiene entradas asociadas" : "Eliminar"}
                       >
                         Eliminar
                       </Button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </Table>
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>

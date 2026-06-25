@@ -159,7 +159,7 @@ function Cupones() {
           { label: 'Inactivos', value: stats.inactivos, color: '#6c757d', icon: '⛔' },
           { label: 'Usos totales', value: stats.totalUsos, color: '#0d6efd', icon: '🏷️' },
         ].map(s => (
-          <Col key={s.label} md={4}>
+          <Col key={s.label} xs={4}>
             <Card className="border-0 shadow-sm">
               <Card.Body className="d-flex justify-content-between align-items-center py-3">
                 <div>
@@ -206,77 +206,122 @@ function Cupones() {
               <Button variant="success" onClick={abrirNuevo}>Crear primer cupón</Button>
             </div>
           ) : (
-            <div className="table-responsive">
-              <Table hover className="mb-0 align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    <th>Descuento</th>
-                    <th>Mín. compra</th>
-                    <th>Usos</th>
-                    <th>Vigencia</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtrados.map(c => (
-                    <tr key={c.id}>
-                      <td><span className="font-monospace fw-bold">{c.codigo}</span></td>
-                      <td><small className="text-muted">{c.descripcion || '—'}</small></td>
-                      <td>
-                        <Badge bg={c.tipo === 'porcentaje' ? 'primary' : 'warning'} text={c.tipo === 'monto_fijo' ? 'dark' : undefined}>
-                          {valorDescuento(c)}
-                        </Badge>
-                        {c.maximo_descuento && (
-                          <small className="text-muted d-block">tope S/.{parseFloat(c.maximo_descuento).toFixed(2)}</small>
-                        )}
-                      </td>
-                      <td>
-                        {parseFloat(c.minimo_compra) > 0
-                          ? <small>S/.{parseFloat(c.minimo_compra).toFixed(2)}</small>
-                          : <small className="text-muted">Sin mínimo</small>}
-                      </td>
-                      <td>
-                        <small>{c.usos_totales} usados</small>
-                        {c.usos_disponibles !== null && (
-                          <small className="text-muted d-block">{c.usos_disponibles} restantes</small>
-                        )}
-                        {c.usos_disponibles === null && (
-                          <small className="text-muted d-block">∞ ilimitados</small>
-                        )}
-                      </td>
-                      <td>
-                        <small>
-                          {c.fecha_inicio ? c.fecha_inicio.slice(0, 10) : '—'}
-                          {' → '}
-                          {c.fecha_fin ? c.fecha_fin.slice(0, 10) : '∞'}
-                        </small>
-                      </td>
-                      <td>{estadoBadge(c)}</td>
-                      <td>
-                        <Button size="sm" variant="outline-primary" className="me-1" onClick={() => abrirEditar(c)}>
-                          Editar
-                        </Button>
-                        {c.activo ? (
-                          <Button size="sm" variant="outline-danger" onClick={() => setModalEliminar(c)}>
-                            Desactivar
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline-success" onClick={async () => {
-                            await api.put(`/cupones/${c.id}`, { ...c, activo: 1 });
-                            cargar();
-                          }}>
-                            Activar
-                          </Button>
-                        )}
-                      </td>
+            <>
+              {/* Tabla — escritorio */}
+              <div className="table-responsive d-none d-md-block">
+                <Table hover className="mb-0 align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Código</th>
+                      <th>Descripción</th>
+                      <th>Descuento</th>
+                      <th>Mín. compra</th>
+                      <th>Usos</th>
+                      <th>Vigencia</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtrados.map(c => (
+                      <tr key={c.id}>
+                        <td><span className="font-monospace fw-bold">{c.codigo}</span></td>
+                        <td><small className="text-muted">{c.descripcion || '—'}</small></td>
+                        <td>
+                          <Badge bg={c.tipo === 'porcentaje' ? 'primary' : 'warning'} text={c.tipo === 'monto_fijo' ? 'dark' : undefined}>
+                            {valorDescuento(c)}
+                          </Badge>
+                          {c.maximo_descuento && (
+                            <small className="text-muted d-block">tope S/.{parseFloat(c.maximo_descuento).toFixed(2)}</small>
+                          )}
+                        </td>
+                        <td>
+                          {parseFloat(c.minimo_compra) > 0
+                            ? <small>S/.{parseFloat(c.minimo_compra).toFixed(2)}</small>
+                            : <small className="text-muted">Sin mínimo</small>}
+                        </td>
+                        <td>
+                          <small>{c.usos_totales} usados</small>
+                          {c.usos_disponibles !== null && (
+                            <small className="text-muted d-block">{c.usos_disponibles} restantes</small>
+                          )}
+                          {c.usos_disponibles === null && (
+                            <small className="text-muted d-block">∞ ilimitados</small>
+                          )}
+                        </td>
+                        <td>
+                          <small>
+                            {c.fecha_inicio ? c.fecha_inicio.slice(0, 10) : '—'}
+                            {' → '}
+                            {c.fecha_fin ? c.fecha_fin.slice(0, 10) : '∞'}
+                          </small>
+                        </td>
+                        <td>{estadoBadge(c)}</td>
+                        <td>
+                          <Button size="sm" variant="outline-primary" className="me-1" onClick={() => abrirEditar(c)}>
+                            Editar
+                          </Button>
+                          {c.activo ? (
+                            <Button size="sm" variant="outline-danger" onClick={() => setModalEliminar(c)}>
+                              Desactivar
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="outline-success" onClick={async () => {
+                              await api.put(`/cupones/${c.id}`, { ...c, activo: 1 });
+                              cargar();
+                            }}>
+                              Activar
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+
+              {/* Tarjetas — móvil */}
+              <div className="d-md-none">
+                {filtrados.map(c => (
+                  <div key={c.id} className="border-bottom p-3">
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <span className="font-monospace fw-bold">{c.codigo}</span>
+                      {estadoBadge(c)}
+                    </div>
+                    {c.descripcion && <div className="small text-muted mb-2">{c.descripcion}</div>}
+                    <div className="d-flex flex-wrap gap-2 mb-1">
+                      <Badge bg={c.tipo === 'porcentaje' ? 'primary' : 'warning'} text={c.tipo === 'monto_fijo' ? 'dark' : undefined}>
+                        {valorDescuento(c)}
+                      </Badge>
+                      <small className="text-muted">
+                        {parseFloat(c.minimo_compra) > 0 ? `Mín. S/.${parseFloat(c.minimo_compra).toFixed(2)}` : 'Sin mínimo'}
+                      </small>
+                    </div>
+                    <div className="small text-muted mb-2">
+                      {c.usos_totales} usados ·{' '}
+                      {c.usos_disponibles !== null ? `${c.usos_disponibles} restantes` : '∞ ilimitados'}
+                    </div>
+                    <div className="d-flex gap-2">
+                      <Button size="sm" variant="outline-primary" onClick={() => abrirEditar(c)}>
+                        Editar
+                      </Button>
+                      {c.activo ? (
+                        <Button size="sm" variant="outline-danger" onClick={() => setModalEliminar(c)}>
+                          Desactivar
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="outline-success" onClick={async () => {
+                          await api.put(`/cupones/${c.id}`, { ...c, activo: 1 });
+                          cargar();
+                        }}>
+                          Activar
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>

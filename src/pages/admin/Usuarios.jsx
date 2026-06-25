@@ -119,21 +119,23 @@ function Usuarios() {
 
       <Card className="shadow-sm">
         <Card.Body className="p-0">
-          <Table responsive hover className="mb-0">
+          {/* Tabla — escritorio */}
+          <Table responsive hover className="mb-0 d-none d-md-table">
             <thead className="bg-light">
               <tr>
-                <th>ID</th>
+                <th>N°</th>
                 <th>Nombre</th>
                 <th>Email</th>
+                <th>Rol</th>
                 <th>Estado</th>
                 <th>Registro</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {usuariosFiltrados.map(usuario => (
+              {usuariosFiltrados.map((usuario, idx) => (
                 <tr key={usuario.id}>
-                  <td><strong>#{usuario.id}</strong></td>
+                  <td><strong>#{idx + 1}</strong></td>
                   <td>
                     <div className="d-flex align-items-center gap-2">
                       <span className="text-primary">👤</span>
@@ -144,6 +146,15 @@ function Usuarios() {
                     </div>
                   </td>
                   <td className="text-muted">{usuario.email}</td>
+                  <td>
+                    <Badge bg={
+                      usuario.rol === "admin" ? "danger" :
+                      usuario.rol === "empleado" ? "warning" :
+                      "primary"
+                    } className="text-capitalize">
+                      {usuario.rol ?? "cliente"}
+                    </Badge>
+                  </td>
                   <td>
                     <Badge bg={usuario.estado === "activo" ? "success" : "secondary"} className="text-capitalize">
                       {usuario.estado ?? "activo"}
@@ -173,6 +184,52 @@ function Usuarios() {
             </tbody>
           </Table>
 
+          {/* Tarjetas — móvil */}
+          <div className="d-md-none">
+            {usuariosFiltrados.map(usuario => (
+              <div key={usuario.id} className="border-bottom p-3">
+                <div className="d-flex justify-content-between align-items-start mb-1">
+                  <div>
+                    <strong>{usuario.nombre}</strong>
+                    {new Date(usuario.creado_en) > hace30dias && (
+                      <Badge bg="success" pill className="ms-2">Nuevo</Badge>
+                    )}
+                  </div>
+                  <Badge bg={usuario.estado === "activo" ? "success" : "secondary"} className="text-capitalize ms-2 flex-shrink-0">
+                    {usuario.estado ?? "activo"}
+                  </Badge>
+                </div>
+                <div className="text-muted small mb-1">{usuario.email}</div>
+                <div className="mb-2">
+                  <Badge bg={
+                    usuario.rol === "admin" ? "danger" :
+                    usuario.rol === "empleado" ? "warning" :
+                    "primary"
+                  } className="text-capitalize">
+                    {usuario.rol ?? "cliente"}
+                  </Badge>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <small className="text-muted">
+                    {new Date(usuario.creado_en).toLocaleDateString("es-PE", {
+                      day: "2-digit", month: "short", year: "numeric"
+                    })}
+                  </small>
+                  <Button
+                    size="sm"
+                    variant={usuario.estado === "activo" ? "outline-danger" : "outline-success"}
+                    disabled={cambiando === usuario.id}
+                    onClick={() => handleToggleEstado(usuario.id, usuario.nombre, usuario.estado ?? "activo")}
+                  >
+                    {cambiando === usuario.id
+                      ? <Spinner animation="border" size="sm" />
+                      : usuario.estado === "activo" ? "Desactivar" : "Activar"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {usuariosFiltrados.length === 0 && (
             <div className="text-center py-5">
               <p className="text-muted">
@@ -190,7 +247,7 @@ function Usuarios() {
 
       {usuarios.length > 0 && (
         <Row className="mt-4">
-          <Col md={3} className="mb-3">
+          <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-primary bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-primary">{usuarios.length}</h4>
@@ -198,7 +255,7 @@ function Usuarios() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={3} className="mb-3">
+          <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-success bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-success">{usuarios.filter(u => (u.estado ?? "activo") === "activo").length}</h4>
@@ -206,7 +263,7 @@ function Usuarios() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={3} className="mb-3">
+          <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-secondary bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-secondary">{usuarios.filter(u => u.estado === "inactivo").length}</h4>
@@ -214,7 +271,7 @@ function Usuarios() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={3} className="mb-3">
+          <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-info bg-opacity-10">
               <Card.Body className="text-center">
                 <h4 className="text-info">

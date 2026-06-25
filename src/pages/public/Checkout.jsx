@@ -43,18 +43,32 @@ const METODOS_PAGO = [
   },
 ];
 
+// Datos de pago leídos desde .env (VITE_YAPE_NUMERO, VITE_PLIN_NUMERO, VITE_BANCO_CUENTA)
+// para no exponer datos reales en el código fuente.
+const YAPE_NUM   = import.meta.env.VITE_YAPE_NUMERO  || '';
+const PLIN_NUM   = import.meta.env.VITE_PLIN_NUMERO  || '';
+const BANCO_CTA  = import.meta.env.VITE_BANCO_CUENTA || '';
+const BANCO_NOMBRE = import.meta.env.VITE_BANCO_NOMBRE || 'BCP';
+const TITULAR    = import.meta.env.VITE_TITULAR       || 'CampOrganic SAC';
+
 const INFO_PAGO = {
   yape: {
     titulo: 'Datos para Yape',
-    lineas: ['📱 Número: 999-999-999', '👤 Titular: CampOrganic'],
+    lineas: YAPE_NUM
+      ? [`📱 Número: ${YAPE_NUM}`, `👤 Titular: ${TITULAR}`]
+      : ['Contacta con nosotros para recibir los datos de pago.'],
   },
   plin: {
     titulo: 'Datos para Plin',
-    lineas: ['📱 Número: 999-999-999', '👤 Titular: CampOrganic'],
+    lineas: PLIN_NUM
+      ? [`📱 Número: ${PLIN_NUM}`, `👤 Titular: ${TITULAR}`]
+      : ['Contacta con nosotros para recibir los datos de pago.'],
   },
   transferencia: {
-    titulo: 'Datos bancarios (BCP)',
-    lineas: ['🏦 Banco: BCP', '💳 Cuenta corriente: 000-000000000-0-00', '👤 Titular: CampOrganic SAC', '⏰ Tienes 48h para transferir'],
+    titulo: `Datos bancarios (${BANCO_NOMBRE})`,
+    lineas: BANCO_CTA
+      ? [`🏦 Banco: ${BANCO_NOMBRE}`, `💳 Cuenta corriente: ${BANCO_CTA}`, `👤 Titular: ${TITULAR}`, '⏰ Tienes 48h para transferir']
+      : ['Contacta con nosotros para recibir los datos bancarios.'],
   },
 };
 
@@ -63,6 +77,7 @@ function Checkout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileRef = useRef(null);
+  const submittingRef = useRef(false);
 
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [loading, setLoading] = useState(false);
@@ -75,6 +90,11 @@ function Checkout() {
   const [cuponAplicado, setCuponAplicado] = useState(null); // { codigo, descripcion, descuento }
   const [cuponError, setCuponError] = useState('');
   const [cuponLoading, setCuponLoading] = useState(false);
+
+  // Dirección de entrega (SDI-273)
+  const [dirCalle, setDirCalle]         = useState('');
+  const [dirDistrito, setDirDistrito]   = useState('');
+  const [dirReferencia, setDirReferencia] = useState('');
 
   // Comprobante de pago
   const [tipoComprobante, setTipoComprobante] = useState('boleta');
@@ -149,11 +169,22 @@ function Checkout() {
     });
 
   const handleConfirmar = async () => {
+    if (submittingRef.current) return;
     if (cartItems.length === 0) return;
     if (metodoActual?.requiereVoucher && !voucherFile) {
       setError('Debes adjuntar el comprobante de pago antes de confirmar el pedido.');
       return;
     }
+    // SDI-274: validar dirección antes de llamar al API
+    if (!dirCalle.trim()) {
+      setError('La dirección de entrega (calle y número) es obligatoria.');
+      return;
+    }
+    if (!dirDistrito.trim()) {
+      setError('Debes indicar el distrito de entrega.');
+      return;
+    }
+    submittingRef.current = true;
     setLoading(true);
     setError('');
 
@@ -169,6 +200,9 @@ function Checkout() {
         items,
         metodo_pago: metodoPago,
         cupon_codigo: cuponAplicado?.codigo || undefined,
+        dir_calle: dirCalle.trim(),
+        dir_distrito: dirDistrito.trim(),
+        dir_referencia: dirReferencia.trim() || undefined,
       });
       const pedidoId = data.data.id;
 
@@ -194,6 +228,7 @@ function Checkout() {
       setError(err.response?.data?.error || 'Error al procesar el pedido. Intenta de nuevo.');
     } finally {
       setLoading(false);
+      submittingRef.current = false;
     }
   };
 
@@ -241,6 +276,55 @@ function Checkout() {
                   </div>
                 ))
               )}
+            </Card.Body>
+          </Card>
+
+          {/* Dirección de entrega (SDI-273) */}
+          <Card className="shadow-sm mb-4">
+            <Card.Header className="bg-white">
+              <h5 className="mb-0 fw-bold">📍 Dirección de Entrega</h5>
+            </Card.Header>
+            <Card.Body>
+              <Row className="g-2">
+                <Col md={8}>
+                  <Form.Label className="small mb-1">
+                    Calle, Av. y número <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Control
+                    size="sm"
+                    value={dirCalle}
+                    onChange={e => setDirCalle(e.target.value)}
+                    placeholder="Av. Los Olivos 345, Urb. Santa María"
+                    maxLength={200}
+                    required
+                  />
+                </Col>
+                <Col md={4}>
+                  <Form.Label className="small mb-1">
+                    Distrito <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Control
+                    size="sm"
+                    value={dirDistrito}
+                    onChange={e => setDirDistrito(e.target.value)}
+                    placeholder="San Isidro"
+                    maxLength={100}
+                    required
+                  />
+                </Col>
+                <Col md={12}>
+                  <Form.Label className="small mb-1">
+                    Referencia <span className="text-muted">(opcional)</span>
+                  </Form.Label>
+                  <Form.Control
+                    size="sm"
+                    value={dirReferencia}
+                    onChange={e => setDirReferencia(e.target.value)}
+                    placeholder="Frente al parque, portón azul..."
+                    maxLength={200}
+                  />
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
 
@@ -494,7 +578,13 @@ function Checkout() {
                 size="lg"
                 className="w-100"
                 onClick={handleConfirmar}
-                disabled={cartItems.length === 0 || loading || (metodoActual?.requiereVoucher && !voucherFile)}
+                disabled={
+                  cartItems.length === 0 ||
+                  loading ||
+                  (metodoActual?.requiereVoucher && !voucherFile) ||
+                  !dirCalle.trim() ||
+                  !dirDistrito.trim()
+                }
               >
                 {loading
                   ? <><Spinner size="sm" className="me-2" />Procesando...</>
