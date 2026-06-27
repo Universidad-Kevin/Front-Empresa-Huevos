@@ -16,6 +16,7 @@ const TIPOS_LABEL = {
   cancelacion: { label: "Cancelación", bg: "light", text: "dark" },
 };
 
+const STOCK_POR_PAGINA = 15;
 const MOV_POR_PAGINA = 15;
 
 function Inventario() {
@@ -32,9 +33,10 @@ function Inventario() {
   const [filtroProducto, setFiltroProducto] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
 
-  // Filtro tabla inventario
+  // Filtro y paginación tabla inventario
   const [busqueda, setBusqueda] = useState("");
   const [soloAlertas, setSoloAlertas] = useState(false);
+  const [paginaStock, setPaginaStock] = useState(1);
 
   // Modales
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +53,7 @@ function Inventario() {
     api.get("/proveedores").then(({ data }) => setProveedores((data.data || []).filter(p => p.estado === "activo"))).catch(() => {});
   }, []);
   useEffect(() => { fetchMovimientos(); }, [paginaMov, filtroProducto, filtroTipo]);
+  useEffect(() => { setPaginaStock(1); }, [busqueda, soloAlertas]);
 
   const fetchInventario = async () => {
     setLoading(true);
@@ -137,6 +140,12 @@ function Inventario() {
     if (soloAlertas) lista = lista.filter(p => p.alerta_stock);
     return lista;
   }, [inventario, busqueda, soloAlertas]);
+
+  const totalPaginasStock = Math.max(1, Math.ceil(inventarioFiltrado.length / STOCK_POR_PAGINA));
+  const inventarioPagina = inventarioFiltrado.slice(
+    (paginaStock - 1) * STOCK_POR_PAGINA,
+    paginaStock * STOCK_POR_PAGINA
+  );
 
   const alertas = inventario.filter(p => p.alerta_stock);
 
@@ -256,7 +265,7 @@ function Inventario() {
                     </tr>
                   </thead>
                   <tbody>
-                    {inventarioFiltrado.map(prod => (
+                    {inventarioPagina.map(prod => (
                       <tr key={prod.id} className={prod.alerta_stock ? "table-danger" : ""}>
                         <td>
                           <span className="fw-semibold">{prod.nombre}</span>
@@ -294,6 +303,13 @@ function Inventario() {
                     )}
                   </tbody>
                 </Table>
+                <PaginacionVentana
+                  paginaActual={paginaStock}
+                  totalPaginas={totalPaginasStock}
+                  onChange={setPaginaStock}
+                  size="sm"
+                  className="py-3"
+                />
               )}
             </Card.Body>
           </Card>
