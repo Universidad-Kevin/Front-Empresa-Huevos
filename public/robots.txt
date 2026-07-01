@@ -1,0 +1,72 @@
+# ====================================
+# robots.txt - CampOrganic (SEO + GEO)
+# Optimizado según skill seo-geo-advanced §10.4 / §16.3
+# ====================================
+
+# --- Buscadores tradicionales ---
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /mayorista/
+Disallow: /checkout
+Disallow: /mi-perfil
+Disallow: /mis-pedidos
+Disallow: /mis-favoritos
+Disallow: /mis-notificaciones
+Disallow: /reset-password
+Disallow: /recuperar-password
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /mayorista/
+Disallow: /checkout
+Disallow: /mi-perfil
+
+# --- Bots de IA / motores generativos (GEO) ---
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Scraper agresivo sin valor de citación
+User-agent: Bytespider
+Disallow: /
+
+# --- Regla por defecto ---
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /mayorista/
+Disallow: /checkout
+Disallow: /mi-perfil
+Disallow: /mis-pedidos
+Disallow: /mis-favoritos
+Disallow: /mis-notificaciones
+Disallow: /reset-password
+Disallow: /recuperar-password
+
+# --- Sitemap ---
+Sitemap: https://fearless-flow-production.up.railway.app/sitemap.xml

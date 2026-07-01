@@ -1,4 +1,5 @@
 import { Container, Row, Col, Card } from 'react-bootstrap'
+import Seo from '../../components/Seo'
 
 function Nosotros() {
   const valores = [
@@ -47,6 +48,7 @@ function Nosotros() {
 
   return (
     <div>
+      <Seo path="/nosotros" />
       {/* Hero Section */}
       <section className="bg-success text-white py-5">
         <Container>

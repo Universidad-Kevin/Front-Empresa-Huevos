@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useFavoritos } from '../../hooks/useFavoritos';
 import { SkeletonProductDetail } from '../../components/SkeletonLoader';
 import SeccionValoraciones from '../../components/SeccionValoraciones';
+import Seo, { SITE_URL } from '../../components/Seo';
 
 function ProductoDetalle() {
   const { id } = useParams();
@@ -89,12 +90,48 @@ function ProductoDetalle() {
     );
   }
 
+  const imagenAbs = producto.imagen?.startsWith("http")
+    ? producto.imagen
+    : `${SITE_URL}${producto.imagen || "/images/placeholder.jpg"}`;
+
+  const productoJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: producto.nombre,
+    description: producto.descripcion,
+    image: imagenAbs,
+    category: producto.categoria,
+    brand: { "@type": "Brand", name: "CampOrganic" },
+    offers: {
+      "@type": "Offer",
+      price: producto.precio,
+      priceCurrency: "PEN",
+      availability:
+        producto.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: `${SITE_URL}/producto/${id}`,
+    },
+  };
+
   return (
     <Container className="py-5">
+      <Seo
+        title={producto.nombre}
+        path={`/producto/${id}`}
+        description={
+          producto.descripcion
+            ? producto.descripcion.slice(0, 160)
+            : `Compra ${producto.nombre} en CampOrganic. Huevos orgánicos frescos con entrega a domicilio en Perú.`
+        }
+        image={imagenAbs}
+        type="product"
+        jsonLd={productoJsonLd}
+      />
       <Row>
         <Col md={6}>
-          <img 
-            src={producto.imagen || "/images/placeholder.jpg"} 
+          <img
+            src={producto.imagen || "/images/placeholder.jpg"}
             alt={producto.nombre}
             className="img-fluid rounded shadow"
             style={{ maxHeight: '500px', width: '100%', objectFit: 'cover' }}

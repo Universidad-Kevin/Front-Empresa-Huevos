@@ -1,3 +1,12 @@
 node_modules/
 dist/
 .env
+
+# Claude Code internal
+.claude/
+
+# Screenshots y archivos de test ad-hoc
+ss-*.png
+test-*.png
+test-*.cjs
+test-*.mjs

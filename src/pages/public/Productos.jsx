@@ -10,6 +10,7 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { useFavoritos } from "../../hooks/useFavoritos";
 import { SkeletonProductGrid } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 const POR_PAGINA = 8;
 
@@ -106,6 +107,7 @@ function Productos() {
 
   return (
     <>
+      <Seo path="/productos" />
       <Container className="py-5">
         <Row className="mb-3">
           <Col>

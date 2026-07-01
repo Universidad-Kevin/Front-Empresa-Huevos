@@ -11,6 +11,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 const FORM_INICIAL = { nombre: "", email: "", telefono: "", asunto: "", mensaje: "" };
 
@@ -74,6 +75,7 @@ function AgregarInteresado() {
 
   return (
     <Container className="py-5">
+      <Seo path="/contacto" />
       <Row className="mb-5">
         <Col className="text-center">
           <h1 className="fw-bold">Contáctanos</h1>

@@ -3,9 +3,73 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="src/public/images/LogoCampOrgan-1.webp" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Huevos Orgánicos - Tienda Online</title>
+  <meta name="theme-color" content="#2D5A27" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/webp" href="/images/LogoCampOrgan-1.webp" />
+  <link rel="apple-touch-icon" href="/images/LogoCampOrgan-1.webp" />
+
+  <!-- El <title>, description y Open Graph los inyecta <Seo> (react-helmet-async) -->
+  <!-- por página. No poner un <title> estático aquí: duplicaría el tag y Google  -->
+  <!-- usaría el primero del DOM en todas las rutas. (Nota: sin prerender, los     -->
+  <!-- scrapers que no ejecutan JS no verán estos tags — ver pendiente: prerender) -->
+  <meta name="author" content="CampOrganic SAC" />
+
+  <!-- ============================================================ -->
+  <!-- Datos estructurados GLOBALES (skill §5, §10.5)               -->
+  <!-- Organization + WebSite + Store — válidos en todo el sitio.   -->
+  <!-- El meta por página lo inyecta <Seo> con react-helmet-async.  -->
+  <!-- ============================================================ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://fearless-flow-production.up.railway.app/#organization",
+        "name": "CampOrganic",
+        "legalName": "CampOrganic SAC",
+        "url": "https://fearless-flow-production.up.railway.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://fearless-flow-production.up.railway.app/images/LogoCampOrgan-1.webp"
+        },
+        "description": "Productores y distribuidores de huevos orgánicos frescos de gallinas libres en Perú.",
+        "address": { "@type": "PostalAddress", "addressCountry": "PE" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://fearless-flow-production.up.railway.app/#website",
+        "url": "https://fearless-flow-production.up.railway.app/",
+        "name": "CampOrganic",
+        "publisher": { "@id": "https://fearless-flow-production.up.railway.app/#organization" },
+        "inLanguage": "es-PE",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://fearless-flow-production.up.railway.app/productos?buscar={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "GroceryStore",
+        "@id": "https://fearless-flow-production.up.railway.app/#store",
+        "name": "CampOrganic",
+        "image": "https://fearless-flow-production.up.railway.app/images/hero-huevos.jpg",
+        "url": "https://fearless-flow-production.up.railway.app/",
+        "parentOrganization": { "@id": "https://fearless-flow-production.up.railway.app/#organization" },
+        "priceRange": "S/",
+        "currenciesAccepted": "PEN",
+        "paymentAccepted": "Yape, Plin, Transferencia bancaria, Tarjeta de crédito/débito",
+        "address": { "@type": "PostalAddress", "addressCountry": "PE" },
+        "areaServed": { "@type": "Country", "name": "Perú" }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>

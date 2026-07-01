@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
 import api from '../../services/api'
 import { useCart } from '../../context/CartContext'
+import Seo from '../../components/Seo'
 
 function SkeletonCard() {
   return (
@@ -43,6 +44,7 @@ function Home() {
 
   return (
     <main>
+      <Seo path="/" />
       {/* Hero Section */}
       <section className="text-white py-5">
         <Container >

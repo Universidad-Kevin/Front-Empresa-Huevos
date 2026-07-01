@@ -253,6 +253,7 @@ function Inventario() {
               {loading ? (
                 <div className="text-center py-5"><Spinner animation="border" variant="success" /></div>
               ) : (
+                <>
                 <Table hover responsive className="mb-0 small">
                   <thead className="table-light">
                     <tr>
@@ -310,6 +311,7 @@ function Inventario() {
                   size="sm"
                   className="py-3"
                 />
+                </>
               )}
             </Card.Body>
           </Card>
