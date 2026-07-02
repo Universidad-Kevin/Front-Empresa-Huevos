@@ -427,15 +427,17 @@ function EditarProducto() {
 
                 <Form.Group className="mb-3">
                   <Form.Label>Imagen del producto</Form.Label>
-                  <Form.Control
-                    type="url"
-                    name="imagen"
-                    value={formData.imagen?.startsWith("data:") ? "" : (formData.imagen || "")}
-                  readOnly={imageJustUploaded}
-                    onChange={handleChange}
-                    placeholder="URL de imagen (o sube un archivo abajo)"
-                    className="mb-2"
-                  />
+                  {formData.imagen && !formData.imagen.startsWith("data:") && !imageJustUploaded && (
+                    <div className="mb-2">
+                      <img
+                        src={formData.imagen}
+                        alt="Imagen actual"
+                        style={{ height: "80px", objectFit: "cover", borderRadius: "6px", border: "1px solid #dee2e6" }}
+                        onError={(e) => { e.target.style.display = "none"; }}
+                      />
+                      <Form.Text className="text-muted d-block">Imagen actual — sube un nuevo archivo para reemplazarla</Form.Text>
+                    </div>
+                  )}
                   <Form.Control
                     type="file"
                     accept="image/webp"

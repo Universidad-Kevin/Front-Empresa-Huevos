@@ -124,7 +124,7 @@ function AgregarProducto() {
         marca_id: formData.marca_id || null,
         stock: parseInt(formData.stock),
         unidad: formData.unidad || 'unidad',
-        imagen: formData.imagen || null,
+        imagen: null,
         estado: formData.estado || 'activo',
         caracteristicas: caracteristicasFiltradas,
       };
@@ -328,14 +328,6 @@ function AgregarProducto() {
 
                 <Form.Group className="mb-3">
                   <Form.Label>Imagen del producto</Form.Label>
-                  <Form.Control
-                    type="url"
-                    name="imagen"
-                    value={formData.imagen}
-                    onChange={handleChange}
-                    placeholder="URL de imagen (opcional)"
-                    className="mb-2"
-                  />
                   <Form.Control
                     type="file"
                     accept="image/webp"
