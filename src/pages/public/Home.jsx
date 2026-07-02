@@ -76,8 +76,8 @@ function Home() {
                 alt="Huevos orgánicos"
                 className="img-fluid rounded w-100"
                 style={{ maxHeight: '370px', objectFit: 'cover' }}
-                width={800}
-                height={370}
+                width={705}
+                height={379}
                 fetchPriority="high"
               />
             </Col>

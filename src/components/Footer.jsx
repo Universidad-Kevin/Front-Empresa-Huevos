@@ -73,7 +73,7 @@ function Footer() {
               <img
                 src="/images/image-6.webp"
                 alt="Libro de reclamaciones"
-                style={{ width: '100px', height: '120px', transition: 'transform 0.2s' }}
+                style={{ width: '100px', height: '73px', transition: 'transform 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               />
