@@ -62,7 +62,7 @@ function App() {
         <div className="App d-flex flex-column min-vh-100">
           <Navbar />
           <main className="flex-grow-1">
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<div style={{ minHeight: '100vh' }}><LoadingSpinner /></div>}>
               <Routes>
                 {/* Rutas públicas */}
                 <Route path="/"                    element={<Home />} />
