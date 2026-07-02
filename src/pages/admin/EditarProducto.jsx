@@ -40,6 +40,7 @@ function EditarProducto() {
   const autoMatchedRef = useRef(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [imgError, setImgError] = useState("");
+  const [imageJustUploaded, setImageJustUploaded] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -164,6 +165,7 @@ function EditarProducto() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setFormData((prev) => ({ ...prev, imagen: data.imagen }));
+      setImageJustUploaded(true);
     } catch (err) {
       setImgError(err.response?.data?.error || "Error al subir imagen");
     } finally {
@@ -398,6 +400,7 @@ function EditarProducto() {
                     type="url"
                     name="imagen"
                     value={formData.imagen?.startsWith("data:") ? "" : (formData.imagen || "")}
+                  readOnly={imageJustUploaded}
                     onChange={handleChange}
                     placeholder="URL de imagen (o sube un archivo abajo)"
                     className="mb-2"
@@ -410,7 +413,7 @@ function EditarProducto() {
                   />
                   {uploadingImg && <Form.Text className="text-muted">Subiendo imagen...</Form.Text>}
                   {imgError && <Form.Text className="text-danger">{imgError}</Form.Text>}
-                  {!imgError && !uploadingImg && formData.imagen?.startsWith("data:") && (
+                  {!imgError && !uploadingImg && imageJustUploaded && (
                     <Form.Text className="text-success">Imagen subida correctamente</Form.Text>
                   )}
                 </Form.Group>
