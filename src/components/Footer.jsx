@@ -12,7 +12,7 @@ function Footer() {
 
           {/* Logo + redes */}
           <div className="col-12 col-md-2 d-flex flex-column align-items-center text-center">
-            <img src="/images/LogoCampOrgan-1.webp" alt="logo" style={{ width: '80px' }} />
+            <img src="/images/LogoCampOrgan-1.webp" alt="logo" style={{ width: '80px', height: '80px' }} />
             <div className="d-flex gap-2 mt-2">
               <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" className="btn p-2" style={{ color: '#2D5A27' }} aria-label="TikTok">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
@@ -73,7 +73,7 @@ function Footer() {
               <img
                 src="/images/image-6.webp"
                 alt="Libro de reclamaciones"
-                style={{ width: '100px', transition: 'transform 0.2s' }}
+                style={{ width: '100px', height: '120px', transition: 'transform 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               />
