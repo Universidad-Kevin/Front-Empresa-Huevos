@@ -49,7 +49,9 @@ export function SkeletonProductDetail() {
     <Container className="py-5">
       <Row>
         <Col md={6}>
-          <Glow><Bone h={420} className="rounded" /></Glow>
+          <div className="placeholder-glow" style={{ aspectRatio: '4/3', width: '100%', borderRadius: '0.375rem', overflow: 'hidden' }}>
+            <span className="placeholder d-block" style={{ width: '100%', height: '100%' }} aria-hidden="true" />
+          </div>
         </Col>
         <Col md={6} className="mt-4 mt-md-0">
           <Glow className="mb-3"><Bone w="25%" h={22} /></Glow>

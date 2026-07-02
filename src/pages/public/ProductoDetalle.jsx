@@ -130,15 +130,18 @@ function ProductoDetalle() {
       />
       <Row>
         <Col md={6}>
-          <img
-            src={producto.imagen || "/images/placeholder.jpg"}
-            alt={producto.nombre}
-            className="img-fluid rounded shadow"
-            style={{ maxHeight: '500px', width: '100%', objectFit: 'cover' }}
-            onError={(e) => {
-              e.target.src = "/images/placeholder.jpg";
-            }}
-          />
+          <div style={{ aspectRatio: '4/3', width: '100%', overflow: 'hidden', borderRadius: '0.375rem', boxShadow: '0 .5rem 1rem rgba(0,0,0,.15)' }}>
+            <img
+              src={producto.imagen || "/images/placeholder.jpg"}
+              alt={producto.nombre}
+              width="800"
+              height="600"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={(e) => {
+                e.target.src = "/images/placeholder.jpg";
+              }}
+            />
+          </div>
         </Col>
         
         <Col md={6}>
