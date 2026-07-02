@@ -157,6 +157,37 @@ function EditarProducto() {
     const file = e.target.files?.[0];
     if (!file) return;
     setImgError("");
+    setImageJustUploaded(false);
+
+    if (file.type !== "image/webp") {
+      setImgError("Solo se aceptan imágenes en formato .webp");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      setImgError(`El archivo pesa ${(file.size / 1024).toFixed(0)} KB — máximo permitido: 500 KB`);
+      e.target.value = "";
+      return;
+    }
+    const dimError = await new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(
+          img.naturalWidth < 800 || img.naturalHeight < 600
+            ? `Dimensiones ${img.naturalWidth}×${img.naturalHeight} px — mínimo requerido: 800×600 px`
+            : null
+        );
+      };
+      img.src = url;
+    });
+    if (dimError) {
+      setImgError(dimError);
+      e.target.value = "";
+      return;
+    }
+
     setUploadingImg(true);
     const form = new FormData();
     form.append("imagen", file);
@@ -407,14 +438,17 @@ function EditarProducto() {
                   />
                   <Form.Control
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    accept="image/webp"
                     onChange={handleImageUpload}
                     disabled={uploadingImg}
                   />
-                  {uploadingImg && <Form.Text className="text-muted">Subiendo imagen...</Form.Text>}
-                  {imgError && <Form.Text className="text-danger">{imgError}</Form.Text>}
+                  <Form.Text className="text-muted">
+                    Solo .webp · máx. 500 KB · mínimo 800×600 px
+                  </Form.Text>
+                  {uploadingImg && <div><Form.Text className="text-muted">Subiendo a Cloudinary...</Form.Text></div>}
+                  {imgError && <div><Form.Text className="text-danger">{imgError}</Form.Text></div>}
                   {!imgError && !uploadingImg && imageJustUploaded && (
-                    <Form.Text className="text-success">Imagen subida correctamente</Form.Text>
+                    <div><Form.Text className="text-success">Imagen subida correctamente a Cloudinary</Form.Text></div>
                   )}
                 </Form.Group>
 

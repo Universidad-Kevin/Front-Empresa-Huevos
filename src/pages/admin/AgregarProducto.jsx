@@ -26,6 +26,7 @@ function AgregarProducto() {
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [imgError, setImgError] = useState("");
   const imageFileRef = useRef(null);
 
   useEffect(() => {
@@ -67,6 +68,40 @@ function AgregarProducto() {
     }));
   };
 
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) { setImgError(""); return; }
+    setImgError("");
+
+    if (file.type !== "image/webp") {
+      setImgError("Solo se aceptan imágenes en formato .webp");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      setImgError(`El archivo pesa ${(file.size / 1024).toFixed(0)} KB — máximo permitido: 500 KB`);
+      e.target.value = "";
+      return;
+    }
+    const dimError = await new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(
+          img.naturalWidth < 800 || img.naturalHeight < 600
+            ? `Dimensiones ${img.naturalWidth}×${img.naturalHeight} px — mínimo requerido: 800×600 px`
+            : null
+        );
+      };
+      img.src = url;
+    });
+    if (dimError) {
+      setImgError(dimError);
+      e.target.value = "";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -100,7 +135,7 @@ function AgregarProducto() {
 
       if (response.data.success) {
         const nuevoId = response.data.data?.id;
-        if (nuevoId && imageFileRef.current?.files?.[0]) {
+        if (nuevoId && imageFileRef.current?.files?.[0] && !imgError) {
           const imgForm = new FormData();
           imgForm.append("imagen", imageFileRef.current.files[0]);
           await api.post(`/productos/${nuevoId}/imagen`, imgForm, {
@@ -303,12 +338,14 @@ function AgregarProducto() {
                   />
                   <Form.Control
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    accept="image/webp"
                     ref={imageFileRef}
+                    onChange={handleImageFileChange}
                   />
                   <Form.Text className="text-muted">
-                    Sube un archivo o proporciona una URL
+                    Solo .webp · máx. 500 KB · mínimo 800×600 px — se sube a Cloudinary al guardar
                   </Form.Text>
+                  {imgError && <div><Form.Text className="text-danger">{imgError}</Form.Text></div>}
                 </Form.Group>
 
                 {/* Características */}
