@@ -104,6 +104,11 @@ function AgregarProducto() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!imageFileRef.current?.files?.[0]) {
+      setImgError("La imagen es obligatoria");
+      return;
+    }
+    if (imgError) return;
     setLoading(true);
     setError("");
 
@@ -327,7 +332,7 @@ function AgregarProducto() {
                 </Row>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Imagen del producto</Form.Label>
+                  <Form.Label>Imagen del producto *</Form.Label>
                   <Form.Control
                     type="file"
                     accept="image/webp"
@@ -335,7 +340,7 @@ function AgregarProducto() {
                     onChange={handleImageFileChange}
                   />
                   <Form.Text className="text-muted">
-                    Solo .webp · máx. 500 KB · mínimo 800×600 px — se sube a Cloudinary al guardar
+                    Obligatorio · Solo .webp · máx. 500 KB · mínimo 800×600 px
                   </Form.Text>
                   {imgError && <div><Form.Text className="text-danger">{imgError}</Form.Text></div>}
                 </Form.Group>
