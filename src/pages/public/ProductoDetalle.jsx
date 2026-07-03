@@ -73,7 +73,7 @@ function ProductoDetalle() {
 
   if (error || !producto) {
     return (
-      <Container className="py-5">
+      <Container className="py-5" style={{ minHeight: '80vh' }}>
         <Alert variant="danger">
           <h4>Error</h4>
           <p>{error}</p>
