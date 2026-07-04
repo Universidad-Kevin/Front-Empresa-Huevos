@@ -1,13 +1,15 @@
-import { useState } from 'react'
-import { Container, Row, Col, Card, Form, Button, Alert, Tab, Tabs } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { Container, Row, Col, Card, Form, Button, Alert, Tab, Tabs, Spinner } from 'react-bootstrap'
+import api from '../../services/api'
 
 function Configuracion() {
   const [configuracion, setConfiguracion] = useState({
     general: {
-      nombreEmpresa: 'Huevos Orgánicos Del Valle',
-      email: 'info@huevosorganicos.com',
-      telefono: '+51 234 567 890',
-      direccion: 'Av. Principal 123, Ciudad'
+      nombreEmpresa: '',
+      email: '',
+      telefono: '',
+      direccion: '',
+      descripcion: ''
     },
     notificaciones: {
       emailPedidos: true,
@@ -24,6 +26,27 @@ function Configuracion() {
 
   const [guardado, setGuardado] = useState(false)
   const [cargando, setCargando] = useState(false)
+  const [cargandoInicial, setCargandoInicial] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    api.get('/configuracion')
+      .then(({ data }) => {
+        const c = data.data
+        setConfiguracion(prev => ({
+          ...prev,
+          general: {
+            nombreEmpresa: c.nombre_empresa || '',
+            email: c.email_contacto || '',
+            telefono: c.telefono || '',
+            direccion: c.direccion || '',
+            descripcion: c.descripcion || ''
+          }
+        }))
+      })
+      .catch(() => setError('No se pudo cargar la configuración de la empresa'))
+      .finally(() => setCargandoInicial(false))
+  }, [])
 
   const handleChange = (seccion, campo, valor) => {
     setConfiguracion(prev => ({
@@ -38,13 +61,23 @@ function Configuracion() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setCargando(true)
+    setError('')
 
-    // Simular guardado
-    setTimeout(() => {
+    try {
+      await api.put('/configuracion', {
+        nombre_empresa: configuracion.general.nombreEmpresa,
+        email_contacto: configuracion.general.email,
+        telefono: configuracion.general.telefono,
+        direccion: configuracion.general.direccion,
+        descripcion: configuracion.general.descripcion,
+      })
       setGuardado(true)
-      setCargando(false)
       setTimeout(() => setGuardado(false), 3000)
-    }, 1500)
+    } catch (err) {
+      setError(err.response?.data?.error || 'No se pudo guardar la configuración')
+    } finally {
+      setCargando(false)
+    }
   }
 
   return (
@@ -61,7 +94,17 @@ function Configuracion() {
           ✅ Configuración guardada correctamente
         </Alert>
       )}
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {error}
+        </Alert>
+      )}
 
+      {cargandoInicial ? (
+        <div className="text-center py-5">
+          <Spinner animation="border" role="status" />
+        </div>
+      ) : (
       <Form onSubmit={handleSubmit}>
         <Tabs defaultActiveKey="general" className="mb-4">
           {/* Pestaña General */}
@@ -126,6 +169,9 @@ function Configuracion() {
                     as="textarea"
                     rows={4}
                     placeholder="Describe tu empresa..."
+                    value={configuracion.general.descripcion}
+                    onChange={(e) => handleChange('general', 'descripcion', e.target.value)}
+                    maxLength={2000}
                   />
                 </Form.Group>
               </Card.Body>
@@ -313,6 +359,7 @@ function Configuracion() {
           </Card.Body>
         </Card>
       </Form>
+      )}
     </Container>
   )
 }
