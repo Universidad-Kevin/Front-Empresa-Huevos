@@ -12,6 +12,7 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { SkeletonForm } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function EditarCliente() {
   const { id } = useParams();
@@ -144,6 +145,7 @@ function EditarCliente() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/editar-cliente" title="Editar Cliente" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -177,7 +179,7 @@ function EditarCliente() {
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-nombre-empresa">
                       <Form.Label>Nombre de la Empresa *</Form.Label>
                       <Form.Control
                         type="text"
@@ -190,7 +192,7 @@ function EditarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-tipo-negocio">
                       <Form.Label>Tipo de Negocio *</Form.Label>
                       <Form.Select
                         name="tipo_negocio"
@@ -210,7 +212,7 @@ function EditarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-contacto-nombre">
                       <Form.Label>Nombre del Contacto *</Form.Label>
                       <Form.Control
                         type="text"
@@ -223,7 +225,7 @@ function EditarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-email">
                       <Form.Label>Email *</Form.Label>
                       <Form.Control
                         type="email"
@@ -239,7 +241,7 @@ function EditarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-telefono">
                       <Form.Label>Teléfono</Form.Label>
                       <Form.Control
                         type="text"
@@ -251,7 +253,7 @@ function EditarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-ruc">
                       <Form.Label>RUC</Form.Label>
                       <Form.Control
                         type="text"
@@ -264,7 +266,7 @@ function EditarCliente() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="cli-direccion">
                   <Form.Label>Dirección</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -278,7 +280,7 @@ function EditarCliente() {
 
                 <Row>
                   <Col md={4}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-tipo-cliente">
                       <Form.Label>Tipo de Cliente</Form.Label>
                       <Form.Select
                         name="tipo_cliente"
@@ -294,7 +296,7 @@ function EditarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={4}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-limite-credito">
                       <Form.Label>Límite de Crédito (S/.)</Form.Label>
                       <Form.Control
                         type="number"
@@ -307,7 +309,7 @@ function EditarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={4}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-estado">
                       <Form.Label>Estado</Form.Label>
                       <Form.Select
                         name="estado"
@@ -334,10 +336,10 @@ function EditarCliente() {
 
               {/* Sección acceso al portal mayorista */}
               <hr className="my-4" />
-              <h6 className="fw-bold mb-3">
+              <h2 className="h6 fw-bold mb-3">
                 🔐 Acceso al Portal Mayorista
                 {tieneAcceso && <span className="badge bg-success ms-2">Activo</span>}
-              </h6>
+              </h2>
               {successCred && <Alert variant="success" className="py-2">{successCred}</Alert>}
               <p className="text-muted small mb-3">
                 {tieneAcceso

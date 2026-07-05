@@ -8,6 +8,7 @@ import PaginacionVentana from "../../components/PaginacionVentana";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { SkeletonTable } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 const POR_PAGINA = 10;
 
@@ -115,6 +116,7 @@ function ProductosAdmin() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/productos" title="Gestión de Productos" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -169,7 +171,7 @@ function ProductosAdmin() {
               </InputGroup>
             </Col>
             <Col md={3}>
-              <Form.Select size="sm" value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}>
+              <Form.Select aria-label="Filtrar por categoría" size="sm" value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}>
                 <option value="">Todas las categorías</option>
                 {categoriasApi.map(c => (
                   <option key={c.id} value={c.nombre}>{c.nombre}</option>
@@ -177,7 +179,7 @@ function ProductosAdmin() {
               </Form.Select>
             </Col>
             <Col md={3}>
-              <Form.Select size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+              <Form.Select aria-label="Filtrar por estado" size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
                 <option value="">Todos los estados</option>
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
@@ -241,7 +243,7 @@ function ProductosAdmin() {
                   </td>
                   <td>S/.{parseFloat(producto.precio).toFixed(2)} <small className="text-muted">/{producto.unidad || 'uds.'}</small></td>
                   <td>
-                    <Badge bg={getStockVariant(producto.stock)}>
+                    <Badge bg={getStockVariant(producto.stock)} text={getStockVariant(producto.stock) === "warning" ? "dark" : undefined}>
                       {producto.stock} {producto.unidad || 'uds.'}
                     </Badge>
                   </td>
@@ -286,7 +288,7 @@ function ProductosAdmin() {
                 </div>
                 <div className="d-flex gap-2 flex-wrap mb-2">
                   <Badge bg="secondary" className="text-capitalize">{producto.categoria}</Badge>
-                  <Badge bg={getStockVariant(producto.stock)}>Stock: {producto.stock}</Badge>
+                  <Badge bg={getStockVariant(producto.stock)} text={getStockVariant(producto.stock) === "warning" ? "dark" : undefined}>Stock: {producto.stock}</Badge>
                 </div>
                 <div className="mb-2">
                   <strong className="text-success">S/.{parseFloat(producto.precio).toFixed(2)}</strong>
@@ -334,7 +336,7 @@ function ProductosAdmin() {
       {/* Reportes de stock */}
       <div id="reportes-stock" className="mt-5">
         <div className="d-flex align-items-center gap-2 mb-3">
-          <h5 className="fw-bold mb-0">⚠️ Reportes de stock de clientes</h5>
+          <h2 className="h5 fw-bold mb-0">⚠️ Reportes de stock de clientes</h2>
           {reportes.filter(r => r.estado === "pendiente").length > 0 && (
             <Badge bg="danger">{reportes.filter(r => r.estado === "pendiente").length} pendientes</Badge>
           )}
@@ -376,7 +378,10 @@ function ProductosAdmin() {
                         </Link>
                       </td>
                       <td>
-                        <Badge bg={r.producto_stock > 10 ? "success" : r.producto_stock > 0 ? "warning" : "danger"}>
+                        <Badge
+                          bg={r.producto_stock > 10 ? "success" : r.producto_stock > 0 ? "warning" : "danger"}
+                          text={r.producto_stock > 10 || r.producto_stock === 0 ? undefined : "dark"}
+                        >
                           {r.producto_stock} uds.
                         </Badge>
                       </td>
@@ -429,7 +434,7 @@ function ProductosAdmin() {
           <Col lg={3} md={6} className="mb-3">
             <Card className="border-0 bg-primary bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-primary">{productos.length}</h4>
+                <h3 className="h4 text-primary">{productos.length}</h3>
                 <Card.Text className="text-muted">Total Productos</Card.Text>
               </Card.Body>
             </Card>
@@ -437,7 +442,7 @@ function ProductosAdmin() {
           <Col lg={3} md={6} className="mb-3">
             <Card className="border-0 bg-success bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-success">{productos.filter(p => p.estado === "activo").length}</h4>
+                <h3 className="h4 text-success">{productos.filter(p => p.estado === "activo").length}</h3>
                 <Card.Text className="text-muted">Activos</Card.Text>
               </Card.Body>
             </Card>
@@ -445,7 +450,7 @@ function ProductosAdmin() {
           <Col lg={3} md={6} className="mb-3">
             <Card className="border-0 bg-warning bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-warning">{productos.filter(p => p.stock <= 10).length}</h4>
+                <h3 className="h4 text-warning">{productos.filter(p => p.stock <= 10).length}</h3>
                 <Card.Text className="text-muted">Stock Bajo</Card.Text>
               </Card.Body>
             </Card>
@@ -453,9 +458,9 @@ function ProductosAdmin() {
           <Col lg={3} md={6} className="mb-3">
             <Card className="border-0 bg-info bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-info">
+                <h3 className="h4 text-info">
                   S/.{productos.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)}
-                </h4>
+                </h3>
                 <Card.Text className="text-muted">Valor Inventario</Card.Text>
               </Card.Body>
             </Card>

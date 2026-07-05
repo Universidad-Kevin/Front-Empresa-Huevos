@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Container, Row, Col, Card, Table, Badge, Form, Button, Spinner } from "react-bootstrap";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 const METODO_COLOR = { POST: "success", PUT: "primary", PATCH: "warning", DELETE: "danger" };
 
@@ -43,6 +44,7 @@ function Auditoria() {
 
   return (
     <Container fluid className="py-4 px-4">
+      <Seo path="/admin/auditoria" title="Auditoría del Sistema" noindex />
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Auditoría del Sistema</h1>
@@ -64,8 +66,8 @@ function Auditoria() {
               />
             </Col>
             <Col md={3}>
-              <Form.Label className="small fw-semibold">Entidad</Form.Label>
-              <Form.Select size="sm" value={filtros.entidad} onChange={e => setFiltros(f => ({ ...f, entidad: e.target.value }))}>
+              <Form.Label htmlFor="filtro-entidad" className="small fw-semibold">Entidad</Form.Label>
+              <Form.Select id="filtro-entidad" size="sm" value={filtros.entidad} onChange={e => setFiltros(f => ({ ...f, entidad: e.target.value }))}>
                 <option value="">Todas</option>
                 {["productos","pedidos","usuarios","clientes","pagos","cupones","inventario","proveedores","categorias","marcas","facturas","valoraciones","auditoria"].map(e => (
                   <option key={e} value={e}>{e}</option>
@@ -93,9 +95,9 @@ function Auditoria() {
 
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-          <h6 className="fw-bold mb-0">
+          <h2 className="h6 fw-bold mb-0">
             {loading ? "Cargando…" : `${total.toLocaleString()} registros`}
-          </h6>
+          </h2>
           <small className="text-muted">{offset + 1}–{Math.min(offset + limite, total)} de {total}</small>
         </Card.Header>
         <Card.Body className="p-0">
@@ -127,10 +129,10 @@ function Auditoria() {
                           : <span className="text-muted">—</span>}
                       </td>
                       <td>
-                        {log.rol && <Badge bg={log.rol === "admin" ? "danger" : log.rol === "empleado" ? "warning" : "secondary"} style={{ fontSize: "0.7rem" }}>{log.rol}</Badge>}
+                        {log.rol && <Badge bg={log.rol === "admin" ? "danger" : log.rol === "empleado" ? "warning" : "secondary"} text={log.rol === "empleado" ? "dark" : undefined} style={{ fontSize: "0.7rem" }}>{log.rol}</Badge>}
                       </td>
                       <td>
-                        <Badge bg={METODO_COLOR[metodoDeAccion(log.accion)] || "secondary"} className="me-1" style={{ fontSize: "0.7rem" }}>
+                        <Badge bg={METODO_COLOR[metodoDeAccion(log.accion)] || "secondary"} text={metodoDeAccion(log.accion) === "PATCH" ? "dark" : undefined} className="me-1" style={{ fontSize: "0.7rem" }}>
                           {metodoDeAccion(log.accion)}
                         </Badge>
                         <code style={{ fontSize: "0.75rem" }}>{rutaDeAccion(log.accion)}</code>

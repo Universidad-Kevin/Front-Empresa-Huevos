@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Card, Form, Button, Alert, Tab, Tabs, Spinner } from 'react-bootstrap'
 import api from '../../services/api'
+import Seo from '../../components/Seo';
 
 function Configuracion() {
   const [configuracion, setConfiguracion] = useState({
@@ -82,6 +83,7 @@ function Configuracion() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/configuracion" title="Configuración" noindex />
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Configuración</h1>
@@ -111,11 +113,11 @@ function Configuracion() {
           <Tab eventKey="general" title="⚙️ General">
             <Card className="border-0 shadow-sm">
               <Card.Body>
-                <h5 className="fw-bold mb-4">Información General</h5>
+                <h2 className="h5 fw-bold mb-4">Información General</h2>
                 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-nombre-empresa">
                       <Form.Label>Nombre de la Empresa *</Form.Label>
                       <Form.Control
                         type="text"
@@ -126,7 +128,7 @@ function Configuracion() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-email">
                       <Form.Label>Email de Contacto *</Form.Label>
                       <Form.Control
                         type="email"
@@ -140,7 +142,7 @@ function Configuracion() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-telefono">
                       <Form.Label>Teléfono *</Form.Label>
                       <Form.Control
                         type="tel"
@@ -151,7 +153,7 @@ function Configuracion() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-direccion">
                       <Form.Label>Dirección *</Form.Label>
                       <Form.Control
                         type="text"
@@ -163,7 +165,7 @@ function Configuracion() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="config-descripcion">
                   <Form.Label>Descripción de la Empresa</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -182,10 +184,10 @@ function Configuracion() {
           <Tab eventKey="notificaciones" title="🔔 Notificaciones">
             <Card className="border-0 shadow-sm">
               <Card.Body>
-                <h5 className="fw-bold mb-4">Configuración de Notificaciones</h5>
+                <h2 className="h5 fw-bold mb-4">Configuración de Notificaciones</h2>
                 
                 <div className="mb-4">
-                  <h6 className="fw-bold mb-3">Notificaciones por Email</h6>
+                  <h3 className="h6 fw-bold mb-3">Notificaciones por Email</h3>
                   
                   <Form.Check
                     type="switch"
@@ -216,7 +218,7 @@ function Configuracion() {
                 </div>
 
                 <div>
-                  <h6 className="fw-bold mb-3">Notificaciones del Sistema</h6>
+                  <h3 className="h6 fw-bold mb-3">Notificaciones del Sistema</h3>
                   
                   <Form.Check
                     type="switch"
@@ -234,7 +236,7 @@ function Configuracion() {
           <Tab eventKey="seguridad" title="🔒 Seguridad">
             <Card className="border-0 shadow-sm">
               <Card.Body>
-                <h5 className="fw-bold mb-4">Configuración de Seguridad</h5>
+                <h2 className="h5 fw-bold mb-4">Configuración de Seguridad</h2>
                 
                 <Form.Check
                   type="switch"
@@ -247,7 +249,7 @@ function Configuracion() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-session-timeout">
                       <Form.Label>Tiempo de espera de sesión (minutos)</Form.Label>
                       <Form.Select
                         value={configuracion.seguridad.sessionTimeout}
@@ -261,7 +263,7 @@ function Configuracion() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="config-password-expiration">
                       <Form.Label>Expiración de contraseña (días)</Form.Label>
                       <Form.Select
                         value={configuracion.seguridad.passwordExpiration}
@@ -277,7 +279,7 @@ function Configuracion() {
                 </Row>
 
                 <div className="bg-light rounded p-3">
-                  <h6 className="fw-bold">Recomendaciones de Seguridad</h6>
+                  <h3 className="h6 fw-bold">Recomendaciones de Seguridad</h3>
                   <ul className="small text-muted mb-0">
                     <li>Usa contraseñas fuertes y cámbialas regularmente</li>
                     <li>Habilita la autenticación de dos factores</li>
@@ -293,9 +295,9 @@ function Configuracion() {
           <Tab eventKey="avanzado" title="⚡ Avanzado">
             <Card className="border-0 shadow-sm">
               <Card.Body>
-                <h5 className="fw-bold mb-4">Configuración Avanzada</h5>
+                <h2 className="h5 fw-bold mb-4">Configuración Avanzada</h2>
                 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="config-api-key">
                   <Form.Label>API Key</Form.Label>
                   <Form.Control
                     type="text"
@@ -307,7 +309,7 @@ function Configuracion() {
                   </Form.Text>
                 </Form.Group>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="config-webhook-url">
                   <Form.Label>URL de Webhook</Form.Label>
                   <Form.Control
                     type="url"
@@ -315,7 +317,7 @@ function Configuracion() {
                   />
                 </Form.Group>
 
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-4" controlId="config-log-level">
                   <Form.Label>Log Level</Form.Label>
                   <Form.Select>
                     <option value="error">Solo Errores</option>

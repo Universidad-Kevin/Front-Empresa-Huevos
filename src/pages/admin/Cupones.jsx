@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import api from '../../services/api';
 import { SkeletonTable } from '../../components/SkeletonLoader';
+import Seo from '../../components/Seo';
 
 const TIPO_LABELS = { porcentaje: '% Porcentaje', monto_fijo: 'S/. Monto fijo' };
 
@@ -138,9 +139,10 @@ function Cupones() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/cupones" title="Cupones" noindex />
       <Row className="mb-4 align-items-center">
         <Col>
-          <h2 className="fw-bold mb-0">Cupones y Promociones</h2>
+          <h1 className="h2 fw-bold mb-0">Cupones y Promociones</h1>
           <p className="text-muted mb-0">Gestiona los códigos de descuento</p>
         </Col>
         <Col xs="auto">

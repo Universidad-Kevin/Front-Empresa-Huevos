@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Container, Row, Col, Card, Table, Button, Badge, Form, Alert, Modal, InputGroup, Spinner } from 'react-bootstrap'
 import api from '../../services/api'
 import { SkeletonTable } from '../../components/SkeletonLoader'
+import Seo from '../../components/Seo'
+
+// Bootstrap warning/info son fondos claros — necesitan texto oscuro para contraste AA
+const textoOscuroPara = (variante) => ['warning', 'info'].includes(variante) ? 'dark' : undefined
 
 const estadoVariant = {
   pendiente: 'warning', confirmado: 'info', preparando: 'secondary',
@@ -110,7 +114,7 @@ function ModalVerificacion({ show, onHide, onActualizar, onCancelar }) {
                   {new Date(pedido.creado_en).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                 </p>
               </div>
-              <Badge bg={estadoVariant[pedido.estado]} className="fs-6 px-3 py-2">
+              <Badge bg={estadoVariant[pedido.estado]} text={textoOscuroPara(estadoVariant[pedido.estado])} className="fs-6 px-3 py-2">
                 {estadoLabel[pedido.estado]}
               </Badge>
             </div>
@@ -334,6 +338,7 @@ function Pedidos() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/pedidos" title="Gestión de Pedidos" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -346,6 +351,7 @@ function Pedidos() {
                 Verificar por código
               </Button>
               <Form.Select
+                aria-label="Filtrar pedidos por estado"
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value)}
                 style={{ width: 'auto' }}
@@ -375,12 +381,12 @@ function Pedidos() {
               onClick={() => setFiltroEstado(filtroEstado === estado ? '' : estado)}
             >
               <Card.Body className="py-2 px-1">
-                <h5 className={`text-${estadoVariant[estado]} mb-0`}>
+                <h2 className={`h5 text-${estadoVariant[estado]} mb-0`}>
                   {pedidos.filter(p => {
                     const norm = p.estado === 'procesando' ? 'preparando' : p.estado === 'completado' ? 'entregado' : p.estado
                     return norm === estado
                   }).length}
-                </h5>
+                </h2>
                 <small className="text-muted" style={{ fontSize: 10 }}>{estadoLabel[estado]}</small>
               </Card.Body>
             </Card>
@@ -428,7 +434,7 @@ function Pedidos() {
                     </code>
                   </td>
                   <td>
-                    <Badge bg={estadoVariant[pedido.estado]} className="text-capitalize">
+                    <Badge bg={estadoVariant[pedido.estado]} text={textoOscuroPara(estadoVariant[pedido.estado])} className="text-capitalize">
                       {estadoLabel[pedido.estado]}
                     </Badge>
                     <StepperPedido estado={pedido.estado} />
@@ -474,7 +480,7 @@ function Pedidos() {
                   <strong>#{pedido.id}</strong>
                   <span className="text-muted small ms-2">{new Date(pedido.creado_en).toLocaleDateString('es-ES')}</span>
                 </div>
-                <Badge bg={estadoVariant[pedido.estado]}>{estadoLabel[pedido.estado]}</Badge>
+                <Badge bg={estadoVariant[pedido.estado]} text={textoOscuroPara(estadoVariant[pedido.estado])}>{estadoLabel[pedido.estado]}</Badge>
               </div>
               <div className="mb-1"><strong>{pedido.cliente_nombre}</strong></div>
               <div className="text-muted small mb-2">{pedido.cliente_email}</div>

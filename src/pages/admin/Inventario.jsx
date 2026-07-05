@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import PaginacionVentana from "../../components/PaginacionVentana";
+import Seo from "../../components/Seo";
 
 const TIPOS_LABEL = {
   entrada:     { label: "Entrada",     bg: "success"  },
@@ -158,6 +159,7 @@ function Inventario() {
 
   return (
     <Container fluid className="py-4 px-4">
+      <Seo path="/admin/inventario" title="Inventario" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -179,7 +181,7 @@ function Inventario() {
         <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-primary">{inventario.length}</h3>
+              <h2 className="h3 fw-bold text-primary">{inventario.length}</h2>
               <small className="text-muted">Productos en inventario</small>
             </Card.Body>
           </Card>
@@ -187,7 +189,7 @@ function Inventario() {
         <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm border-danger">
             <Card.Body>
-              <h3 className="fw-bold text-danger">{alertas.length}</h3>
+              <h2 className="h3 fw-bold text-danger">{alertas.length}</h2>
               <small className="text-muted">Alertas de stock bajo</small>
             </Card.Body>
           </Card>
@@ -195,9 +197,9 @@ function Inventario() {
         <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-success">
+              <h2 className="h3 fw-bold text-success">
                 {inventario.filter(p => !p.alerta_stock && p.stock > 0).length}
-              </h3>
+              </h2>
               <small className="text-muted">Con stock suficiente</small>
             </Card.Body>
           </Card>
@@ -205,9 +207,9 @@ function Inventario() {
         <Col xs={6} sm={3}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-secondary">
+              <h2 className="h3 fw-bold text-secondary">
                 {inventario.filter(p => p.stock === 0).length}
-              </h3>
+              </h2>
               <small className="text-muted">Sin stock</small>
             </Card.Body>
           </Card>

@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import api from "../../services/api";
 import { SkeletonTable } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function ProductosInactivos() {
   const [productos, setProductos] = useState([]);
@@ -118,6 +119,7 @@ function ProductosInactivos() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/productos-inactivos" title="Productos Inactivos" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -142,7 +144,7 @@ function ProductosInactivos() {
 
       {error && (
         <Alert variant="danger" className="mb-4">
-          <h5>Error</h5>
+          <h2 className="h5">Error</h2>
           <p>{error}</p>
           <Button
             variant="outline-danger"
@@ -158,7 +160,7 @@ function ProductosInactivos() {
       <Card className="shadow-sm">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5 className="mb-0">Productos Inactivos ({productos.length})</h5>
+            <h2 className="h5 mb-0">Productos Inactivos ({productos.length})</h2>
             <Button
               variant="outline-primary"
               size="sm"
@@ -202,7 +204,7 @@ function ProductosInactivos() {
                     </td>
                     <td>S/.{producto.precio}</td>
                     <td>
-                      <Badge bg="warning">{producto.stock} unidades</Badge>
+                      <Badge bg="warning" text="dark">{producto.stock} unidades</Badge>
                     </td>
                     <td>
                       <small className="text-muted">
@@ -229,7 +231,7 @@ function ProductosInactivos() {
           ) : (
             <div className="text-center py-5">
               <div className="text-muted mb-3">
-                <h4>📭 No hay productos inactivos</h4>
+                <h3 className="h4">📭 No hay productos inactivos</h3>
                 <p>
                   Los productos que elimines aparecerán aquí para poder
                   reactivarlos.
@@ -247,7 +249,7 @@ function ProductosInactivos() {
       {productos.length > 0 && (
         <Card className="mt-4 border-warning">
           <Card.Body>
-            <h6>💡 Información</h6>
+            <h2 className="h6">💡 Información</h2>
             <p className="small text-muted mb-0">
               Los productos inactivos no son visibles para los clientes en la
               tienda, pero se mantienen en la base de datos para posibles

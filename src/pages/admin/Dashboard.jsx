@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import api from "../../services/api";
 import { SkeletonDashboard } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -66,6 +67,7 @@ function Dashboard() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin" title="Dashboard" noindex />
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Dashboard</h1>
@@ -82,7 +84,7 @@ function Dashboard() {
             <Card as={Link} to={s.link} className="text-decoration-none border-0 shadow-sm h-100 hover-card">
               <Card.Body className="text-center py-4">
                 <div className={`fs-1 mb-2 text-${s.color}`}>{s.icon}</div>
-                <h3 className={`fw-bold text-${s.color} mb-0`}>{s.value}</h3>
+                <h2 className={`h3 fw-bold text-${s.color} mb-0`}>{s.value}</h2>
                 <p className="text-muted small mb-0 mt-1">{s.title}</p>
               </Card.Body>
             </Card>
@@ -95,7 +97,7 @@ function Dashboard() {
         <Col lg={5}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Header className="bg-transparent border-0 pt-3 pb-0">
-              <h6 className="fw-bold mb-0">📈 Tendencia de ventas (6 meses)</h6>
+              <h3 className="h6 fw-bold mb-0">📈 Tendencia de ventas (6 meses)</h3>
             </Card.Header>
             <Card.Body>
               {tendenciasData.length === 0 ? (
@@ -137,7 +139,7 @@ function Dashboard() {
           <Card className="border-0 shadow-sm h-100">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 className="fw-bold mb-0">Acciones Rápidas</h6>
+                <h3 className="h6 fw-bold mb-0">Acciones Rápidas</h3>
                 <Badge bg="primary">Admin</Badge>
               </div>
               <Row className="g-2">
@@ -167,7 +169,7 @@ function Dashboard() {
         <Col lg={6}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Body>
-              <h6 className="fw-bold mb-3">Estado del Sistema</h6>
+              <h3 className="h6 fw-bold mb-3">Estado del Sistema</h3>
               <Row className="text-center g-2">
                 <Col xs={4}>
                   <div className={`fs-3 text-${stats.productosActivos > 0 ? 'success' : 'warning'}`}>📦</div>
@@ -197,7 +199,7 @@ function Dashboard() {
           <Card className="border-0 shadow-sm h-100">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 className="fw-bold mb-0">Usuarios Recientes</h6>
+                <h3 className="h6 fw-bold mb-0">Usuarios Recientes</h3>
                 <Link to="/admin/usuarios" className="btn btn-sm btn-outline-primary">Ver Todos</Link>
               </div>
               {clientesRecientes.length === 0 ? (
@@ -210,7 +212,7 @@ function Dashboard() {
                     </div>
                     <div className="flex-grow-1 min-width-0">
                       <div className="d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0 small text-truncate">{u.nombre}</h6>
+                        <div className="h6 mb-0 small text-truncate">{u.nombre}</div>
                         {new Date(u.creado_en) > new Date(Date.now() - 30 * 86400000) && (
                           <Badge bg="success" className="ms-1" style={{ fontSize: '0.65rem' }}>Nuevo</Badge>
                         )}

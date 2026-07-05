@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import api from '../../services/api';
 import { SkeletonTable } from '../../components/SkeletonLoader';
+import Seo from '../../components/Seo';
 
 function Facturas() {
   const [facturas, setFacturas] = useState([]);
@@ -75,9 +76,10 @@ function Facturas() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/facturas" title="Facturas" noindex />
       <Row className="mb-4 align-items-center">
         <Col>
-          <h2 className="fw-bold mb-0">Comprobantes de Pago</h2>
+          <h1 className="h2 fw-bold mb-0">Comprobantes de Pago</h1>
           <p className="text-muted mb-0">Boletas y facturas emitidas</p>
         </Col>
       </Row>
@@ -120,7 +122,7 @@ function Facturas() {
               </InputGroup>
             </Col>
             <Col md={3}>
-              <Form.Select size="sm" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}>
+              <Form.Select aria-label="Filtrar por tipo de comprobante" size="sm" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}>
                 <option value="todos">Todos los tipos</option>
                 <option value="boleta">Boletas</option>
                 <option value="factura">Facturas</option>

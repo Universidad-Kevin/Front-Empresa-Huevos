@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import api from '../../services/api';
 import { SkeletonTable } from '../../components/SkeletonLoader';
+import Seo from '../../components/Seo';
 
 function Estrellas({ valor }) {
   return (
@@ -71,9 +72,10 @@ function Valoraciones() {
 
   return (
     <Container fluid className="py-4">
+      <Seo path="/admin/valoraciones" title="Valoraciones" noindex />
       <Row className="mb-4">
         <Col>
-          <h2 className="fw-bold">Valoraciones</h2>
+          <h1 className="h2 fw-bold">Valoraciones</h1>
           <p className="text-muted">Gestión de reseñas de productos</p>
         </Col>
       </Row>
@@ -119,7 +121,7 @@ function Valoraciones() {
               </InputGroup>
             </Col>
             <Col md={4}>
-              <Form.Select value={filtroEstrellas} onChange={e => setFiltroEstrellas(e.target.value)}>
+              <Form.Select aria-label="Filtrar por cantidad de estrellas" value={filtroEstrellas} onChange={e => setFiltroEstrellas(e.target.value)}>
                 <option value="">Todas las estrellas</option>
                 {[5, 4, 3, 2, 1].map(n => (
                   <option key={n} value={n}>{'★'.repeat(n)} ({n} estrella{n > 1 ? 's' : ''})</option>

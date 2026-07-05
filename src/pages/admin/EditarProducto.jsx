@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import api from '/src/services/api';
 import { SkeletonForm } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function EditarProducto() {
   const { id } = useParams();
@@ -255,6 +256,7 @@ function EditarProducto() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/editar-producto" title="Editar Producto" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -284,7 +286,7 @@ function EditarProducto() {
 
               {error && (
                 <Alert variant="danger" className="mb-4">
-                  <h5>Error</h5>
+                  <h2 className="h5">Error</h2>
                   <p>{error}</p>
                   <Button
                     variant="outline-danger"
@@ -299,7 +301,7 @@ function EditarProducto() {
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={4}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-codigo">
                       <Form.Label>Código SKU</Form.Label>
                       <Form.Control
                         type="text"
@@ -313,7 +315,7 @@ function EditarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={5}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-nombre">
                       <Form.Label>Nombre del Producto *</Form.Label>
                       <Form.Control
                         type="text"
@@ -325,7 +327,7 @@ function EditarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-unidad">
                       <Form.Label>Unidad</Form.Label>
                       <Form.Select
                         name="unidad"
@@ -345,7 +347,7 @@ function EditarProducto() {
                 </Row>
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-categoria">
                       <Form.Label>Categoría *</Form.Label>
                       <Form.Select
                         name="categoria"
@@ -364,7 +366,7 @@ function EditarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-marca">
                       <Form.Label>Marca</Form.Label>
                       <Form.Select
                         name="marca_id"
@@ -383,7 +385,7 @@ function EditarProducto() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="prod-descripcion">
                   <Form.Label>Descripción *</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -397,7 +399,7 @@ function EditarProducto() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-precio">
                       <Form.Label>Precio (S/.) *</Form.Label>
                       <Form.Control
                         type="number"
@@ -411,7 +413,7 @@ function EditarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-stock">
                       <Form.Label>Stock *</Form.Label>
                       <Form.Control
                         type="number"
@@ -425,7 +427,7 @@ function EditarProducto() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="prod-imagen">
                   <Form.Label>Imagen del producto</Form.Label>
                   {formData.imagen && !formData.imagen.startsWith("data:") && !imageJustUploaded && (
                     <div className="mb-2">
@@ -492,7 +494,7 @@ function EditarProducto() {
                   ))}
                 </Form.Group>
 
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-4" controlId="prod-estado">
                   <Form.Label>Estado</Form.Label>
                   <Form.Select
                     name="estado"
@@ -541,7 +543,7 @@ function EditarProducto() {
         <Col lg={4}>
           <Card className="shadow-sm">
             <Card.Header>
-              <h5 className="mb-0">👁️ Vista Previa</h5>
+              <h2 className="h5 mb-0">👁️ Vista Previa</h2>
             </Card.Header>
             <Card.Body>
               <div>
@@ -566,7 +568,7 @@ function EditarProducto() {
                   </div>
                 </div>
 
-                <h6>{formData.nombre || "Sin nombre"}</h6>
+                <h3 className="h6">{formData.nombre || "Sin nombre"}</h3>
                 <p className="text-muted small">
                   {formData.descripcion || "Sin descripción"}
                 </p>

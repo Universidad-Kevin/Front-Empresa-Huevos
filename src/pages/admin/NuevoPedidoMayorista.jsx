@@ -5,6 +5,7 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 const METODOS_PAGO = [
   { id: "efectivo", label: "💵 Pago contra entrega" },
@@ -111,6 +112,7 @@ function NuevoPedidoMayorista() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/nuevo-pedido-mayorista" title="Nuevo Pedido Mayorista" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">

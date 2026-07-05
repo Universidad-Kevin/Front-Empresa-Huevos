@@ -4,6 +4,7 @@ import {
   Container, Row, Col, Card, Form, Button, Alert,
 } from "react-bootstrap";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 function AgregarProducto() {
   const navigate = useNavigate();
@@ -162,6 +163,7 @@ function AgregarProducto() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/agregar-producto" title="Agregar Producto" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -198,7 +200,7 @@ function AgregarProducto() {
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={4}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-codigo">
                       <Form.Label>Código SKU</Form.Label>
                       <Form.Control
                         type="text"
@@ -212,7 +214,7 @@ function AgregarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={5}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-nombre">
                       <Form.Label>Nombre del Producto *</Form.Label>
                       <Form.Control
                         type="text"
@@ -225,7 +227,7 @@ function AgregarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={3}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-unidad">
                       <Form.Label>Unidad</Form.Label>
                       <Form.Select
                         name="unidad"
@@ -245,7 +247,7 @@ function AgregarProducto() {
                 </Row>
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-categoria">
                       <Form.Label>Categoría *</Form.Label>
                       <Form.Select
                         name="categoria"
@@ -264,7 +266,7 @@ function AgregarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-marca">
                       <Form.Label>Marca</Form.Label>
                       <Form.Select
                         name="marca_id"
@@ -283,7 +285,7 @@ function AgregarProducto() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="prod-descripcion">
                   <Form.Label>Descripción *</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -298,7 +300,7 @@ function AgregarProducto() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-precio">
                       <Form.Label>Precio (S/.) *</Form.Label>
                       <Form.Control
                         type="number"
@@ -313,7 +315,7 @@ function AgregarProducto() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="prod-stock">
                       <Form.Label>Stock *</Form.Label>
                       <Form.Control
                         type="number"
@@ -331,7 +333,7 @@ function AgregarProducto() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="prod-imagen">
                   <Form.Label>Imagen del producto *</Form.Label>
                   <Form.Control
                     type="file"
@@ -383,7 +385,7 @@ function AgregarProducto() {
                   ))}
                 </Form.Group>
 
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-4" controlId="prod-estado">
                   <Form.Label>Estado</Form.Label>
                   <Form.Select
                     name="estado"
@@ -421,7 +423,7 @@ function AgregarProducto() {
         <Col lg={4}>
           <Card className="shadow-sm">
             <Card.Header>
-              <h5 className="mb-0">👁️ Vista Previa</h5>
+              <h2 className="h5 mb-0">👁️ Vista Previa</h2>
             </Card.Header>
             <Card.Body>
               {formData.nombre ? (
@@ -452,7 +454,7 @@ function AgregarProducto() {
                       <span className="badge bg-light text-dark border">SKU: {formData.codigo}</span>
                     </p>
                   )}
-                  <h6>{formData.nombre}</h6>
+                  <h3 className="h6">{formData.nombre}</h3>
                   <p className="text-muted small">{formData.descripcion}</p>
 
                   {formData.precio && (
@@ -496,7 +498,7 @@ function AgregarProducto() {
           {/* Información útil */}
           <Card className="shadow-sm mt-4">
             <Card.Header>
-              <h6 className="mb-0">💡 Consejos</h6>
+              <h3 className="h6 mb-0">💡 Consejos</h3>
             </Card.Header>
             <Card.Body>
               <ul className="small text-muted mb-0">

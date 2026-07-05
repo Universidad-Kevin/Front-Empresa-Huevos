@@ -5,6 +5,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 function Marcas() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function Marcas() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/marcas" title="Marcas" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -113,7 +115,7 @@ function Marcas() {
         <Col sm={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-primary">{marcas.length}</h3>
+              <h2 className="h3 fw-bold text-primary">{marcas.length}</h2>
               <small className="text-muted">Total marcas</small>
             </Card.Body>
           </Card>
@@ -121,9 +123,9 @@ function Marcas() {
         <Col sm={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-success">
+              <h2 className="h3 fw-bold text-success">
                 {marcas.reduce((sum, m) => sum + (m.total_productos || 0), 0)}
-              </h3>
+              </h2>
               <small className="text-muted">Productos con marca</small>
             </Card.Body>
           </Card>
@@ -131,9 +133,9 @@ function Marcas() {
         <Col sm={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-warning">
+              <h2 className="h3 fw-bold text-warning">
                 {marcas.filter(m => m.total_productos === 0).length}
-              </h3>
+              </h2>
               <small className="text-muted">Sin productos</small>
             </Card.Body>
           </Card>

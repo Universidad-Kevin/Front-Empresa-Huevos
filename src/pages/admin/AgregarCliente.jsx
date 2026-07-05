@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 function AgregarCliente() {
   const [formData, setFormData] = useState({
@@ -89,6 +90,7 @@ function AgregarCliente() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/agregar-cliente" title="Agregar Cliente" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -113,7 +115,7 @@ function AgregarCliente() {
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-nombre-empresa">
                       <Form.Label>Nombre de la Empresa *</Form.Label>
                       <Form.Control
                         type="text"
@@ -126,7 +128,7 @@ function AgregarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-tipo-negocio">
                       <Form.Label>Tipo de Negocio *</Form.Label>
                       <Form.Select
                         name="tipo_negocio"
@@ -146,7 +148,7 @@ function AgregarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-contacto-nombre">
                       <Form.Label>Nombre del Contacto *</Form.Label>
                       <Form.Control
                         type="text"
@@ -159,7 +161,7 @@ function AgregarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-email">
                       <Form.Label>Email *</Form.Label>
                       <Form.Control
                         type="email"
@@ -175,7 +177,7 @@ function AgregarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-password">
                       <Form.Label>Contraseña *</Form.Label>
                       <Form.Control
                         type="password"
@@ -189,7 +191,7 @@ function AgregarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-confirmar-password">
                       <Form.Label>Confirmar contraseña *</Form.Label>
                       <Form.Control
                         type="password"
@@ -209,7 +211,7 @@ function AgregarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-telefono">
                       <Form.Label>Teléfono</Form.Label>
                       <Form.Control
                         type="text"
@@ -221,7 +223,7 @@ function AgregarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-ruc">
                       <Form.Label>RUC</Form.Label>
                       <Form.Control
                         type="text"
@@ -234,7 +236,7 @@ function AgregarCliente() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3" controlId="cli-direccion">
                   <Form.Label>Dirección</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -248,7 +250,7 @@ function AgregarCliente() {
 
                 <Row>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-tipo-cliente">
                       <Form.Label>Tipo de Cliente</Form.Label>
                       <Form.Select
                         name="tipo_cliente"
@@ -264,7 +266,7 @@ function AgregarCliente() {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group className="mb-3">
+                    <Form.Group className="mb-3" controlId="cli-limite-credito">
                       <Form.Label>Límite de Crédito (S/.)</Form.Label>
                       <Form.Control
                         type="number"

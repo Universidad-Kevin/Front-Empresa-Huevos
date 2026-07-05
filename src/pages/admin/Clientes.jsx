@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { SkeletonTable } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -67,6 +68,7 @@ function Clientes() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/clientes" title="Clientes Mayoristas" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">

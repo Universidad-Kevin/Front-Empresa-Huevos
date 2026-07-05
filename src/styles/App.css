@@ -295,14 +295,50 @@ footer {
   animation: fadeIn 0.5s ease-in;
 }
 
-/* text-success y bg-success ya usan --bs-success sobreescrito arriba;
-   estos overrides refuerzan compatibilidad con versiones antiguas de Bootstrap */
-.text-success {
+/* NOTA: bg-success ya no se sobreescribe con un background-color fijo — Bootstrap
+   define .bg-success como rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important,
+   así que el override de --bs-success-rgb de arriba ya le da el verde de marca
+   Y respeta .bg-opacity-* (ej. las tarjetas de estadísticas admin). Un
+   background-color fijo aquí ignoraba --bs-bg-opacity y rompía el contraste de
+   esas tarjetas (texto oscuro sobre verde sólido en vez de verde muy claro). */
+.text-success.text-success {
   color: var(--color-primary) !important;
 }
 
-.bg-success {
-  background-color: var(--color-primary) !important;
+/* Los colores warning/info por defecto de Bootstrap (#ffc107 / #0dcaf0) no
+   cumplen contraste AA como texto o borde sobre fondo blanco (falla axe/Lighthouse
+   color-contrast). Se usan los mismos tonos "emphasis" que Bootstrap 5.3 define
+   para este caso — más oscuros, mismo significado de color, contraste ~7:1+. */
+.text-warning.text-warning {
+  color: #664d03 !important;
+}
+
+.text-info.text-info {
+  color: #055160 !important;
+}
+
+.btn-outline-warning.btn-outline-warning {
+  color: #664d03 !important;
+  border-color: #664d03 !important;
+}
+
+.btn-outline-warning.btn-outline-warning:hover,
+.btn-outline-warning.btn-outline-warning:active {
+  background-color: #664d03 !important;
+  border-color: #664d03 !important;
+  color: #fff !important;
+}
+
+.btn-outline-info.btn-outline-info {
+  color: #055160 !important;
+  border-color: #055160 !important;
+}
+
+.btn-outline-info.btn-outline-info:hover,
+.btn-outline-info.btn-outline-info:active {
+  background-color: #055160 !important;
+  border-color: #055160 !important;
+  color: #fff !important;
 }
 
 /* Estilos para el scrollbar personalizado */

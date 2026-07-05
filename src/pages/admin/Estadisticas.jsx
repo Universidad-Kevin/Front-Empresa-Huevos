@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import api from '../../services/api';
+import Seo from '../../components/Seo';
 
 const COLORES_ESTADO = {
   pendiente:   '#ffc107',
@@ -40,7 +41,7 @@ function MetricaCard({ icono, valor, etiqueta, color, extra }) {
     <Card className="border-0 shadow-sm h-100">
       <Card.Body className="text-center py-4">
         <div className={`fs-2 text-${color} mb-1`}>{icono}</div>
-        <h3 className={`fw-bold text-${color} mb-0`}>{valor}</h3>
+        <h2 className={`h3 fw-bold text-${color} mb-0`}>{valor}</h2>
         {extra && <div className="small mt-1">{extra}</div>}
         <p className="text-muted small mb-0 mt-1">{etiqueta}</p>
       </Card.Body>
@@ -102,6 +103,7 @@ function Estadisticas() {
 
   return (
     <Container fluid className="py-4 px-4">
+      <Seo path="/admin/estadisticas" title="Estadísticas" noindex />
       <Row className="mb-4">
         <Col>
           <h1 className="fw-bold">Estadísticas</h1>
@@ -158,7 +160,7 @@ function Estadisticas() {
         <Col xl={8}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Header className="bg-transparent border-0 pt-3 pb-0">
-              <h6 className="fw-bold mb-0">📈 Ventas diarias — últimos 30 días</h6>
+              <h3 className="h6 fw-bold mb-0">📈 Ventas diarias — últimos 30 días</h3>
             </Card.Header>
             <Card.Body>
               {ventasDiariasData.length === 0 ? (
@@ -202,7 +204,7 @@ function Estadisticas() {
         <Col xl={4}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Header className="bg-transparent border-0 pt-3 pb-0">
-              <h6 className="fw-bold mb-0">🥧 Pedidos por estado</h6>
+              <h3 className="h6 fw-bold mb-0">🥧 Pedidos por estado</h3>
             </Card.Header>
             <Card.Body className="d-flex flex-column align-items-center justify-content-center">
               {estadoData.length === 0 ? (
@@ -247,7 +249,7 @@ function Estadisticas() {
         <Col xl={7}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Header className="bg-transparent border-0 pt-3 pb-0">
-              <h6 className="fw-bold mb-0">📊 Ventas mensuales — últimos 6 meses</h6>
+              <h3 className="h6 fw-bold mb-0">📊 Ventas mensuales — últimos 6 meses</h3>
             </Card.Header>
             <Card.Body>
               {tendenciasData.length === 0 ? (
@@ -274,7 +276,7 @@ function Estadisticas() {
         <Col xl={5}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Header className="bg-transparent border-0 pt-3 pb-0">
-              <h6 className="fw-bold mb-0">🏆 Top 5 productos más vendidos</h6>
+              <h3 className="h6 fw-bold mb-0">🏆 Top 5 productos más vendidos</h3>
             </Card.Header>
             <Card.Body>
               {topData.length === 0 ? (
@@ -315,29 +317,29 @@ function Estadisticas() {
         <Col>
           <Card className="border-0 shadow-sm">
             <Card.Body>
-              <h6 className="fw-bold mb-3">📋 Comparativo mensual</h6>
+              <h3 className="h6 fw-bold mb-3">📋 Comparativo mensual</h3>
               <Row className="text-center g-3">
                 <Col md={3}>
                   <p className="text-muted small mb-1">Mes Anterior</p>
-                  <h5 className="text-secondary">{fmtSolCompleto(datos.ventas_mes_anterior)}</h5>
+                  <h4 className="h5 text-secondary">{fmtSolCompleto(datos.ventas_mes_anterior)}</h4>
                 </Col>
                 <Col md={3}>
                   <p className="text-muted small mb-1">Mes Actual</p>
-                  <h5 className="text-success">{fmtSolCompleto(datos.ventas_mes)}</h5>
+                  <h4 className="h5 text-success">{fmtSolCompleto(datos.ventas_mes)}</h4>
                 </Col>
                 <Col md={3}>
                   <p className="text-muted small mb-1">Crecimiento</p>
                   {crecimientoNum === null ? (
-                    <h5 className="text-secondary">Sin datos previos</h5>
+                    <h4 className="h5 text-secondary">Sin datos previos</h4>
                   ) : (
-                    <h5 className={crecimientoNum >= 0 ? 'text-success' : 'text-danger'}>
+                    <h4 className={`h5 ${crecimientoNum >= 0 ? 'text-success' : 'text-danger'}`}>
                       {crecimientoNum >= 0 ? '+' : ''}{crecimientoNum}%
-                    </h5>
+                    </h4>
                   )}
                 </Col>
                 <Col md={3}>
                   <p className="text-muted small mb-1">Ticket Promedio</p>
-                  <h5 className="text-primary">{fmtSolCompleto(ticketPromedio)}</h5>
+                  <h4 className="h5 text-primary">{fmtSolCompleto(ticketPromedio)}</h4>
                 </Col>
               </Row>
             </Card.Body>

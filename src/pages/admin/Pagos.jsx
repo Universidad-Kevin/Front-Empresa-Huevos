@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import api from '../../services/api';
 import { SkeletonTable } from '../../components/SkeletonLoader';
+import Seo from '../../components/Seo';
 
 const estadoVariant = {
   pendiente: 'warning',
@@ -12,6 +13,9 @@ const estadoVariant = {
   rechazado: 'danger',
   reembolsado: 'secondary',
 };
+
+// Bootstrap warning/info son fondos claros — necesitan texto oscuro para contraste AA
+const textoOscuroPara = (variante) => ['warning', 'info'].includes(variante) ? 'dark' : undefined
 
 const metodoPagoLabel = {
   efectivo: '💵 Efectivo',
@@ -110,9 +114,10 @@ function Pagos() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/pagos" title="Pagos" noindex />
       <Row className="mb-4 align-items-center">
         <Col>
-          <h2 className="fw-bold mb-0">Pagos y Comprobantes</h2>
+          <h1 className="h2 fw-bold mb-0">Pagos y Comprobantes</h1>
           <p className="text-muted mb-0">Verifica y gestiona los pagos recibidos</p>
         </Col>
       </Row>
@@ -161,7 +166,7 @@ function Pagos() {
               </InputGroup>
             </Col>
             <Col md={4}>
-              <Form.Select size="sm" value={filtro} onChange={e => setFiltro(e.target.value)}>
+              <Form.Select aria-label="Filtrar por estado" size="sm" value={filtro} onChange={e => setFiltro(e.target.value)}>
                 <option value="todos">Todos los estados</option>
                 <option value="pendiente">Pendientes</option>
                 <option value="verificado">Verificados</option>
@@ -230,7 +235,7 @@ function Pagos() {
                           )}
                         </td>
                         <td>
-                          <Badge bg={estadoVariant[pago.estado] || 'secondary'}>
+                          <Badge bg={estadoVariant[pago.estado] || 'secondary'} text={textoOscuroPara(estadoVariant[pago.estado])}>
                             {pago.estado.charAt(0).toUpperCase() + pago.estado.slice(1)}
                           </Badge>
                           {pago.notas_admin && (
@@ -268,7 +273,7 @@ function Pagos() {
                   <div key={pago.id} className="border-bottom p-3">
                     <div className="d-flex justify-content-between align-items-start mb-1">
                       <strong>Pedido #{pago.pedido_id}</strong>
-                      <Badge bg={estadoVariant[pago.estado] || 'secondary'} className="ms-2 flex-shrink-0">
+                      <Badge bg={estadoVariant[pago.estado] || 'secondary'} text={textoOscuroPara(estadoVariant[pago.estado])} className="ms-2 flex-shrink-0">
                         {pago.estado.charAt(0).toUpperCase() + pago.estado.slice(1)}
                       </Badge>
                     </div>

@@ -5,6 +5,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 function Categorias() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function Categorias() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/categorias" title="Categorías" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -113,7 +115,7 @@ function Categorias() {
         <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-primary">{categorias.length}</h3>
+              <h2 className="h3 fw-bold text-primary">{categorias.length}</h2>
               <small className="text-muted">Total categorías</small>
             </Card.Body>
           </Card>
@@ -121,9 +123,9 @@ function Categorias() {
         <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-success">
+              <h2 className="h3 fw-bold text-success">
                 {categorias.reduce((sum, c) => sum + (c.total_productos || 0), 0)}
-              </h3>
+              </h2>
               <small className="text-muted">Productos categorizados</small>
             </Card.Body>
           </Card>
@@ -131,9 +133,9 @@ function Categorias() {
         <Col xs={4}>
           <Card className="text-center shadow-sm">
             <Card.Body>
-              <h3 className="fw-bold text-warning">
+              <h2 className="h3 fw-bold text-warning">
                 {categorias.filter(c => c.total_productos === 0).length}
-              </h3>
+              </h2>
               <small className="text-muted">Sin productos</small>
             </Card.Body>
           </Card>

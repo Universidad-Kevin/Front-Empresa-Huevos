@@ -6,6 +6,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { SkeletonTable } from "../../components/SkeletonLoader";
+import Seo from "../../components/Seo";
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -65,6 +66,7 @@ function Usuarios() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/usuarios" title="Usuarios Registrados" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -102,7 +104,7 @@ function Usuarios() {
               </InputGroup>
             </Col>
             <Col md={3}>
-              <Form.Select size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+              <Form.Select aria-label="Filtrar por estado" size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
                 <option value="">Todos los estados</option>
                 <option value="activo">Activos</option>
                 <option value="inactivo">Inactivos</option>
@@ -250,7 +252,7 @@ function Usuarios() {
           <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-primary bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-primary">{usuarios.length}</h4>
+                <h2 className="h4 text-primary">{usuarios.length}</h2>
                 <Card.Text className="text-muted">Total Usuarios</Card.Text>
               </Card.Body>
             </Card>
@@ -258,7 +260,7 @@ function Usuarios() {
           <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-success bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-success">{usuarios.filter(u => (u.estado ?? "activo") === "activo").length}</h4>
+                <h2 className="h4 text-success">{usuarios.filter(u => (u.estado ?? "activo") === "activo").length}</h2>
                 <Card.Text className="text-muted">Activos</Card.Text>
               </Card.Body>
             </Card>
@@ -266,7 +268,7 @@ function Usuarios() {
           <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-secondary bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-secondary">{usuarios.filter(u => u.estado === "inactivo").length}</h4>
+                <h2 className="h4 text-secondary">{usuarios.filter(u => u.estado === "inactivo").length}</h2>
                 <Card.Text className="text-muted">Inactivos</Card.Text>
               </Card.Body>
             </Card>
@@ -274,9 +276,9 @@ function Usuarios() {
           <Col xs={6} md={3} className="mb-3">
             <Card className="border-0 bg-info bg-opacity-10">
               <Card.Body className="text-center">
-                <h4 className="text-info">
+                <h2 className="h4 text-info">
                   {usuarios.filter(u => new Date(u.creado_en) > hace30dias).length}
-                </h4>
+                </h2>
                 <Card.Text className="text-muted">Nuevos (30 días)</Card.Text>
               </Card.Body>
             </Card>

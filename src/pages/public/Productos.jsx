@@ -144,8 +144,8 @@ function Productos() {
 
               {/* Categoría */}
               <Col md={2}>
-                <Form.Label className="small fw-bold text-muted">CATEGORÍA</Form.Label>
-                <Form.Select value={categoria} onChange={e => setCategoria(e.target.value)}>
+                <Form.Label htmlFor="filtro-categoria" className="small fw-bold text-muted">CATEGORÍA</Form.Label>
+                <Form.Select id="filtro-categoria" value={categoria} onChange={e => setCategoria(e.target.value)}>
                   <option value="">Todas</option>
                   {categorias.map(c => (
                     <option key={c} value={c} className="text-capitalize">{c}</option>
@@ -179,8 +179,8 @@ function Productos() {
 
               {/* Ordenar */}
               <Col md={2}>
-                <Form.Label className="small fw-bold text-muted">ORDENAR POR</Form.Label>
-                <Form.Select value={orden} onChange={e => setOrden(e.target.value)}>
+                <Form.Label htmlFor="filtro-orden" className="small fw-bold text-muted">ORDENAR POR</Form.Label>
+                <Form.Select id="filtro-orden" value={orden} onChange={e => setOrden(e.target.value)}>
                   <option value="reciente">Más recientes</option>
                   <option value="precio_asc">Precio: menor a mayor</option>
                   <option value="precio_desc">Precio: mayor a menor</option>
@@ -230,6 +230,7 @@ function Productos() {
                     <Card.Img
                       variant="top"
                       src={producto.imagen || "/images/placeholder.jpg"}
+                      alt={producto.nombre}
                       style={{ height: "200px", objectFit: "cover" }}
                       onError={e => { e.target.src = "/images/placeholder.jpg"; }}
                     />
@@ -256,7 +257,7 @@ function Productos() {
                     </Card.Text>
                     <div className="mt-auto">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h5 className="text-success mb-0">S/.{parseFloat(producto.precio).toFixed(2)}</h5>
+                        <p className="h5 text-success mb-0">S/.{parseFloat(producto.precio).toFixed(2)}</p>
                         <small className="text-muted">Stock: {producto.stock}</small>
                       </div>
                       <div className="d-flex gap-2">
@@ -289,7 +290,7 @@ function Productos() {
 
           {productosFiltrados.length === 0 && (
             <div className="text-center py-5">
-              <h5 className="text-muted">No se encontraron productos con esos filtros</h5>
+              <p className="h5 text-muted">No se encontraron productos con esos filtros</p>
               <Button variant="outline-success" onClick={limpiarFiltros} className="mt-2">
                 Limpiar filtros
               </Button>

@@ -34,7 +34,7 @@ function Footer() {
 
           {/* Navegación */}
           <div className="col-6 col-sm-4 col-md-2 col-lg-2">
-            <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>NAVEGACIÓN</h6>
+            <h2 className="h6" style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>NAVEGACIÓN</h2>
             <div className="d-flex flex-column gap-1">
               <Link to="/" className="text-decoration-none small" style={{ color: '#2D5A27' }}>Inicio</Link>
               <Link to="/productos" className="text-decoration-none small" style={{ color: '#2D5A27' }}>Productos</Link>
@@ -45,7 +45,7 @@ function Footer() {
 
           {/* Horario */}
           <div className="col-6 col-sm-4 col-md-3">
-            <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>HORARIO</h6>
+            <h2 className="h6" style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>HORARIO</h2>
             <p className="small mb-0" style={{ color: '#444', lineHeight: '1.6' }}>
               Lunes – Viernes<br />8:00 – 18:00<br />
               Sábado: 9:00 – 14:00<br />
@@ -55,7 +55,7 @@ function Footer() {
 
           {/* Contacto */}
           <div className="col-6 col-sm-4 col-md-3">
-            <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>CONTACTO</h6>
+            <h2 className="h6" style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>CONTACTO</h2>
             <div className="d-flex flex-column gap-1">
               <a href="mailto:camporganic@gmail.com" className="text-decoration-none small" style={{ color: '#2D5A27' }}>camporganic@gmail.com</a>
               <a href="https://wa.me/51912959929" target="_blank" rel="noopener noreferrer" className="text-decoration-none small" style={{ color: '#2D5A27' }}>+51 912 959 929</a>

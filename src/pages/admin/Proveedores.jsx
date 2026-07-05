@@ -5,6 +5,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import Seo from "../../components/Seo";
 
 const FORM_VACIO = { nombre: "", contacto_nombre: "", email: "", telefono: "", direccion: "", ruc: "", notas: "" };
 
@@ -127,6 +128,7 @@ function Proveedores() {
 
   return (
     <Container className="py-4">
+      <Seo path="/admin/proveedores" title="Proveedores" noindex />
       <Row className="mb-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center">
@@ -155,7 +157,7 @@ function Proveedores() {
           <Col xs={6} sm={3} key={s.label}>
             <Card className="text-center shadow-sm">
               <Card.Body>
-                <h3 className={`fw-bold text-${s.color}`}>{s.valor}</h3>
+                <h2 className={`h3 fw-bold text-${s.color}`}>{s.valor}</h2>
                 <small className="text-muted">{s.label}</small>
               </Card.Body>
             </Card>
@@ -178,7 +180,7 @@ function Proveedores() {
               </InputGroup>
             </Col>
             <Col md={3}>
-              <Form.Select size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+              <Form.Select aria-label="Filtrar por estado" size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
                 <option value="">Todos los estados</option>
                 <option value="activo">Activos</option>
                 <option value="inactivo">Inactivos</option>
