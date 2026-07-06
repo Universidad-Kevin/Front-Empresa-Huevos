@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "${FRONTEND_PORT}:5173"
     environment:
