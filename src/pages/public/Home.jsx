@@ -45,7 +45,7 @@ function Home() {
   }, [])
 
   return (
-    <main>
+    <>
       <Seo path="/" />
       {/* Hero Section */}
       <section className="text-white py-5">
@@ -276,7 +276,7 @@ function Home() {
           </Row>
         </Container>
       </section>
-    </main>
+    </>
   )
 }
 
