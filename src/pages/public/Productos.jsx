@@ -232,7 +232,7 @@ function Productos() {
                       src={producto.imagen || "/images/placeholder.jpg"}
                       alt={producto.nombre}
                       style={{ height: "200px", objectFit: "cover" }}
-                      onError={e => { e.target.src = "/images/placeholder.jpg"; }}
+                      onError={e => { if (!e.target.src.endsWith("/images/placeholder.jpg")) e.target.src = "/images/placeholder.jpg"; }}
                     />
                     {esCliente && (
                       <button

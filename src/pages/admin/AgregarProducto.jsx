@@ -440,7 +440,7 @@ function AgregarProducto() {
                           className="img-fluid rounded"
                           style={{ maxHeight: "150px", objectFit: "cover" }}
                           onError={(e) => {
-                            e.target.src = "/images/placeholder.jpg";
+                            if (!e.target.src.endsWith("/images/placeholder.jpg")) e.target.src = "/images/placeholder.jpg";
                           }}
                         />
                       ) : (

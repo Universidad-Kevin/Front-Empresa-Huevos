@@ -219,7 +219,7 @@ function Home() {
                           variant="top"
                           src={producto.imagen || '/images/placeholder.jpg'}
                           style={{ height: '200px', objectFit: 'cover' }}
-                          onError={e => { e.target.src = '/images/placeholder.jpg' }}
+                          onError={e => { if (!e.target.src.endsWith('/images/placeholder.jpg')) e.target.src = '/images/placeholder.jpg' }}
                         />
                         {producto.stock === 0 && (
                           <Badge bg="danger" style={{ position: 'absolute', top: 8, right: 8 }}>

@@ -94,7 +94,7 @@ function MisFavoritos() {
                       variant="top"
                       src={producto.imagen || '/images/placeholder.jpg'}
                       style={{ height: 200, objectFit: 'cover' }}
-                      onError={e => { e.target.src = '/images/placeholder.jpg'; }}
+                      onError={e => { if (!e.target.src.endsWith('/images/placeholder.jpg')) e.target.src = '/images/placeholder.jpg'; }}
                     />
                     <button
                       onClick={() => handleQuitar(producto.id)}
