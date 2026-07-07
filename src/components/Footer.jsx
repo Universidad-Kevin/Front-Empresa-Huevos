@@ -1,9 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReclamacionModal from './ReclamacionModal'
+import api from '../services/api'
+
+const CONTACTO_DEFAULT = { email_contacto: 'camporganic@gmail.com', telefono: '+51 912 959 929' }
 
 function Footer() {
   const [showReclamo, setShowReclamo] = useState(false)
+  const [contacto, setContacto] = useState(CONTACTO_DEFAULT)
+
+  useEffect(() => {
+    api.get('/configuracion')
+      .then(res => {
+        const data = res.data?.data
+        if (data) {
+          setContacto({
+            email_contacto: data.email_contacto || CONTACTO_DEFAULT.email_contacto,
+            telefono: data.telefono || CONTACTO_DEFAULT.telefono,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const telefonoWhatsapp = contacto.telefono?.replace(/\D/g, '') || CONTACTO_DEFAULT.telefono.replace(/\D/g, '')
 
   return (
     <footer className="py-4" style={{ backgroundColor: '#F0F0F0' }}>
@@ -57,8 +77,8 @@ function Footer() {
           <div className="col-6 col-sm-4 col-md-3">
             <h2 className="h6" style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '8px' }}>CONTACTO</h2>
             <div className="d-flex flex-column gap-1">
-              <a href="mailto:camporganic@gmail.com" className="text-decoration-none small" style={{ color: '#2D5A27' }}>camporganic@gmail.com</a>
-              <a href="https://wa.me/51912959929" target="_blank" rel="noopener noreferrer" className="text-decoration-none small" style={{ color: '#2D5A27' }}>+51 912 959 929</a>
+              <a href={`mailto:${contacto.email_contacto}`} className="text-decoration-none small" style={{ color: '#2D5A27' }}>{contacto.email_contacto}</a>
+              <a href={`https://wa.me/${telefonoWhatsapp}`} target="_blank" rel="noopener noreferrer" className="text-decoration-none small" style={{ color: '#2D5A27' }}>{contacto.telefono}</a>
             </div>
           </div>
 

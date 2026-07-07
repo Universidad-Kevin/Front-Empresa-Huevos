@@ -27,12 +27,14 @@ function SkeletonCard() {
 function Home() {
   const [destacados, setDestacados] = useState([])
   const [loadingDestacados, setLoadingDestacados] = useState(true)
+  const [totalProductos, setTotalProductos] = useState(null)
   const { addToCart, isStaff } = useCart()
 
   useEffect(() => {
     api.get('/productos/activos')
       .then(({ data }) => {
         const lista = data?.data ?? data ?? []
+        setTotalProductos(data?.pagination?.total ?? lista.length)
         // Tomar los 3 primeros con stock disponible; si no hay suficientes, completar con los demás
         const conStock = lista.filter(p => p.stock > 0)
         const sinStock = lista.filter(p => p.stock === 0)
@@ -102,7 +104,9 @@ function Home() {
                 style={{ width: '214px', height: '167px', objectFit: 'contain' }}
                 alt="organico" className="me-3" />
               <div className="text-start">
-                <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '4px' }}>+ 70</h6>
+                <h6 style={{ color: '#23501E', fontWeight: 'bold', marginBottom: '4px' }}>
+                  {totalProductos !== null ? `+ ${totalProductos}` : ' '}
+                </h6>
                 <p style={{ color: '#23501E', margin: 0, lineHeight: '1.2' }}>productos orgánicos</p>
               </div>
             </Col>

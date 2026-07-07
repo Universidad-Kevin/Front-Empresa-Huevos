@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Accordion } from "react-bootstrap";
 import {
   Container,
@@ -15,11 +15,33 @@ import Seo from "../../components/Seo";
 
 const FORM_INICIAL = { nombre: "", email: "", telefono: "", asunto: "", mensaje: "" };
 
+const CONFIG_DEFAULT = {
+  email_contacto: "info@huevosorganicos.com",
+  telefono: "+51 912 959 929",
+  direccion: "Av. Principal 123, Lima",
+};
+
 function AgregarInteresado() {
   const [formData, setFormData] = useState(FORM_INICIAL);
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [config, setConfig] = useState(CONFIG_DEFAULT);
+
+  useEffect(() => {
+    api.get("/configuracion")
+      .then(res => {
+        const data = res.data?.data;
+        if (data) {
+          setConfig({
+            email_contacto: data.email_contacto || CONFIG_DEFAULT.email_contacto,
+            telefono: data.telefono || CONFIG_DEFAULT.telefono,
+            direccion: data.direccion || CONFIG_DEFAULT.direccion,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,19 +72,19 @@ function AgregarInteresado() {
     {
       icon: "📧",
       titulo: "Email",
-      contenido: "info@huevosorganicos.com",
+      contenido: config.email_contacto,
       descripcion: "Envíanos un correo",
     },
     {
       icon: "📞",
       titulo: "Teléfono",
-      contenido: "+51 912 959 929",
+      contenido: config.telefono,
       descripcion: "Lunes a Viernes 8:00-18:00",
     },
     {
       icon: "🏢",
       titulo: "Oficina Principal",
-      contenido: "Av. Principal 123, Lima",
+      contenido: config.direccion,
       descripcion: "Visítanos",
     },
     {
@@ -111,7 +133,7 @@ function AgregarInteresado() {
               <div className="bg-light rounded p-4 text-center">
                 <p className="text-muted mb-2">Mapa interactivo</p>
                 <small className="text-muted">
-                  Av. Principal 123, Ciudad
+                  {config.direccion}
                   <br />
                   Zona Industrial
                 </small>

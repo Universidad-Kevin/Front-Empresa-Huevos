@@ -108,7 +108,7 @@ function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
                     <YAxis
-                      tickFormatter={v => `S/.${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={v => v >= 1000 ? `S/.${(v / 1000).toFixed(1)}k` : `S/.${Math.round(v)}`}
                       tick={{ fontSize: 11 }}
                       width={50}
                     />
